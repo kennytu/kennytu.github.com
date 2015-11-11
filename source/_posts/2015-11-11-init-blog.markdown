@@ -1,0 +1,25 @@
+---
+layout: post
+title: "在Windows 7系統安裝 Octopress"
+date: 2015-11-11 19:53:26 +0800
+comments: true
+categories: 
+---
+
+好的, 在看到滿多人都開始使用github寫Blog, 我也開始有這個想法
+
+花了不少時間終於把Octopress弄到我的Github上面了
+
+底下紀錄一下我的實作經驗
+
+
+
+1. 首先就是要安裝Ruby, Octopress在處理和Github的溝通以及發表文章都是使用Ruby. 而且不只使用Ruby, 還有一些其他套件, 有些套件Windows找不到, 但好加在有人提供了相關Ruby在windows上的實作,請參考[RubyInstaller for Windows](http://rubyinstaller.org/). 若你的windows是64bits版本, 下載64bits版本的, Download的頁面找Ruby 2.2.3 (x64)
+2. RubyInstaller會安裝到C:\Ruby22-x64, 沒有意外的話,RubyInstaller也會將執行檔的路徑直接設定到系統Path, 若沒有, 我們要自己新加路徑到PATH
+
+
+測試照片
+
+{% img /images/ttt.jpg %}
+
+![a test](/images/ttt.jpg "A test")
