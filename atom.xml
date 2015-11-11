@@ -4,7 +4,7 @@
   <title><![CDATA[Kenny Tu的技術筆記測試看看第二次]]></title>
   <link href="http://kennytu.github.io/atom.xml" rel="self"/>
   <link href="http://kennytu.github.io/"/>
-  <updated>2015-11-11T15:47:55+08:00</updated>
+  <updated>2015-11-11T16:10:49+08:00</updated>
   <id>http://kennytu.github.io/</id>
   <author>
     <name><![CDATA[Kenny Tu]]></name>
@@ -12,18 +12,5 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
-  
-  <entry>
-    <title type="html"><![CDATA[Hi New]]></title>
-    <link href="http://kennytu.github.io/blog/2015/11/11/hi-new/"/>
-    <updated>2015-11-11T15:44:29+08:00</updated>
-    <id>http://kennytu.github.io/blog/2015/11/11/hi-new</id>
-    <content type="html"><![CDATA[<p>OK, 各位, 這是一篇測試文章</p>
-
-<pre><code>this is a code sample
-//abc
-</code></pre>
-]]></content>
-  </entry>
   
 </feed>
