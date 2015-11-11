@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[My Octopress Blog]]></title>
+  <title><![CDATA[Kenny Tu的技術筆記以及日記隨筆]]></title>
   <link href="http://kennytu.github.io/atom.xml" rel="self"/>
   <link href="http://kennytu.github.io/"/>
-  <updated>2015-11-10T21:13:24+08:00</updated>
+  <updated>2015-11-11T14:09:56+08:00</updated>
   <id>http://kennytu.github.io/</id>
   <author>
-    <name><![CDATA[Your Name]]></name>
+    <name><![CDATA[Kenny Tu]]></name>
     
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
