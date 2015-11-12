@@ -9,7 +9,10 @@
   <meta name="author" content="Kenny Tu">
 
   
-  <meta name="description" content="Octopress一些進階的安裝文章分享 Octopress 安裝教學、心得筆記 (Windows) 提到如何分類, 以及分類模組安裝 Octopress 精益修改 (1) 一些進階的應用 Octopress 重新安裝或者在多台電腦上寫作同步 主要是參考這篇 Set up Octopress &hellip;">
+  <meta name="description" content="這篇Blog我記錄了一些我在網路上找到的資料, 很多分享, 也滿受用的 我整理在底下, 內容有 進階的安裝文章分享
+多台電腦上寫作同步
+加上分類雲
+程式碼高亮 ">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -87,117 +90,24 @@
   </header>
 
 
-  <div class="entry-content"><h2>Octopress一些進階的安裝文章分享</h2>
+  <div class="entry-content"><p>這篇Blog我記錄了一些我在網路上找到的資料, 很多分享, 也滿受用的</p>
+
+<p>我整理在底下, 內容有</p>
 
 <ol>
-<li><a href="https://wwssllabcd.github.io/blog/2012/08/01/how-to-install-octopress-on-window/" target="_blank"> Octopress 安裝教學、心得筆記 (Windows)</a>
-
-<ul>
-<li>提到如何分類, 以及分類模組安裝</li>
-</ul>
-</li>
-<li><a href="http://shengmingzhiqing.com/blog/octopress-lean-modification-1.html/" target="_blank"> Octopress 精益修改 (1) </a>
-
-<ul>
-<li>一些進階的應用</li>
-</ul>
-</li>
+<li>進階的安裝文章分享</li>
+<li>多台電腦上寫作同步</li>
+<li>加上分類雲</li>
+<li>程式碼高亮</li>
 </ol>
 
 
-<h2>Octopress 重新安裝或者在多台電腦上寫作同步</h2>
-
-<p>主要是參考這篇 <a href="http://ju.outofmemory.cn/entry/119189" target="_blank"> Set up Octopress environment on another computer </a></p>
-
-<p>簡單描述如下</p>
-
-<ol>
-<li><p>先將github上存放blog的repo, clone到本地端的octopress來, 注意clone的branch是source branch</p>
-
-<pre><code> git clone -b source git@github.com:kennytu/kennytu.github.com.git octopress
-</code></pre></li>
-<li><p>接下來進入octopress, 將master branch的文件cloen到_deploy</p>
-
-<pre><code> cd octopress
- git clone git@github.com:kennytu/kennytu.github.com.git _deploy
-</code></pre></li>
-</ol>
-
-
-<p>不用加-b的選項, 預設就會是master</p>
-
-<p>接著執行以下指令, 要在octopress目錄下</p>
-
-<pre><code>    gem install bundler
-    bundle install
-</code></pre>
-
-<p>這樣就可以了</p>
-
-<p>PS: 注意不要使用rake install 默認主題，不然會把自定義的主題恢復到默認狀態</p>
-
-<p>最後, 在octopress目錄下, 執行</p>
-
-<pre><code>cd octopress
-git pull origin source  
-cd ./_deploy
-git pull origin master 
-</code></pre>
-
-<p>OK, 大功告成</p>
-
-<h2>替octopress加上分類列表(分類雲)</h2>
-
-<p>參考 <a href="https://github.com/tokkonopapa/octopress-tagcloud" target="_blank"> octopress-tagcloud</a></p>
-
-<ol>
-<li>右下方點選Download zip</li>
-<li>解壓縮到octopress相同目錄下, 覆蓋相同資料夾(不用擔心其他檔案會不見)</li>
-<li><p>修改<code>_config.yml</code>, 找到 <code>default_asides</code>, 加入 <strong>custom/asides/category_list.html</strong> 這個項目到List當中, 如下</p>
-
-<pre><code> default_asides: [custom/asides/category_list.html, ...]
-</code></pre></li>
-<li><p>執行<code>rake generate</code></p></li>
-</ol>
-
-
-<h2>程式碼高亮語法</h2>
-
-<p>參考 <a href="http://octopress.org/docs/blogging/code/" target="_blank"> Sharing Code Snippets </a></p>
-
-<p>這個功能需要安裝Python</p>
-
-<figure class='code'><figcaption><span>Discover if a number is prime</span><a href='http://www.noulakaz.net/weblog/2007/03/18/a-regular-expression-to-check-for-prime-numbers/'>點擊查看</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Fixnum</span>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">prime?</span>
-</span><span class='line'>    <span class="p">(</span><span class="s1">&#39;1&#39;</span> <span class="o">*</span> <span class="nb">self</span><span class="p">)</span> <span class="o">!~</span> <span class="sr">/^1?$|^(11+?)\1+$/</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>語法是 三個``` [language] [title] [url] [link text]</p>
-
-<pre><code>``` ruby Discover if a number is prime http://www.noulakaz.net/weblog/2007/03/18/a-regular-expression-to-check-for-prime-numbers/ 點擊查看
-
-class Fixnum
-
-  def prime?
-
-    ('1' * self) !~ /^1?$|^(11+?)\1+$/
-
-  end
-
-end
-
-```
-</code></pre>
 </div>
   
+  
+    <footer>
+      <a rel="full-article" href="/blog/2015/11/12/octopress-advance/">點擊這裡繼續閱讀 &rarr;</a>
+    </footer>
   
 
 

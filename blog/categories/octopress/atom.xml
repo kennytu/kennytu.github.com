@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Octopress | 江湖險惡，我從來都不輕易留下我的姓名。]]></title>
   <link href="http://kennytu.github.io/blog/categories/octopress/atom.xml" rel="self"/>
   <link href="http://kennytu.github.io/"/>
-  <updated>2015-11-12T21:05:51+08:00</updated>
+  <updated>2015-11-12T21:28:20+08:00</updated>
   <id>http://kennytu.github.io/</id>
   <author>
     <name><![CDATA[Kenny Tu]]></name>
@@ -18,7 +18,22 @@
     <link href="http://kennytu.github.io/blog/2015/11/12/octopress-advance/"/>
     <updated>2015-11-12T20:06:58+08:00</updated>
     <id>http://kennytu.github.io/blog/2015/11/12/octopress-advance</id>
-    <content type="html"><![CDATA[<h2>Octopress一些進階的安裝文章分享</h2>
+    <content type="html"><![CDATA[<p>這篇Blog我記錄了一些我在網路上找到的資料, 很多分享, 也滿受用的</p>
+
+<p>我整理在底下, 內容有</p>
+
+<ol>
+<li>進階的安裝文章分享</li>
+<li>多台電腦上寫作同步</li>
+<li>加上分類雲</li>
+<li>程式碼高亮</li>
+</ol>
+
+
+<!--more-->
+
+
+<h2>Octopress一些進階的安裝文章分享</h2>
 
 <ol>
 <li><a href="https://wwssllabcd.github.io/blog/2012/08/01/how-to-install-octopress-on-window/" target="_blank"> Octopress 安裝教學、心得筆記 (Windows)</a>
@@ -92,6 +107,24 @@ git pull origin master
 </ol>
 
 
+<p>在文章的分類部分, 有下列幾個分法</p>
+
+<p>單一分類
+categories: abc</p>
+
+<p>多重分類: 使用LIST</p>
+
+<pre><code>categories: [aaa, bbb, ccc]
+</code></pre>
+
+<p>多重分類: 使用 <strong>-</strong></p>
+
+<pre><code>categories:
+- aaa
+- bbb
+- ccc
+</code></pre>
+
 <h2>程式碼高亮語法</h2>
 
 <p>參考 <a href="http://octopress.org/docs/blogging/code/" target="_blank"> Sharing Code Snippets </a></p>
@@ -121,6 +154,22 @@ end
 
 ```
 </code></pre>
+
+<h2>連結圖片</h2>
+
+<p>參考 <a href="http://blog.zerosharp.com/image-captions-for-octopress/" target="_blank"> Image Captions for Octopress </a></p>
+
+<p>將相對應的程式碼修改一下, 就可以使用imgcap的語法, 例如</p>
+
+<p>{ % imgcap /images/dog.jpg 看三小朋友 % }</p>
+
+<p>就可以在圖片底下加上說明</p>
+
+<p>若圖檔在本地端, 只要將圖檔放在source底下的images目錄, 然後引用就可以了</p>
+
+<p>效果如下</p>
+
+<p><span class='caption-wrapper'><img class='caption' src='/images/ttt.jpg' width='' height='' title='看三小朋友'><span class='caption-text'>看三小朋友</span></span></p>
 ]]></content>
   </entry>
   

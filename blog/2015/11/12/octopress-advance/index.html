@@ -9,7 +9,10 @@
   <meta name="author" content="Kenny Tu">
 
   
-  <meta name="description" content="Octopress一些進階的安裝文章分享 Octopress 安裝教學、心得筆記 (Windows) 提到如何分類, 以及分類模組安裝 Octopress 精益修改 (1) 一些進階的應用 Octopress 重新安裝或者在多台電腦上寫作同步 主要是參考這篇 Set up Octopress &hellip;">
+  <meta name="description" content="這篇Blog我記錄了一些我在網路上找到的資料, 很多分享, 也滿受用的 我整理在底下, 內容有 進階的安裝文章分享
+多台電腦上寫作同步
+加上分類雲
+程式碼高亮 Octopress一些進階的安裝文章分享 Octopress 安裝教學、心得筆記 (Windows) 提到如何分類, 以及分類模組安裝 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -84,7 +87,22 @@
   </header>
 
 
-<div class="entry-content"><h2>Octopress一些進階的安裝文章分享</h2>
+<div class="entry-content"><p>這篇Blog我記錄了一些我在網路上找到的資料, 很多分享, 也滿受用的</p>
+
+<p>我整理在底下, 內容有</p>
+
+<ol>
+<li>進階的安裝文章分享</li>
+<li>多台電腦上寫作同步</li>
+<li>加上分類雲</li>
+<li>程式碼高亮</li>
+</ol>
+
+
+<!--more-->
+
+
+<h2>Octopress一些進階的安裝文章分享</h2>
 
 <ol>
 <li><a href="https://wwssllabcd.github.io/blog/2012/08/01/how-to-install-octopress-on-window/" target="_blank"> Octopress 安裝教學、心得筆記 (Windows)</a>
@@ -158,6 +176,24 @@ git pull origin master
 </ol>
 
 
+<p>在文章的分類部分, 有下列幾個分法</p>
+
+<p>單一分類
+categories: abc</p>
+
+<p>多重分類: 使用LIST</p>
+
+<pre><code>categories: [aaa, bbb, ccc]
+</code></pre>
+
+<p>多重分類: 使用 <strong>-</strong></p>
+
+<pre><code>categories:
+- aaa
+- bbb
+- ccc
+</code></pre>
+
 <h2>程式碼高亮語法</h2>
 
 <p>參考 <a href="http://octopress.org/docs/blogging/code/" target="_blank"> Sharing Code Snippets </a></p>
@@ -193,6 +229,22 @@ end
 
 ```
 </code></pre>
+
+<h2>連結圖片</h2>
+
+<p>參考 <a href="http://blog.zerosharp.com/image-captions-for-octopress/" target="_blank"> Image Captions for Octopress </a></p>
+
+<p>將相對應的程式碼修改一下, 就可以使用imgcap的語法, 例如</p>
+
+<p>{ % imgcap /images/dog.jpg 看三小朋友 % }</p>
+
+<p>就可以在圖片底下加上說明</p>
+
+<p>若圖檔在本地端, 只要將圖檔放在source底下的images目錄, 然後引用就可以了</p>
+
+<p>效果如下</p>
+
+<p><span class='caption-wrapper'><img class='caption' src='/images/ttt.jpg' width='' height='' title='看三小朋友'><span class='caption-text'>看三小朋友</span></span></p>
 </div>
 
 
