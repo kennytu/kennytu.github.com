@@ -14,6 +14,7 @@ categories: octopress
 2. 多台電腦上寫作同步
 3. 加上分類雲
 4. 程式碼高亮
+5. imgcap的使用
 
 <!--more-->
 
