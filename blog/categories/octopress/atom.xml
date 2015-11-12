@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[江湖險惡，我從來都不輕易留下我的姓名。]]></title>
-  <link href="http://kennytu.github.io/atom.xml" rel="self"/>
+  <title><![CDATA[Category: Octopress | 江湖險惡，我從來都不輕易留下我的姓名。]]></title>
+  <link href="http://kennytu.github.io/blog/categories/octopress/atom.xml" rel="self"/>
   <link href="http://kennytu.github.io/"/>
   <updated>2015-11-12T21:05:51+08:00</updated>
   <id>http://kennytu.github.io/</id>
@@ -98,18 +98,12 @@ git pull origin master
 
 <p>這個功能需要安裝Python</p>
 
-<figure class='code'><figcaption><span>Discover if a number is prime</span><a href='http://www.noulakaz.net/weblog/2007/03/18/a-regular-expression-to-check-for-prime-numbers/'>點擊查看</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Fixnum</span>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">prime?</span>
-</span><span class='line'>    <span class="p">(</span><span class="s1">&#39;1&#39;</span> <span class="o">*</span> <span class="nb">self</span><span class="p">)</span> <span class="o">!~</span> <span class="sr">/^1?$|^(11+?)\1+$/</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
+<pre><code class="ruby Discover if a number is prime http://www.noulakaz.net/weblog/2007/03/18/a-regular-expression-to-check-for-prime-numbers/ 點擊查看">    class Fixnum
+      def prime?
+        ('1' * self) !~ /^1?$|^(11+?)\1+$/
+      end
+    end
+</code></pre>
 
 <p>語法是 三個``` [language] [title] [url] [link text]</p>
 
@@ -168,7 +162,7 @@ end
 
 <p>接著安裝RubuyInstaller, 點選安裝檔案, 然後一直按Next Next..Install就可以裝完了, 要記得勾選 Add Ruby excutables to your PATH, 如下圖</p>
 
-<p><span class='caption-wrapper'><img class='caption' src='http://kennytu.github.io/images/cotopress_install/ruby01.jpg' width='' height='' title='請全部都勾選吧'><span class='caption-text'>請全部都勾選吧</span></span></p>
+<p><span class='caption-wrapper'><img class='caption' src='/images/cotopress_install/ruby01.jpg' width='' height='' title='請全部都勾選吧'><span class='caption-text'>請全部都勾選吧</span></span></p>
 
 <p>安裝完成之後, 開啟你的cmd, 輸入 <code>ruby --version</code>, 看看有沒有什麼東西印出來</p>
 
@@ -387,7 +381,7 @@ D:\kenny_blog\octopress&gt;rake deploy
 
 <p>會看到如下的畫面</p>
 
-<p><span class='caption-wrapper'><img class='caption' src='http://kennytu.github.io/images/cotopress_install/github_octopress.png' width='' height='' title=''><span class='caption-text'></span></span></p>
+<p><span class='caption-wrapper'><img class='caption' src='/images/cotopress_install/github_octopress.png' width='' height='' title=''><span class='caption-text'></span></span></p>
 
 <p>我們發現到在這個repo(repository的縮寫)底下有兩個branch:</p>
 
