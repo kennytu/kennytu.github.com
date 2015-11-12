@@ -3,15 +3,16 @@ layout: post
 title: "在Windows 7系統安裝 Octopress"
 date: 2015-11-11 19:53:26 +0800
 comments: true
-categories: 
+categories: octopress
 ---
 
 好的, 事出有因, 源自我看到滿多人都開始使用github寫Blog, 我也開始有這個想法
 
 但因為手頭上的作業系統是win7, 想順手來試試看, 但卻遭遇了不少困難
 
-最後花了不少時間終於把Octopress弄到我的Github上面, 這一篇我好好的記錄了一下我的安裝經驗
+最後花了不少時間終於把Octopress弄到我的Github上面, 在此記錄了一下我的安裝經驗
 
+<!--more-->
 
 ## 下載基本需要安裝的套件
 
