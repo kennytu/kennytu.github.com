@@ -1,0 +1,345 @@
+---
+layout: post
+title: "Sails練習之一"
+date: 2015-11-16 11:29:18 +0800
+comments: true
+categories: sails
+---
+
+這一系列的文章, 出自於youtube上的Building a Sails Application教學. 
+
+這位仁兄的一系列教學文章都寫得非常好
+
+他的網址在<a href="https://www.youtube.com/watch?v=ep6EQ5f82Ts&index=2&list=PLWsZeJCry-F4K4iRImeB3-i0S5mw9Ak-W" target="_blank">這邊</a>
+
+底下分別是他的各個教學章節, 我只是用文字來記錄我的學習過程
+
+<!--more-->
+
+##Building a Sails Application: Ep1 - Installing Sails and Create Initial Project
+
+OK, 這個章節主要就是教安裝, 你要先安裝好`npm`, 接下來都好辦了
+
+安裝sails
+
+`npm install -g sails`
+
+指令一下去就裝好了. -g是代表安裝到大家都可以存取到的目錄, npm的共用目錄是放在`C:\Users\KennyTu\AppData\Roaming\npm`
+
+你可以用npm config get prefix來取得global的目錄
+
+`E:\sails_app>npm config get prefix`
+
+安裝好sails之後, 就可以用sails來create project
+
+``` batch
+	E:\sails_app>sails new activeityOverload --linker
+	info: Created a new Sails app `activeityOverload`!
+```
+
+`--linker` 的意思是在傳輸的過程啟動壓縮功能, 先讓資料變小, 然後傳輸, 節省網路開銷
+
+__但在0.10版本之後, sails就捨棄了linker, 要注意一下__
+
+詳情請參考<a href="http://stackoverflow.com/questions/22042260/sails-js-v0-10-create-new-project-linker-not-working-gruntfile-js-not-used" target="_blank">這裡</a>
+
+
+接著啟動sails的serve來看結果
+```batch
+E:\sails_app>cd activeityOverload
+E:\sails_app\activeityOverload>sails lift
+```
+
+```batch
+info: Starting app...
+
+info:
+info:                .-..-.
+info:
+info:    Sails              <|    .-..-.
+info:    v0.11.2             |\
+info:                       /|.\
+info:                      / || \
+info:                    ,'  |'  \
+info:                 .-'.-==|/_--'
+info:                 `--'-------'
+info:    __---___--___---___--___---___--___
+info:  ____---___--___---___--___---___--___-__
+info:
+info: Server lifted in `E:\sails_app\activeityOverload`
+info: To see your app, visit http://localhost:1337
+info: To shut down Sails, press <CTRL> + C at any time.
+
+debug: --------------------------------------------------------
+debug: :: Mon Nov 16 2015 15:24:06 GMT+0800 (台北標準時間)
+
+debug: Environment : development
+debug: Port        : 1337
+debug: --------------------------------------------------------
+```
+
+看到以上的訊息之後, 就可以到瀏覽器中輸入 `http://localhost:1337`
+
+就可以看到網頁啦!
+
+好~ 第一課就是這樣囉, 結束
+
+底下是第二課
+
+
+##Building a Sails Application: Ep2 - Creating a sign-up page, adding twitter bootstrap
+
+進入到我們剛剛create的資料夾, 也就是activeityOverload, 我們會看到幾個資料夾和檔案
+
+我們先專注在 `config/routes.js`
+
+這個檔案決定使用者個要求如何導向我們設定的資源
+
+詳細的介紹在<a href="http://sailsjs.org/#!/documentation/concepts/Routes/RouteTargetSyntax.html" target="_blank">這邊</a>
+
+主要是這個結構
+
+```js
+module.exports.routes = {
+
+  '/': {
+    view: 'homepage'
+  }
+
+};
+```
+
+這個是說, 根目錄的頁面是呈現主要是view的hompage檔案
+
+所以我們可以在views的目錄下找到homepage.ejs
+
+EJS 是一個 client 端的 JavaScript template library，可以讓整個網頁程式碼結構更清楚、更整潔。有興趣的人可以參考<a href="http://blogger.gtwang.org/2014/02/ejs-embedded-javascript.html" target="_blank">這裡</a>
+
+現在呢, 我們要做以下事情
+
+1. 在views下create一個資料夾static
+2. 在static資料夾下新增index.ejs
+
+在index.ejs新增
+
+```html
+<h1> this is our homepage </h1>
+```
+
+回到`config/routes.js` 修改我們的首頁的目錄, 如下
+
+```js
+module.exports.routes = {
+
+  '/': {
+    view: 'static/index'
+  }
+
+};
+```
+
+修改完成, 重新啟動sails,
+
+`sails lift`
+
+然後到瀏覽器(在這邊我用Firefox)就可以看到結果
+
+在這邊用瀏覽器的觀看原始碼功能, 會看到source code多了很多東西出來
+
+這是因為sails會用layout.ejs (在views底下)
+
+重新幫我們產生出一個頁面出來
+
+為了實驗一下layout.ejs, 我們來修改一下內容
+
+在layout.ejs檔案中, 大約31行開始
+
+```html
+    <!--STYLES-->
+    <link rel="stylesheet" href="/styles/bootstrap.css">
+    <link rel="stylesheet" href="/styles/importer.css">
+    <!--STYLES END-->
+```
+
+上面那個`bootstrap.css`是我加的
+
+目的是在於, 我們改用`bootstrap.css`來重新render(渲染)我們的html元素
+
+也就是我們的`index.ejs`當中的`h2`的元素, 會被`layout.ejs`用`bootstrap.css`來重新渲染
+
+底下是作法
+
+1. 去下載bootstrap, 最新的是bootstrap-3.3.5-dist.zip, 裡面有js, css, fonts
+2. 把css下面的bootstrap.css copy 到 sails app 目錄下的 `activeityOverload\assets\styles`
+3. 到layout.ejs去新增 styles, 就如同上面的layout.ejs的範例一樣
+
+接著就是重新啟動sails, 你會看到首頁的字型變得不太一樣了
+
+
+在這邊要提到一個目錄, 也就是assets, assets中文是資源的意思, 意思就是你create的任何files都可以放在這個資料夾啦!
+
+當我們把files放到這個assets的目錄時, sails會在啟動的時候, 將底下的檔案copy到要發行的另外一個目錄, 在這邊是`.tmp\public\styles`
+
+
+OK, 接下來作者就要再次修改主頁了, 修改之前, 他shows出了Gruntfile.js, 
+
+看到這邊出現了一個不熟悉的東西, 就上網google了一下
+
+原來grunt是一個前端的建構工具, 他很像C的Make, Java的Ant, Ruby的Rake...
+
+在前端和Node.js的開發環境中, 就是使用grunt來建置
+
+Grunt是一個Task Runner，常用來執行 JS/CSS 打包壓縮、SASS/LESS/CoffeeScript 編譯、單元測試… 等工作，常被拿來當成前端開發自動化的引擎。
+
+上網study了一下, 發現(2015年)出現了一個比Grunt更好用的Tool, 叫作Gulp
+
+可能作者在出這個教學影片的時候, 還沒有Gulp, 所以就用了Grunt.
+
+但既然已經有了Gulp, 我就來用Gulp來取代Grunt吧(以後啦!)
+
+Sails的官網有教學, 如何把Grunt給DISABLE掉...請參考<a href="http://sailsjs.org/documentation/concepts/assets/disabling-grunt" target="_blank">官方網站</a>
+
+一些gulp的教學文件我列在底下
+
+<a href="http://www.oxxostudio.tw/articles/201503/gulp-install-webserver.html" target="_blank">Gulp 學習 1</a>
+
+<a href="http://www.jianshu.com/p/3779f708f5d7" target="_blank">Gulp 挑戰 Grunt，背後的哲學 </a>
+
+<a href="http://blog.darkthread.net/post-2014-09-25-gulp-grunt-bower-npm.aspx" target="_blank">Gulp, Grunt, Bower 以及 npm</a>
+
+<a href="http://koanda.de/blog/53b9a67acba90doc1636380824-How-to-disable-Grunt-in-Sails-js" target="_blank">How to disable Grunt in Sails.js</a>
+
+
+好, 現在繼續, 在這邊有個小插曲
+
+作者忘記把JQuery以及一些相關的檔案加進來, 他額外寫了一個blog, 參考
+<a href="https://www.youtube.com/watch?v=zootilxmo4M" target="_blank">Building a Sails Application: Ep2a - adding jquery, custom.less, minor footer changes</a>
+
+底下是步驟
+
+1. 先把JQuery下載下來, 我下載的是<a href="http://jquery.com/download/" target="_blank">The compressed, production jQuery 2.1.4</a> 
+2. 把jquery-2.1.4.min.js 改名成jquery.js, 放到assets\js\dependencies底下
+3. 到task\底下,找到`pipeline.js` (新的Sails把Grunt關於inject的部份放到tasks裡面的`pipeline.js`), 參考<a href="http://sailsjs.org/documentation/concepts/assets/task-automation" target="_blank">這裡</a>
+4. 本來我們要把jquery放到pipeline.js, 結果發現pipeline.js已經幫我們處理好了
+
+從程式碼當中可以看到
+
+```javascript
+// Client-side javascript files to inject in order
+// (uses Grunt-style wildcard/glob/splat expressions)
+var jsFilesToInject = [
+
+  // Load sails.io before everything else
+  'js/dependencies/sails.io.js',
+
+  // Dependencies like jQuery, or Angular are brought in here
+  'js/dependencies/**/*.js',
+
+  // All of the rest of your client-side js files
+  // will be injected here in no particular order.
+  'js/**/*.js',
+
+  // Use the "exclude" operator to ignore files
+  // '!js/ignore/these/files/*.js'
+];
+```
+
+OK, 所以我們就不用修改, 把jquery放到正確的目錄就好
+
+接著新增`custom.less`
+參考下面的內容, 放到`assets\styles`中 
+
+```css
+body {
+  padding-top: 60px;
+  padding-bottom: 40px;
+}
+
+.jumbotron {
+  text-align: center;
+}
+
+.jumbotron h2 {
+  font-size: 1.5em;
+  letter-spacing: -1px;
+  margin-bottom: 30px;
+  text-align: center;
+  font-weight: normal;
+  color: gray;
+}
+
+.container .gray{
+  color: gray
+}
+
+.container{
+  .footer{
+    width: 25%;
+  }
+}
+
+```
+
+最後, 在`layout.ejs`中, 修改STYLE, 放入`custom.css`, 如下圖
+
+```html
+    <!--STYLES-->
+    <link rel="stylesheet" href="/styles/bootstrap.css">
+    <link rel="stylesheet" href="/styles/custom.css">
+    <link rel="stylesheet" href="/styles/importer.css">
+    <!--STYLES END-->
+```
+
+作者有在layout.ejs新增了一些屬性, 例如footer pull-right之類的, 這個等之後再回來加好了
+
+但我還是把程式碼擺在下面, 供參考
+
+```html
+  <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+          <a class="navbar-brand" href="/"> activityOverload</a>
+      </div>
+  </div>
+
+  <%- body %>
+
+  <div class="container">
+    <hr>
+    <footer class="footer pull-right">
+      <div>
+        <a href="http://sailsja.com">sails.js</a>
+        <div>Tutorial by irl nathan...</div>
+      </div>
+    </footer>
+  </div>
+```
+
+PS: 我剛剛把custom.less放到assets\styles中的時候, layout.ejs好像就會幫我把custom.css自動加到STYLE裡面去.. 超強的... 還是我自己之前有改過我忘記了... XD
+
+好的, 總之大功告成啦
+
+現在要回頭修改index.ejs了
+
+內容如下
+
+```html
+<div class="container">
+  <div class="jumbotron">
+    <h1>activityOverload</h1>
+
+    <h2>...tracking app activity better than the NSA since 1899.</h2>
+    <div class="text-center">
+      <a href="/user/new" style="text-align:center" class="btn btn-lg btn-success">Sign up now!</a>
+    </div>
+  </div>
+</div>
+```
+
+其中如果照著youtube上面寫的, button不會置中, 所以我就加了`div class="text-center"` 讓button置中, 我們使用的class是bootstrap的class, 請參考<a href="http://stackoverflow.com/questions/22578853/how-to-center-buttons-in-twitter-bootstrap-3" target="_balnk">這裡</a>
+
+好, 以上就是教學影片的第一課以及第二課, 附上網址
+
+1. <a href="https://www.youtube.com/watch?v=1H0UfbGdwd8&list=PLWsZeJCry-F4K4iRImeB3-i0S5mw9Ak-W&index=1" target="_blank">activityOverlord - An overview of the project</a>
+2. <a href="https://www.youtube.com/watch?v=ep6EQ5f82Ts&list=PLWsZeJCry-F4K4iRImeB3-i0S5mw9Ak-W&index=2" target="_blank">Building a Sails Application: Ep1 - Installing Sails and Create Initial Project</a>
+3. <a href="http://irlnathan.github.io/sailscasts/blog/2013/08/22/building-a-sails-application-ep2a-a-quick-supplement-to-some-stuff-i-forgot-to-mention-in-episode-2/" target="_blank">Building a Sails Application: Ep2a - Stuff I Forgot to Mention in Episode two...because I'm Old.</a>
+4. <a href="https://www.youtube.com/watch?v=ZE7ye2G_H9Q&list=PLWsZeJCry-F4K4iRImeB3-i0S5mw9Ak-W&index=3" target="_blank">Building a Sails Application: Ep2 - Creating a sign-up page, adding twitter bootstrap</a>
