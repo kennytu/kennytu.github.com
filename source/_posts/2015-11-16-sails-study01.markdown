@@ -280,19 +280,31 @@ body {
 
 ```
 
-最後, 在`layout.ejs`中, 修改STYLE, 放入`custom.css`, 如下圖
+接著, 我們修改importer.less, 新增`@import 'custom.less';` 如下表
 
-```html
-    <!--STYLES-->
-    <link rel="stylesheet" href="/styles/bootstrap.css">
-    <link rel="stylesheet" href="/styles/custom.css">
-    <link rel="stylesheet" href="/styles/importer.css">
-    <!--STYLES END-->
+```css
+// For example:
+//
+// @import 'variables/colors.less';
+// @import 'mixins/foo.less';
+// @import 'mixins/bar.less';
+// @import 'mixins/baz.less';
+//
+// @import 'styleguide.less';
+// @import 'pages/login.less';
+// @import 'pages/signup.less';
+//
+// etc.
+
+@import 'custom.less';
 ```
 
-作者有在layout.ejs新增了一些屬性, 例如footer pull-right之類的, 這個等之後再回來加好了
 
-但我還是把程式碼擺在下面, 供參考
+PS: 我剛剛把custom.less放到assets\styles中的時候, layout.ejs好像就會幫我把custom.css自動加到STYLE裡面去.. 超強的... 還是我自己之前有改過我忘記了... XD
+
+作者有在layout.ejs新增了一些屬性, `navbar`以及`footer`
+
+相關程式碼我寫在下面
 
 ```html
   <div class="navbar navbar-inverse navbar-fixed-top">
@@ -314,7 +326,7 @@ body {
   </div>
 ```
 
-PS: 我剛剛把custom.less放到assets\styles中的時候, layout.ejs好像就會幫我把custom.css自動加到STYLE裡面去.. 超強的... 還是我自己之前有改過我忘記了... XD
+其中 <%- body %> 上面的code是navbar, 下面的是footer
 
 好的, 總之大功告成啦
 
