@@ -4,7 +4,7 @@
   <title><![CDATA[江湖險惡，我從來都不輕易留下我的姓名。]]></title>
   <link href="http://kennytu.github.io/atom.xml" rel="self"/>
   <link href="http://kennytu.github.io/"/>
-  <updated>2015-11-16T21:05:55+08:00</updated>
+  <updated>2015-11-16T21:29:36+08:00</updated>
   <id>http://kennytu.github.io/</id>
   <author>
     <name><![CDATA[Kenny Tu]]></name>
@@ -391,24 +391,44 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>最後, 在<code>layout.ejs</code>中, 修改STYLE, 放入<code>custom.css</code>, 如下圖</p>
+<p>接著, 我們修改importer.less, 新增<code>@import 'custom.less';</code> 如下表</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
 <span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="c">&lt;!--STYLES--&gt;</span>
-</span><span class='line'><span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">&quot;stylesheet&quot;</span> <span class="na">href=</span><span class="s">&quot;/styles/bootstrap.css&quot;</span><span class="nt">&gt;</span>
-</span><span class='line'><span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">&quot;stylesheet&quot;</span> <span class="na">href=</span><span class="s">&quot;/styles/custom.css&quot;</span><span class="nt">&gt;</span>
-</span><span class='line'><span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">&quot;stylesheet&quot;</span> <span class="na">href=</span><span class="s">&quot;/styles/importer.css&quot;</span><span class="nt">&gt;</span>
-</span><span class='line'><span class="c">&lt;!--STYLES END--&gt;</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='css'><span class='line'><span class="o">//</span> <span class="nt">For</span> <span class="nt">example</span><span class="o">:</span>
+</span><span class='line'><span class="o">//</span>
+</span><span class='line'><span class="o">//</span> <span class="k">@import</span> <span class="s1">&#39;variables/colors.less&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="o">//</span> <span class="k">@import</span> <span class="s1">&#39;mixins/foo.less&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="o">//</span> <span class="k">@import</span> <span class="s1">&#39;mixins/bar.less&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="o">//</span> <span class="k">@import</span> <span class="s1">&#39;mixins/baz.less&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="o">//</span>
+</span><span class='line'><span class="o">//</span> <span class="k">@import</span> <span class="s1">&#39;styleguide.less&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="o">//</span> <span class="k">@import</span> <span class="s1">&#39;pages/login.less&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="o">//</span> <span class="k">@import</span> <span class="s1">&#39;pages/signup.less&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="o">//</span>
+</span><span class='line'><span class="o">//</span> <span class="nt">etc</span><span class="o">.</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">@import</span> <span class="s1">&#39;custom.less&#39;</span><span class="p">;</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>作者有在layout.ejs新增了一些屬性, 例如footer pull-right之類的, 這個等之後再回來加好了</p>
+<p>PS: 我剛剛把custom.less放到assets\styles中的時候, layout.ejs好像就會幫我把custom.css自動加到STYLE裡面去.. 超強的&hellip; 還是我自己之前有改過我忘記了&hellip; XD</p>
 
-<p>但我還是把程式碼擺在下面, 供參考</p>
+<p>作者有在layout.ejs新增了一些屬性, <code>navbar</code>以及<code>footer</code></p>
+
+<p>相關程式碼我寫在下面</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -447,7 +467,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>PS: 我剛剛把custom.less放到assets\styles中的時候, layout.ejs好像就會幫我把custom.css自動加到STYLE裡面去.. 超強的&hellip; 還是我自己之前有改過我忘記了&hellip; XD</p>
+<p>其中 &lt;%- body %> 上面的code是navbar, 下面的是footer</p>
 
 <p>好的, 總之大功告成啦</p>
 

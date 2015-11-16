@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Sails | 江湖險惡，我從來都不輕易留下我的姓名。]]></title>
   <link href="http://kennytu.github.io/blog/categories/sails/atom.xml" rel="self"/>
   <link href="http://kennytu.github.io/"/>
-  <updated>2015-11-16T21:05:55+08:00</updated>
+  <updated>2015-11-16T21:29:36+08:00</updated>
   <id>http://kennytu.github.io/</id>
   <author>
     <name><![CDATA[Kenny Tu]]></name>
@@ -292,18 +292,29 @@ var jsFilesToInject = [
 }
 </code></pre>
 
-<p>最後, 在<code>layout.ejs</code>中, 修改STYLE, 放入<code>custom.css</code>, 如下圖</p>
+<p>接著, 我們修改importer.less, 新增<code>@import 'custom.less';</code> 如下表</p>
 
-<pre><code class="html">    &lt;!--STYLES--&gt;
-    &lt;link rel="stylesheet" href="http://kennytu.github.io/styles/bootstrap.css"&gt;
-    &lt;link rel="stylesheet" href="http://kennytu.github.io/styles/custom.css"&gt;
-    &lt;link rel="stylesheet" href="http://kennytu.github.io/styles/importer.css"&gt;
-    &lt;!--STYLES END--&gt;
+<pre><code class="css">// For example:
+//
+// @import 'variables/colors.less';
+// @import 'mixins/foo.less';
+// @import 'mixins/bar.less';
+// @import 'mixins/baz.less';
+//
+// @import 'styleguide.less';
+// @import 'pages/login.less';
+// @import 'pages/signup.less';
+//
+// etc.
+
+@import 'custom.less';
 </code></pre>
 
-<p>作者有在layout.ejs新增了一些屬性, 例如footer pull-right之類的, 這個等之後再回來加好了</p>
+<p>PS: 我剛剛把custom.less放到assets\styles中的時候, layout.ejs好像就會幫我把custom.css自動加到STYLE裡面去.. 超強的&hellip; 還是我自己之前有改過我忘記了&hellip; XD</p>
 
-<p>但我還是把程式碼擺在下面, 供參考</p>
+<p>作者有在layout.ejs新增了一些屬性, <code>navbar</code>以及<code>footer</code></p>
+
+<p>相關程式碼我寫在下面</p>
 
 <pre><code class="html">  &lt;div class="navbar navbar-inverse navbar-fixed-top"&gt;
       &lt;div class="container"&gt;
@@ -324,7 +335,7 @@ var jsFilesToInject = [
   &lt;/div&gt;
 </code></pre>
 
-<p>PS: 我剛剛把custom.less放到assets\styles中的時候, layout.ejs好像就會幫我把custom.css自動加到STYLE裡面去.. 超強的&hellip; 還是我自己之前有改過我忘記了&hellip; XD</p>
+<p>其中 &lt;%- body %> 上面的code是navbar, 下面的是footer</p>
 
 <p>好的, 總之大功告成啦</p>
 
