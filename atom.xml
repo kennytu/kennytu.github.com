@@ -4,7 +4,7 @@
   <title><![CDATA[江湖險惡，我從來都不輕易留下我的姓名。]]></title>
   <link href="http://kennytu.github.io/atom.xml" rel="self"/>
   <link href="http://kennytu.github.io/"/>
-  <updated>2015-11-16T21:29:36+08:00</updated>
+  <updated>2015-11-17T19:07:25+08:00</updated>
   <id>http://kennytu.github.io/</id>
   <author>
     <name><![CDATA[Kenny Tu]]></name>
@@ -12,6 +12,571 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Sails練習之二]]></title>
+    <link href="http://kennytu.github.io/blog/2015/11/17/sails-study02/"/>
+    <updated>2015-11-17T10:54:23+08:00</updated>
+    <id>http://kennytu.github.io/blog/2015/11/17/sails-study02</id>
+    <content type="html"><![CDATA[<p>本篇是接著Ponzi Coder的這篇</p>
+
+<p><a href="https://www.youtube.com/watch?v=qUAzpyThAB0&index=5&list=PLWsZeJCry-F4K4iRImeB3-i0S5mw9Ak-W" target="_blank">Building a Sails Application: Ep3[UPDATED] - A user model/controller, signup page, sails blueprints</a></p>
+
+<p>裡面為練習內容</p>
+
+<!--more-->
+
+
+<h2>MVC架構</h2>
+
+<p>Sails有支援MVC架構, 所以若你有想要完成一個概念性的物件, 這個物件有相對的屬性和行為,Sails會將這個物件的屬性放在Modules, 而行為就放在Controller</p>
+
+<p>使用下列的語法來讓Sails自動創建Controller以及Module</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='batch'><span class='line'>E:\sails_app\activeityOverload<span class="p">&gt;</span><span class="n">sails</span> generate api user
+</span><span class='line'>info: Created a new api!
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>PS: 舊版的只要輸入<code>sails generate user</code> 就可以了</p>
+
+<p>這樣Sails會在</p>
+
+<p><code>api\controllers</code> 產生 <code>UserController.js</code></p>
+
+<p><code>api\models</code> 產生 <code>User.js</code></p>
+
+<p>其中,</p>
+
+<p><code>controllers</code>放的是<code>action</code>的邏輯</p>
+
+<p><code>modules</code>裡面放的是<code>attributes</code>的設定</p>
+
+<p>OK, 接著我們來設計User的屬性, 修改 User.js</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">attributes</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">name</span><span class="o">:</span><span class="p">{</span>
+</span><span class='line'>        <span class="nx">type</span><span class="o">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span>
+</span><span class='line'>        <span class="nx">required</span><span class="o">:</span> <span class="kc">true</span>
+</span><span class='line'>    <span class="p">},</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">title</span><span class="o">:</span><span class="p">{</span>
+</span><span class='line'>        <span class="nx">type</span><span class="o">:</span> <span class="s1">&#39;string&#39;</span>
+</span><span class='line'>    <span class="p">},</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">email</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">type</span><span class="o">:</span> <span class="s1">&#39;email&#39;</span><span class="p">,</span>
+</span><span class='line'>      <span class="nx">required</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+</span><span class='line'>      <span class="nx">unique</span><span class="o">:</span> <span class="kc">true</span>
+</span><span class='line'>    <span class="p">},</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">encryptedPassword</span><span class="o">:</span><span class="p">{</span>
+</span><span class='line'>        <span class="nx">type</span><span class="o">:</span> <span class="s1">&#39;string&#39;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>要注意上面的email寫法, sails 0.10以後, type要改成'email'</p>
+
+<p>然後原本的email: true要拿掉</p>
+
+<p>參考<a href="https://github.com/irlnathan/activityoverlord20/issues/13" target="_blank">這裡</a></p>
+
+<p>編輯完成之後, 存檔, 執行 <code>sails lift</code></p>
+
+<p>若是第一次新增api, sails應該會跳出底下的訊息</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+</pre></td><td class='code'><pre><code class='batch'><span class='line'>E:\sails_app\activeityOverload<span class="p">&gt;</span><span class="n">sails</span> lift
+</span><span class='line'>
+</span><span class='line'>info: Starting app...
+</span><span class='line'>
+</span><span class='line'>-----------------------------------------------------------------
+</span><span class='line'>
+</span><span class='line'> Excuse my interruption<span class="p">,</span> but it looks like this app
+</span><span class='line'> does not have a project-wide <span class="s2">&quot;migrate&quot;</span> setting configured yet.
+</span><span class='line'> (perhaps this is the first time you&#39;re lifting it with models?)
+</span><span class='line'>
+</span><span class='line'> In short<span class="p">,</span> this setting controls whether<span class="n">/how</span> Sails will attempt to automatically
+</span><span class='line'> rebuild the tables<span class="n">/collections/sets/etc.</span> in your database schema.
+</span><span class='line'> You can read more about the <span class="s2">&quot;migrate&quot;</span> setting here:
+</span><span class='line'> http:<span class="n">//sailsjs.org/#/documentation/concepts/ORM/model-settings.html?q=migrate</span>
+</span><span class='line'>
+</span><span class='line'> In a production environment (NODE_ENV<span class="o">===</span><span class="s2">&quot;production&quot;</span>) Sails always uses
+</span><span class='line'> migrate:<span class="s2">&quot;safe&quot;</span> to protect inadvertent deletion of your data.
+</span><span class='line'> However during development<span class="p">,</span> you have a few other options <span class="k">for</span> convenience:
+</span><span class='line'>
+</span><span class='line'> <span class="m">1</span>. safe  - never auto-migrate my database(s). I will <span class="k">do</span> it myself (by hand)
+</span><span class='line'> <span class="m">2</span>. alter - auto-migrate<span class="p">,</span> but attempt to keep my existing data (experimental)
+</span><span class='line'> <span class="m">3</span>. drop  - wipe<span class="n">/drop</span> ALL my data and rebuild models every time I lift Sails
+</span><span class='line'>
+</span><span class='line'>What would you like Sails to <span class="k">do</span>?
+</span><span class='line'>
+</span><span class='line'>info: To skip this prompt in the future<span class="p">,</span> <span class="k">set</span> <span class="sb">`sails.config.models.migrate`</span>.
+</span><span class='line'>info: (conventionally<span class="p">,</span> this is done in <span class="sb">`config/models.js`</span>)
+</span><span class='line'>
+</span><span class='line'>warn: ** <span class="k">DO</span> NOT CHOOSE <span class="s2">&quot;2&quot;</span> or <span class="s2">&quot;3&quot;</span> <span class="k">IF</span> YOU ARE WORKING WITH PRODUCTION DATA **
+</span><span class='line'>
+</span><span class='line'>prompt: ?:  error: Error: The hook <span class="sb">`orm`</span> is taking too long to load.
+</span><span class='line'>Make sure it is triggering its <span class="sb">`initialize()`</span> callback<span class="p">,</span> or <span class="k">else</span> <span class="k">set</span> `sails.config.orm._hookTimeout to a higher value (currently <span class="m">20000</span>)
+</span><span class='line'>    at tooLong [as _onTimeout] (C:\Users\KennyTu\AppData\Roaming\npm\node_modules\sails\lib\app\private\loadHooks.js:92<span class="nl">:21</span>)
+</span><span class='line'>    at Timer.listOnTimeout (timers.js:89<span class="nl">:15</span>)
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>既然上面有提示到這個<a href="http://sailsjs.org/documentation/concepts/models-and-orm/model-settings#?migrate" target="_blank">網頁</a>, 我們就去看一下</p>
+
+<p>大意就是說, sails他會做一些策略, 來和我們的資料庫互動, migrate(中文有遷移, 移居的意思), 有三種策略, 分別是safe, alter以及drop, 詳細我就不多說了, 去看網頁寫的很清楚</p>
+
+<p>OK, 接下來我們要做的動作是去修改<code>config/models.js</code></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span><span class="p">.</span><span class="nx">models</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="cm">/***************************************************************************</span>
+</span><span class='line'><span class="cm">  *                                                                          *</span>
+</span><span class='line'><span class="cm">  * Your app&#39;s default connection. i.e. the name of one of your app&#39;s        *</span>
+</span><span class='line'><span class="cm">  * connections (see `config/connections.js`)                                *</span>
+</span><span class='line'><span class="cm">  *                                                                          *</span>
+</span><span class='line'><span class="cm">  ***************************************************************************/</span>
+</span><span class='line'>  <span class="c1">// connection: &#39;localDiskDb&#39;,</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="cm">/***************************************************************************</span>
+</span><span class='line'><span class="cm">  *                                                                          *</span>
+</span><span class='line'><span class="cm">  * How and whether Sails will attempt to automatically rebuild the          *</span>
+</span><span class='line'><span class="cm">  * tables/collections/etc. in your schema.                                  *</span>
+</span><span class='line'><span class="cm">  *                                                                          *</span>
+</span><span class='line'><span class="cm">  * See http://sailsjs.org/#!/documentation/concepts/ORM/model-settings.html  *</span>
+</span><span class='line'><span class="cm">  *                                                                          *</span>
+</span><span class='line'><span class="cm">  ***************************************************************************/</span>
+</span><span class='line'>   <span class="nx">migrate</span><span class="o">:</span> <span class="s1">&#39;safe&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>把migrate改成safe, 再重新執行<code>sails lift</code></p>
+
+<p>基本上應該就沒問題可以正常執行了</p>
+
+<p>接下來開啟瀏覽器, 輸入底下網址..</p>
+
+<p>作者在輸入到一半的時候,故意只輸入部分, 來讓我們看一下出錯的效果</p>
+
+<p><code>http://localhost:1337/user/create?name=kenny</code></p>
+
+<p>伺服器回應的結果是:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="s2">&quot;error&quot;</span><span class="o">:</span> <span class="s2">&quot;E_VALIDATION&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="s2">&quot;status&quot;</span><span class="o">:</span> <span class="mi">400</span><span class="p">,</span>
+</span><span class='line'>  <span class="s2">&quot;summary&quot;</span><span class="o">:</span> <span class="s2">&quot;1 attribute is invalid&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="s2">&quot;model&quot;</span><span class="o">:</span> <span class="s2">&quot;User&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="s2">&quot;invalidAttributes&quot;</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>    <span class="s2">&quot;email&quot;</span><span class="o">:</span> <span class="p">[</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>        <span class="s2">&quot;rule&quot;</span><span class="o">:</span> <span class="s2">&quot;email&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="s2">&quot;message&quot;</span><span class="o">:</span> <span class="s2">&quot;`undefined` should be a email (instead of \&quot;null\&quot;, which is a object)&quot;</span>
+</span><span class='line'>      <span class="p">},</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>        <span class="s2">&quot;rule&quot;</span><span class="o">:</span> <span class="s2">&quot;required&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="s2">&quot;message&quot;</span><span class="o">:</span> <span class="s2">&quot;\&quot;required\&quot; validation rule failed for input: null&quot;</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>    <span class="p">]</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>大意就是說, email需要輸入</p>
+
+<p>我們再改一個正常的</p>
+
+<p>在瀏覽器輸入URL如下</p>
+
+<p><a href="http://localhost:1337/user/create?name=kennyg&amp;email=i@a.com">http://localhost:1337/user/create?name=kennyg&amp;email=i@a.com</a></p>
+
+<p>注意email不能有用過的, 因為我們將<code>email</code>的其中一個<code>unique</code>的屬性設定為true</p>
+
+<p>若沒有意外, 應該出現如下視窗</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;kennyg&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="s2">&quot;email&quot;</span><span class="o">:</span> <span class="s2">&quot;i@a.com&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="s2">&quot;createdAt&quot;</span><span class="o">:</span> <span class="s2">&quot;2015-11-17T07:19:54.897Z&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="s2">&quot;updatedAt&quot;</span><span class="o">:</span> <span class="s2">&quot;2015-11-17T07:19:54.897Z&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="mi">2</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>大功告成啦!</p>
+
+<p>注意一點, 我們現在還沒有對<code>UserController.js</code>寫任何邏輯, 以上的行為都是sails系統預設的 :)</p>
+
+<blockquote><p>預設行為都放在blueprints.js下</p></blockquote>
+
+<p>接下來, 我們要開始弄View的東西, 之前Sails幫我們自動生成Module以及Controller,</p>
+
+<p>我們手動在<code>views</code>新增一個資料夾<code>user</code>,然後在<code>user</code>資料夾新增一個檔案名為<code>new.ejs</code>, 新增內容如下</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;h1&gt;</span> User signup Form <span class="nt">&lt;/h1&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>回到<code>UserController.js</code>, 在<code>api\controllers</code>底下</p>
+
+<p>我們新增以下的code</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>    <span class="s1">&#39;new&#39;</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">){</span>
+</span><span class='line'>        <span class="nx">res</span><span class="p">.</span><span class="nx">view</span><span class="p">();</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>重新啟動sails, 回到瀏覽器輸入localhost:1337, 按下Sing Up now, 視窗就會跳到new.ejs的page去</p>
+
+<p>還記得嗎? 我們在static底下的index.ejs, button的href是指到/user/new這個action, 所以就會跳到new這邊來了</p>
+
+<p>一般來說, sails會自動幫我們對應action以及底下的檔案, 若要關掉它, 就要去設定</p>
+
+<p>現在我們修改<code>blueprints.js</code>, 在<code>config</code>底下</p>
+
+<p>找到<code>rest</code>, 把他設定成<code>false</code>. <strong>記得要把註解拿掉</strong></p>
+
+<p>參照以下設定</p>
+
+<pre><code>rest: false,
+shortcuts: false,
+actions: false,
+</code></pre>
+
+<p>設定好, 存檔, 重新啟動sails</p>
+
+<p>這時候進入首頁, 按下Sing up now, 我們會被導入404 pages</p>
+
+<p>接著我們就開始手工打造我們的mapping</p>
+
+<p>回到routes.js, 加入底下的code</p>
+
+<figure class='code'><figcaption><span>routes.js 片段</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="s1">&#39;/&#39;</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">view</span><span class="o">:</span> <span class="s1">&#39;static/index&#39;</span>
+</span><span class='line'>      <span class="p">},</span>
+</span><span class='line'>      <span class="s1">&#39;/user/new&#39;</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">view</span><span class="o">:</span> <span class="s1">&#39;user/new&#39;</span>
+</span><span class='line'>      <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>從新啟動sails, 再次執行sing up now, 就可以導向到我們的頁面了</p>
+
+<p>另一種routes.js風格的寫法, 如下</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'>   <span class="s1">&#39;user/new&#39;</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">controller</span><span class="o">:</span> <span class="s2">&quot;UserController&quot;</span><span class="p">,</span>
+</span><span class='line'>      <span class="nx">action</span><span class="o">:</span><span class="s2">&quot;new&quot;</span>
+</span><span class='line'>      <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>這樣的寫法我在新版的sails上面都沒有辦法get到頁面, 不知道是不是要明確指定view才行</p>
+
+<p>另外, 有關routes的其他寫法, 請參考<a href="http://sailsjs.org/documentation/concepts/routes/custom-routes" target="_blank">Custom Routes</a>的 <strong>Controller / action target syntax</strong> 章節</p>
+
+<blockquote><p>ok, 我們先繼續, 等之後有靈感在回來試試看</p></blockquote>
+
+<p>現在先將剛剛在routes.js加入的'user/new'這一些敘述都刪掉, 存檔</p>
+
+<p>回到<code>blueprints.js</code>, 將<code>action</code>改成<code>true</code></p>
+
+<p>然後修改new.ejs, 如底下的程式碼</p>
+
+<figure class='code'><figcaption><span>new.ejs</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;form</span> <span class="na">action=</span><span class="s">&quot;/user/create&quot;</span> <span class="na">method=</span><span class="s">&quot;POST&quot;</span> <span class="na">class=</span><span class="s">&quot;form-signin&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;h2</span> <span class="nt">&gt;</span> Create an account<span class="nt">&lt;/h2&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;text&quot;</span> <span class="na">class=</span><span class="s">&quot;form-control&quot;</span> <span class="na">placeholder=</span><span class="s">&quot;your name&quot;</span> <span class="na">name=</span><span class="s">&quot;name&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;text&quot;</span> <span class="na">class=</span><span class="s">&quot;form-control&quot;</span> <span class="na">placeholder=</span><span class="s">&quot;your title&quot;</span> <span class="na">name=</span><span class="s">&quot;title&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;text&quot;</span> <span class="na">class=</span><span class="s">&quot;form-control&quot;</span> <span class="na">placeholder=</span><span class="s">&quot;email address&quot;</span> <span class="na">name=</span><span class="s">&quot;email&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;password&quot;</span> <span class="na">class=</span><span class="s">&quot;form-control&quot;</span> <span class="na">placeholder=</span><span class="s">&quot;password&quot;</span> <span class="na">name=</span><span class="s">&quot;password&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;password&quot;</span> <span class="na">class=</span><span class="s">&quot;form-control&quot;</span> <span class="na">placeholder=</span><span class="s">&quot;password confirmation&quot;</span> <span class="na">name=</span><span class="s">&quot;comfirmation&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;submit&quot;</span> <span class="na">class=</span><span class="s">&quot;btn btn-lg btn-primary btn-block&quot;</span> <span class="na">value=</span><span class="s">&quot;Create Account&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;hidden&quot;</span> <span class="na">name=</span><span class="s">&quot;_csrf&quot;</span> <span class="na">value=</span><span class="s">&quot;&lt;%= _csrf %&gt;&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;/form&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>由於new.ejs有用到一些css, 作者也對custom.less做了一些修改</p>
+
+<p>程式碼如下</p>
+
+<figure class='code'><figcaption><span>custom.less</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+</pre></td><td class='code'><pre><code class='css'><span class='line'><span class="k">@white</span><span class="o">:</span> <span class="nf">#FFFFFF</span><span class="p">;</span>
+</span><span class='line'><span class="k">@green</span><span class="o">:</span> <span class="nf">#9EC03B</span><span class="p">;</span>
+</span><span class='line'><span class="k">@orange</span><span class="o">:</span> <span class="nf">#F48744</span><span class="p">;</span>
+</span><span class='line'><span class="k">@blue</span><span class="o">:</span> <span class="nf">#189ECA</span><span class="p">;</span>
+</span><span class='line'><span class="k">@gray</span><span class="o">:</span> <span class="nf">#777574</span><span class="p">;</span>
+</span><span class='line'><span class="k">@darkBlue</span><span class="o">:</span> <span class="nf">#106E8D</span><span class="p">;</span>
+</span><span class='line'><span class="k">@darkGray</span><span class="o">:</span> <span class="nf">#4A4A4A</span><span class="p">;</span> <span class="o">//</span> <span class="nt">paragraphs</span>
+</span><span class='line'><span class="k">@red</span><span class="o">:</span> <span class="nf">#D16565</span><span class="p">;</span> <span class="o">//</span> <span class="nt">error</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">body</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">padding-top</span><span class="o">:</span> <span class="m">60px</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">padding-bottom</span><span class="o">:</span> <span class="m">40px</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nc">.jumbotron</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">text-align</span><span class="o">:</span> <span class="k">center</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nc">.jumbotron</span> <span class="nt">h2</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">font-size</span><span class="o">:</span> <span class="m">1.5em</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">letter-spacing</span><span class="o">:</span> <span class="m">-1px</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">margin-bottom</span><span class="o">:</span> <span class="m">30px</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">text-align</span><span class="o">:</span> <span class="k">center</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">font-weight</span><span class="o">:</span> <span class="k">normal</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">color</span><span class="o">:</span> <span class="nb">gray</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nc">.container</span> <span class="nc">.gray</span><span class="p">{</span>
+</span><span class='line'>  <span class="k">color</span><span class="o">:</span> <span class="nb">gray</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nc">.container</span><span class="p">{</span>
+</span><span class='line'>  <span class="o">.</span><span class="n">footer</span><span class="err">{</span>
+</span><span class='line'>    <span class="k">width</span><span class="o">:</span> <span class="m">25%</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="err">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nc">.form-signin</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">max-width</span><span class="o">:</span> <span class="m">30%</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">padding</span><span class="o">:</span> <span class="m">19px</span> <span class="m">29px</span> <span class="m">29px</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">margin</span><span class="o">:</span> <span class="m">0</span> <span class="k">auto</span> <span class="m">20px</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">margin-top</span><span class="o">:</span> <span class="m">20px</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">background-color</span><span class="o">:</span> <span class="o">@</span><span class="nb">gray</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">border</span><span class="o">:</span> <span class="m">1px</span> <span class="k">solid</span> <span class="o">@</span><span class="nb">green</span><span class="p">;</span>
+</span><span class='line'>  <span class="o">-</span><span class="n">webkit</span><span class="o">-</span><span class="k">border</span><span class="o">-</span><span class="n">radius</span><span class="o">:</span> <span class="m">15px</span><span class="p">;</span>
+</span><span class='line'>  <span class="o">-</span><span class="n">moz</span><span class="o">-</span><span class="k">border</span><span class="o">-</span><span class="n">radius</span><span class="o">:</span> <span class="m">15px</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">border</span><span class="o">-</span><span class="n">radius</span><span class="o">:</span> <span class="m">15px</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">h2</span><span class="err">{</span>
+</span><span class='line'>      <span class="k">text-align</span><span class="o">:</span> <span class="k">center</span><span class="p">;</span>
+</span><span class='line'>      <span class="k">margin-top</span><span class="o">:</span> <span class="m">0px</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="err">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nc">.form-signin</span> <span class="nt">input</span><span class="o">[</span><span class="nt">type</span><span class="o">=</span><span class="s2">&quot;text&quot;</span><span class="o">],</span>
+</span><span class='line'><span class="nc">.form-signin</span> <span class="nt">input</span><span class="o">[</span><span class="nt">type</span><span class="o">=</span><span class="s2">&quot;password&quot;</span><span class="o">]</span><span class="p">{</span>
+</span><span class='line'>  <span class="k">font-size</span><span class="o">:</span> <span class="m">16px</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">height</span><span class="o">:</span> <span class="k">auto</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">margin-bottom</span><span class="o">:</span> <span class="m">15px</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">padding</span><span class="o">:</span> <span class="m">7px</span> <span class="m">9px</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>OK, 回到瀏覽器, 在reflash一次, 應該會出現像樣的登入畫面了</p>
+
+<p>以上就是這一堂課的練習</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Sails練習之一]]></title>
