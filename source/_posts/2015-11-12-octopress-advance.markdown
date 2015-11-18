@@ -99,18 +99,22 @@ categories: abc
 這個功能需要安裝Python
 
 ``` ruby Discover if a number is prime http://www.noulakaz.net/weblog/2007/03/18/a-regular-expression-to-check-for-prime-numbers/ 點擊查看
+
 	class Fixnum
 	  def prime?
 	    ('1' * self) !~ /^1?$|^(11+?)\1+$/
 	  end
 	end
+
 ```
+
+
 
 語法是 三個``` [language] [title] [url] [link text]
 
 	
 	``` ruby Discover if a number is prime http://www.noulakaz.net/weblog/2007/03/18/a-regular-expression-to-check-for-prime-numbers/ 點擊查看
-
+    空一列
 	class Fixnum
 
 	  def prime?
@@ -120,9 +124,13 @@ categories: abc
 	  end
 
 	end
-	
+	空一列	
 	```
- 
+
+上面的空一列是新增一行空白列的意思, 若沒有空一列, 有些內嵌的程式碼的語法可能會讓Markdown解釋錯誤, 要記得 
+
+
+
 ## 連結圖片
 
 參考 <a href="http://blog.zerosharp.com/image-captions-for-octopress/" target="_blank"> Image Captions for Octopress </a>

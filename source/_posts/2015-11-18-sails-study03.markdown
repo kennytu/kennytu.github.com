@@ -1,0 +1,219 @@
+---
+layout: post
+title: "Sails練習之三"
+date: 2015-11-18 12:05:14 +0800
+comments: true
+categories: sails
+---
+
+前面兩個練習都做完之後, 我們終於有了一個還滿順眼的登入畫面
+
+接下來我們按照Irl nathan的課程繼續我們的練習
+
+課程連結在此 <a href="" target="_blank">Building a Sails Application: Ep4 - Creating a user account.</a>
+
+<!--more-->
+
+在一開始, Nathan他shows了一個new.ejs的程式碼
+
+你會發現它多了
+
+```html
+
+<div class="control-group">
+...
+</div>
+
+```
+
+若你用的是bootstrap3.x的版本, 就會發生找不到control-group的class, 這時候請到<a href="http://getbootstrap.com/migration/" target="_blank">這裡</a>, 找到對照bootstrap2.x 改版到3.x有關於一些相對應class名稱的修改.你就知道要怎麼對應這些bootstrap3.x的CSS了
+
+
+接著, Ponzi花了點時間解釋`<%= _csrf %>`這個tag的用意
+
+我們先到config/csrf.js, 將csrf Enable起來
+
+```js
+
+/****************************************************************************
+*                                                                           *
+* Enabled CSRF protection for your site?                                    *
+*                                                                           *
+****************************************************************************/
+
+  module.exports.csrf = true;
+
+
+```
+
+至於CSRF是什麼東西, 之後我在整理出來寫在另一篇文章中
+
+簡言之, CSRF是某種保護機制, 讓你可以識別使用者..
+
+接著, 到`blueprints.js` 設定
+
+```js
+
+actions: true,
+rest: true,
+shortcuts: true
+
+```
+
+存檔, 接著到UserController.js
+
+加入以下程式碼
+
+```js  api\controllers\UserController.js
+
+module.exports = {
+    'new': function(req, res){
+        res.view();
+    },
+
+    create: function (req, res, next) {
+      User.create(req.params.all(), function userCreated(err,user){
+          if(err) return next(err);
+          res.json(user);
+      });
+    }
+};
+
+```
+
+主要是新增`create`這個method. 
+
+從新啟動sails
+
+`sails lift`
+
+輸入`http://localhost:1337`, 點擊 sing up now, 進入登錄畫面
+
+輸入必要的資訊之後, 按下Create an account, 此時Sails會回傳下列的資訊
+
+```json http://localhost:1337/user/create的返回資訊
+
+{
+  "name": "kg",
+  "title": "kaaa",
+  "email": "k223@hot.com",
+  "password": "1234",
+  "comfirmation": "5678",
+  "_csrf": "gdMb0LUb-zUlpCgAUgC0LW41ILym6M6_svV4",
+  "id": 3,
+  "createdAt": "2015-11-18T09:20:31.268Z",
+  "updatedAt": "2015-11-18T09:20:31.268Z"
+}
+
+```
+
+GOOD, 大功告成. 現在美中不足的就是密碼部分會是明碼的格式傳回, 這個我們馬上來處理
+
+我們到`User.js`, 也就是`api\models\User.js`
+
+加入底下的程式碼
+
+```js User.js
+
+toJSON: function(){
+      var obj = this.toObject();
+      delete obj.password;
+      delete obj.confirmation;
+      delete obj.encryptedPassword;
+      delete obj._csrf;
+      return obj;
+    }
+
+```
+
+將toJSON加入, 然後重新啟動Sails
+
+我們在測試一次, 就可以看到回傳的資訊已經隱藏了`password`, `confirmation`, `encryptedPassword`以及`_csrf`
+
+測試內容如下
+
+```json http://localhost:1337/user/create
+{
+  "name": "23423",
+  "title": "42344",
+  "email": "3242@gmail.com",
+  "id": 4,
+  "createdAt": "2015-11-18T09:34:28.608Z",
+  "updatedAt": "2015-11-18T09:34:28.608Z"
+}
+
+```
+
+我們發現回傳的已經沒有敏感的資訊了.
+
+另一方面, sails有更優雅的解決方案, sails提供了在model的一個Setting, 叫做`schema`, 若把`schema`設為`true`, 那麼`sails`只會保存在model中有定義的屬性, 若為false, 那麼sails就允許你可以任意儲存你想要的record的資料
+
+官方網站的資料請參考<a href="http://sailsjs.org/documentation/concepts/models-and-orm/model-settings#?schema" target="_blank">這裡</a>
+
+我們修改User.js, 把toJSON拿掉, 加入schema
+
+```js User.js.移除toJSON.加入schema
+
+module.exports = {
+
+  schema: true,
+
+  attributes: {
+    name:{
+        type: 'string',
+        required: true
+    },
+
+    title:{
+        type: 'string'
+    },
+
+    email: {
+      type: 'email',
+      required: true,
+      unique: true
+    },
+
+    encryptedPassword:{
+        type: 'string'
+    }
+
+    //toJSON: function(){
+    //  var obj = this.toObject();
+    //  delete obj.password;
+    //  delete obj.confirmation;
+    //  delete obj.encryptedPassword;
+    //  delete obj._csrf;
+    //  return obj;
+    //}
+  }
+};
+
+
+```
+
+從新啟動sails, 然後到瀏覽器, 記得清空瀏覽器緩存, 不然會有問題
+
+輸入註冊資訊, 然後看回傳的訊息
+
+```json http://localhost:1337/user/create
+
+{
+  "name": "HappyKenny",
+  "title": "HappyKennyYa",
+  "email": "happy@com.tw",
+  "id": 6,
+  "createdAt": "2015-11-18T09:52:11.686Z",
+  "updatedAt": "2015-11-18T09:52:11.686Z"
+}
+
+```
+
+同樣的, 沒有敏感的資訊
+
+你可以在瀏覽器輸入`http://localhost:1337/user` 
+
+來觀看以往建立的user資料
+
+OK, 這堂課就到這邊, 謝謝大家
+

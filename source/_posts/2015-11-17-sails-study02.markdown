@@ -7,11 +7,11 @@ categories: sails
 ---
 
 
-本篇是接著Ponzi Coder的這篇
+本篇是接著Irl nathan的這篇
 
 <a href="https://www.youtube.com/watch?v=qUAzpyThAB0&index=5&list=PLWsZeJCry-F4K4iRImeB3-i0S5mw9Ak-W" target="_blank">Building a Sails Application: Ep3[UPDATED] - A user model/controller, signup page, sails blueprints</a>
 
-裡面為練習內容
+底下為練習內容
 
 <!--more-->
 
@@ -315,6 +315,7 @@ module.exports = {
 @orange: #F48744;
 @blue: #189ECA;
 @gray: #777574;
+@lightGrey: #AAAAAA;
 @darkBlue: #106E8D;
 @darkGray: #4A4A4A; // paragraphs
 @red: #D16565; // error
@@ -352,7 +353,7 @@ body {
   padding: 19px 29px 29px;
   margin: 0 auto 20px;
   margin-top: 20px;
-  background-color: @gray;
+  background-color: @lightGrey;
   border: 1px solid @green;
   -webkit-border-radius: 15px;
   -moz-border-radius: 15px;
