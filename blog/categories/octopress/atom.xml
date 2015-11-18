@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Octopress | 江湖險惡，我從來都不輕易留下我的姓名。]]></title>
   <link href="http://kennytu.github.io/blog/categories/octopress/atom.xml" rel="self"/>
   <link href="http://kennytu.github.io/"/>
-  <updated>2015-11-17T19:07:25+08:00</updated>
+  <updated>2015-11-18T18:25:04+08:00</updated>
   <id>http://kennytu.github.io/</id>
   <author>
     <name><![CDATA[Kenny Tu]]></name>
@@ -132,7 +132,8 @@ categories: abc</p>
 
 <p>這個功能需要安裝Python</p>
 
-<pre><code class="ruby Discover if a number is prime http://www.noulakaz.net/weblog/2007/03/18/a-regular-expression-to-check-for-prime-numbers/ 點擊查看">    class Fixnum
+<pre><code class="ruby Discover if a number is prime http://www.noulakaz.net/weblog/2007/03/18/a-regular-expression-to-check-for-prime-numbers/ 點擊查看">
+    class Fixnum
       def prime?
         ('1' * self) !~ /^1?$|^(11+?)\1+$/
       end
@@ -142,7 +143,7 @@ categories: abc</p>
 <p>語法是 三個``` [language] [title] [url] [link text]</p>
 
 <pre><code>``` ruby Discover if a number is prime http://www.noulakaz.net/weblog/2007/03/18/a-regular-expression-to-check-for-prime-numbers/ 點擊查看
-
+空一列
 class Fixnum
 
   def prime?
@@ -152,9 +153,11 @@ class Fixnum
   end
 
 end
-
+空一列   
 ```
 </code></pre>
+
+<p>上面的空一列是新增一行空白列的意思, 若沒有空一列, 有些內嵌的程式碼的語法可能會讓Markdown解釋錯誤, 要記得</p>
 
 <h2>連結圖片</h2>
 

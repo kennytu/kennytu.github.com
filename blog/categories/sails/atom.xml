@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Sails | 江湖險惡，我從來都不輕易留下我的姓名。]]></title>
   <link href="http://kennytu.github.io/blog/categories/sails/atom.xml" rel="self"/>
   <link href="http://kennytu.github.io/"/>
-  <updated>2015-11-17T19:07:25+08:00</updated>
+  <updated>2015-11-18T18:25:04+08:00</updated>
   <id>http://kennytu.github.io/</id>
   <author>
     <name><![CDATA[Kenny Tu]]></name>
@@ -14,15 +14,222 @@
 
   
   <entry>
+    <title type="html"><![CDATA[Sails練習之三]]></title>
+    <link href="http://kennytu.github.io/blog/2015/11/18/sails-study03/"/>
+    <updated>2015-11-18T12:05:14+08:00</updated>
+    <id>http://kennytu.github.io/blog/2015/11/18/sails-study03</id>
+    <content type="html"><![CDATA[<p>前面兩個練習都做完之後, 我們終於有了一個還滿順眼的登入畫面</p>
+
+<p>接下來我們按照Irl nathan的課程繼續我們的練習</p>
+
+<p>課程連結在此 <a href="" target="_blank">Building a Sails Application: Ep4 - Creating a user account.</a></p>
+
+<!--more-->
+
+
+<p>在一開始, Nathan他shows了一個new.ejs的程式碼</p>
+
+<p>你會發現它多了</p>
+
+<p>```html</p>
+
+<div class="control-group">
+...
+</div>
+
+
+<pre><code>
+若你用的是bootstrap3.x的版本, 就會發生找不到control-group的class, 這時候請到&lt;a href="http://getbootstrap.com/migration/" target="_blank"&gt;這裡&lt;/a&gt;, 找到對照bootstrap2.x 改版到3.x有關於一些相對應class名稱的修改.你就知道要怎麼對應這些bootstrap3.x的CSS了
+
+
+接著, Ponzi花了點時間解釋`&lt;%= _csrf %&gt;`這個tag的用意
+
+我們先到config/csrf.js, 將csrf Enable起來
+</code></pre>
+
+<p>/<strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong>
+*                                                                           *
+* Enabled CSRF protection for your site?                                    *
+*                                                                           *
+</strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong>/</p>
+
+<p>  module.exports.csrf = true;</p>
+
+<pre><code>
+至於CSRF是什麼東西, 之後我在整理出來寫在另一篇文章中
+
+簡言之, CSRF是某種保護機制, 讓你可以識別使用者..
+
+接著, 到`blueprints.js` 設定
+</code></pre>
+
+<p>actions: true,
+rest: true,
+shortcuts: true</p>
+
+<pre><code>
+存檔, 接著到UserController.js
+
+加入以下程式碼
+</code></pre>
+
+<p>module.exports = {
+    &lsquo;new&rsquo;: function(req, res){
+        res.view();
+    },</p>
+
+<pre><code>create: function (req, res, next) {
+  User.create(req.params.all(), function userCreated(err,user){
+      if(err) return next(err);
+      res.json(user);
+  });
+}
+</code></pre>
+
+<p>};</p>
+
+<pre><code>
+主要是新增`create`這個method. 
+
+從新啟動sails
+
+`sails lift`
+
+輸入`http://localhost:1337`, 點擊 sing up now, 進入登錄畫面
+
+輸入必要的資訊之後, 按下Create an account, 此時Sails會回傳下列的資訊
+</code></pre>
+
+<p>{
+  &ldquo;name&rdquo;: &ldquo;kg&rdquo;,
+  &ldquo;title&rdquo;: &ldquo;kaaa&rdquo;,
+  &ldquo;email&rdquo;: &ldquo;<a href="&#x6d;&#97;&#x69;&#x6c;&#x74;&#111;&#x3a;&#x6b;&#x32;&#50;&#x33;&#64;&#x68;&#111;&#x74;&#46;&#99;&#111;&#109;">&#107;&#x32;&#x32;&#x33;&#64;&#x68;&#x6f;&#x74;&#46;&#99;&#x6f;&#109;</a>&rdquo;,
+  &ldquo;password&rdquo;: &ldquo;1234&rdquo;,
+  &ldquo;comfirmation&rdquo;: &ldquo;5678&rdquo;,
+  &ldquo;_csrf&rdquo;: &ldquo;gdMb0LUb-zUlpCgAUgC0LW41ILym6M6_svV4&rdquo;,
+  &ldquo;id&rdquo;: 3,
+  &ldquo;createdAt&rdquo;: &ldquo;2015-11-18T09:20:31.268Z&rdquo;,
+  &ldquo;updatedAt&rdquo;: &ldquo;2015-11-18T09:20:31.268Z&rdquo;
+}</p>
+
+<pre><code>
+GOOD, 大功告成. 現在美中不足的就是密碼部分會是明碼的格式傳回, 這個我們馬上來處理
+
+我們到`User.js`, 也就是`api\models\User.js`
+
+加入底下的程式碼
+</code></pre>
+
+<p>toJSON: function(){
+      var obj = this.toObject();
+      delete obj.password;
+      delete obj.confirmation;
+      delete obj.encryptedPassword;
+      delete obj._csrf;
+      return obj;
+    }</p>
+
+<pre><code>
+將toJSON加入, 然後重新啟動Sails
+
+我們在測試一次, 就可以看到回傳的資訊已經隱藏了`password`, `confirmation`, `encryptedPassword`以及`_csrf`
+
+測試內容如下
+</code></pre>
+
+<p>{
+  &ldquo;name&rdquo;: &ldquo;23423&rdquo;,
+  &ldquo;title&rdquo;: &ldquo;42344&rdquo;,
+  &ldquo;email&rdquo;: &ldquo;3242@gmail.com&rdquo;,
+  &ldquo;id&rdquo;: 4,
+  &ldquo;createdAt&rdquo;: &ldquo;2015-11-18T09:34:28.608Z&rdquo;,
+  &ldquo;updatedAt&rdquo;: &ldquo;2015-11-18T09:34:28.608Z&rdquo;
+}</p>
+
+<pre><code>
+我們發現回傳的已經沒有敏感的資訊了.
+
+另一方面, sails有更優雅的解決方案, sails提供了在model的一個Setting, 叫做`schema`, 若把`schema`設為`true`, 那麼`sails`只會保存在model中有定義的屬性, 若為false, 那麼sails就允許你可以任意儲存你想要的record的資料
+
+官方網站的資料請參考&lt;a href="http://sailsjs.org/documentation/concepts/models-and-orm/model-settings#?schema" target="_blank"&gt;這裡&lt;/a&gt;
+
+我們修改User.js, 把toJSON拿掉, 加入schema
+</code></pre>
+
+<p>module.exports = {</p>
+
+<p>  schema: true,</p>
+
+<p>  attributes: {
+    name:{
+        type: &lsquo;string&rsquo;,
+        required: true
+    },</p>
+
+<pre><code>title:{
+    type: 'string'
+},
+
+email: {
+  type: 'email',
+  required: true,
+  unique: true
+},
+
+encryptedPassword:{
+    type: 'string'
+}
+
+//toJSON: function(){
+//  var obj = this.toObject();
+//  delete obj.password;
+//  delete obj.confirmation;
+//  delete obj.encryptedPassword;
+//  delete obj._csrf;
+//  return obj;
+//}
+</code></pre>
+
+<p>  }
+};</p>
+
+<pre><code>
+從新啟動sails, 然後到瀏覽器, 記得清空瀏覽器緩存, 不然會有問題
+
+輸入註冊資訊, 然後看回傳的訊息
+</code></pre>
+
+<p>{
+  &ldquo;name&rdquo;: &ldquo;HappyKenny&rdquo;,
+  &ldquo;title&rdquo;: &ldquo;HappyKennyYa&rdquo;,
+  &ldquo;email&rdquo;: &ldquo;<a href="&#x6d;&#97;&#x69;&#x6c;&#116;&#x6f;&#58;&#104;&#97;&#x70;&#x70;&#x79;&#x40;&#99;&#111;&#x6d;&#x2e;&#x74;&#x77;">&#104;&#97;&#112;&#112;&#x79;&#64;&#99;&#x6f;&#109;&#x2e;&#116;&#119;</a>&rdquo;,
+  &ldquo;id&rdquo;: 6,
+  &ldquo;createdAt&rdquo;: &ldquo;2015-11-18T09:52:11.686Z&rdquo;,
+  &ldquo;updatedAt&rdquo;: &ldquo;2015-11-18T09:52:11.686Z&rdquo;
+}</p>
+
+<p>```</p>
+
+<p>同樣的, 沒有敏感的資訊</p>
+
+<p>你可以在瀏覽器輸入<code>http://localhost:1337/user</code></p>
+
+<p>來觀看以往建立的user資料</p>
+
+<p>OK, 這堂課就到這邊, 謝謝大家</p>
+]]></content>
+  </entry>
+  
+  <entry>
     <title type="html"><![CDATA[Sails練習之二]]></title>
     <link href="http://kennytu.github.io/blog/2015/11/17/sails-study02/"/>
     <updated>2015-11-17T10:54:23+08:00</updated>
     <id>http://kennytu.github.io/blog/2015/11/17/sails-study02</id>
-    <content type="html"><![CDATA[<p>本篇是接著Ponzi Coder的這篇</p>
+    <content type="html"><![CDATA[<p>本篇是接著Irl nathan的這篇</p>
 
 <p><a href="https://www.youtube.com/watch?v=qUAzpyThAB0&index=5&list=PLWsZeJCry-F4K4iRImeB3-i0S5mw9Ak-W" target="_blank">Building a Sails Application: Ep3[UPDATED] - A user model/controller, signup page, sails blueprints</a></p>
 
-<p>裡面為練習內容</p>
+<p>底下為練習內容</p>
 
 <!--more-->
 
@@ -321,6 +528,7 @@ Make sure it is triggering its `initialize()` callback, or else set `sails.confi
 @orange: #F48744;
 @blue: #189ECA;
 @gray: #777574;
+@lightGrey: #AAAAAA;
 @darkBlue: #106E8D;
 @darkGray: #4A4A4A; // paragraphs
 @red: #D16565; // error</p>
@@ -358,7 +566,7 @@ Make sure it is triggering its `initialize()` callback, or else set `sails.confi
   padding: 19px 29px 29px;
   margin: 0 auto 20px;
   margin-top: 20px;
-  background-color: @gray;
+  background-color: @lightGrey;
   border: 1px solid @green;
   -webkit-border-radius: 15px;
   -moz-border-radius: 15px;

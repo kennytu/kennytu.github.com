@@ -4,7 +4,7 @@
   <title><![CDATA[江湖險惡，我從來都不輕易留下我的姓名。]]></title>
   <link href="http://kennytu.github.io/atom.xml" rel="self"/>
   <link href="http://kennytu.github.io/"/>
-  <updated>2015-11-17T19:07:25+08:00</updated>
+  <updated>2015-11-18T18:25:04+08:00</updated>
   <id>http://kennytu.github.io/</id>
   <author>
     <name><![CDATA[Kenny Tu]]></name>
@@ -14,15 +14,308 @@
 
   
   <entry>
+    <title type="html"><![CDATA[Sails練習之三]]></title>
+    <link href="http://kennytu.github.io/blog/2015/11/18/sails-study03/"/>
+    <updated>2015-11-18T12:05:14+08:00</updated>
+    <id>http://kennytu.github.io/blog/2015/11/18/sails-study03</id>
+    <content type="html"><![CDATA[<p>前面兩個練習都做完之後, 我們終於有了一個還滿順眼的登入畫面</p>
+
+<p>接下來我們按照Irl nathan的課程繼續我們的練習</p>
+
+<p>課程連結在此 <a href="" target="_blank">Building a Sails Application: Ep4 - Creating a user account.</a></p>
+
+<!--more-->
+
+
+<p>在一開始, Nathan他shows了一個new.ejs的程式碼</p>
+
+<p>你會發現它多了</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;control-group&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>...
+</span><span class='line'><span class="nt">&lt;/div&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>若你用的是bootstrap3.x的版本, 就會發生找不到control-group的class, 這時候請到<a href="http://getbootstrap.com/migration/" target="_blank">這裡</a>, 找到對照bootstrap2.x 改版到3.x有關於一些相對應class名稱的修改.你就知道要怎麼對應這些bootstrap3.x的CSS了</p>
+
+<p>接著, Ponzi花了點時間解釋<code>&lt;%= _csrf %&gt;</code>這個tag的用意</p>
+
+<p>我們先到config/csrf.js, 將csrf Enable起來</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="cm">/****************************************************************************</span>
+</span><span class='line'><span class="cm">*                                                                           *</span>
+</span><span class='line'><span class="cm">* Enabled CSRF protection for your site?                                    *</span>
+</span><span class='line'><span class="cm">*                                                                           *</span>
+</span><span class='line'><span class="cm">****************************************************************************/</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">module</span><span class="p">.</span><span class="nx">exports</span><span class="p">.</span><span class="nx">csrf</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>至於CSRF是什麼東西, 之後我在整理出來寫在另一篇文章中</p>
+
+<p>簡言之, CSRF是某種保護機制, 讓你可以識別使用者..</p>
+
+<p>接著, 到<code>blueprints.js</code> 設定</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">actions</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+</span><span class='line'><span class="nx">rest</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+</span><span class='line'><span class="nx">shortcuts</span><span class="o">:</span> <span class="kc">true</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>存檔, 接著到UserController.js</p>
+
+<p>加入以下程式碼</p>
+
+<figure class='code'><figcaption><span>api\controllers\UserController.js</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>    <span class="s1">&#39;new&#39;</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">){</span>
+</span><span class='line'>        <span class="nx">res</span><span class="p">.</span><span class="nx">view</span><span class="p">();</span>
+</span><span class='line'>    <span class="p">},</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">create</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">User</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">params</span><span class="p">.</span><span class="nx">all</span><span class="p">(),</span> <span class="kd">function</span> <span class="nx">userCreated</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span><span class="nx">user</span><span class="p">){</span>
+</span><span class='line'>          <span class="k">if</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="k">return</span> <span class="nx">next</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
+</span><span class='line'>          <span class="nx">res</span><span class="p">.</span><span class="nx">json</span><span class="p">(</span><span class="nx">user</span><span class="p">);</span>
+</span><span class='line'>      <span class="p">});</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>主要是新增<code>create</code>這個method.</p>
+
+<p>從新啟動sails</p>
+
+<p><code>sails lift</code></p>
+
+<p>輸入<code>http://localhost:1337</code>, 點擊 sing up now, 進入登錄畫面</p>
+
+<p>輸入必要的資訊之後, 按下Create an account, 此時Sails會回傳下列的資訊</p>
+
+<figure class='code'><figcaption><span>http://localhost:1337/user/create的返回資訊</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='json'><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;kg&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="nt">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;kaaa&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="nt">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;k223@hot.com&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="nt">&quot;password&quot;</span><span class="p">:</span> <span class="s2">&quot;1234&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="nt">&quot;comfirmation&quot;</span><span class="p">:</span> <span class="s2">&quot;5678&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="nt">&quot;_csrf&quot;</span><span class="p">:</span> <span class="s2">&quot;gdMb0LUb-zUlpCgAUgC0LW41ILym6M6_svV4&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+</span><span class='line'>  <span class="nt">&quot;createdAt&quot;</span><span class="p">:</span> <span class="s2">&quot;2015-11-18T09:20:31.268Z&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="nt">&quot;updatedAt&quot;</span><span class="p">:</span> <span class="s2">&quot;2015-11-18T09:20:31.268Z&quot;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>GOOD, 大功告成. 現在美中不足的就是密碼部分會是明碼的格式傳回, 這個我們馬上來處理</p>
+
+<p>我們到<code>User.js</code>, 也就是<code>api\models\User.js</code></p>
+
+<p>加入底下的程式碼</p>
+
+<figure class='code'><figcaption><span>User.js</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">toJSON</span><span class="o">:</span> <span class="kd">function</span><span class="p">(){</span>
+</span><span class='line'>      <span class="kd">var</span> <span class="nx">obj</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">toObject</span><span class="p">();</span>
+</span><span class='line'>      <span class="k">delete</span> <span class="nx">obj</span><span class="p">.</span><span class="nx">password</span><span class="p">;</span>
+</span><span class='line'>      <span class="k">delete</span> <span class="nx">obj</span><span class="p">.</span><span class="nx">confirmation</span><span class="p">;</span>
+</span><span class='line'>      <span class="k">delete</span> <span class="nx">obj</span><span class="p">.</span><span class="nx">encryptedPassword</span><span class="p">;</span>
+</span><span class='line'>      <span class="k">delete</span> <span class="nx">obj</span><span class="p">.</span><span class="nx">_csrf</span><span class="p">;</span>
+</span><span class='line'>      <span class="k">return</span> <span class="nx">obj</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>將toJSON加入, 然後重新啟動Sails</p>
+
+<p>我們在測試一次, 就可以看到回傳的資訊已經隱藏了<code>password</code>, <code>confirmation</code>, <code>encryptedPassword</code>以及<code>_csrf</code></p>
+
+<p>測試內容如下</p>
+
+<figure class='code'><figcaption><span>http://localhost:1337/user/create</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='json'><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;23423&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="nt">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;42344&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="nt">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;3242@gmail.com&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+</span><span class='line'>  <span class="nt">&quot;createdAt&quot;</span><span class="p">:</span> <span class="s2">&quot;2015-11-18T09:34:28.608Z&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="nt">&quot;updatedAt&quot;</span><span class="p">:</span> <span class="s2">&quot;2015-11-18T09:34:28.608Z&quot;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>我們發現回傳的已經沒有敏感的資訊了.</p>
+
+<p>另一方面, sails有更優雅的解決方案, sails提供了在model的一個Setting, 叫做<code>schema</code>, 若把<code>schema</code>設為<code>true</code>, 那麼<code>sails</code>只會保存在model中有定義的屬性, 若為false, 那麼sails就允許你可以任意儲存你想要的record的資料</p>
+
+<p>官方網站的資料請參考<a href="http://sailsjs.org/documentation/concepts/models-and-orm/model-settings#?schema" target="_blank">這裡</a></p>
+
+<p>我們修改User.js, 把toJSON拿掉, 加入schema</p>
+
+<figure class='code'><figcaption><span>User.js.移除toJSON.加入schema</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">schema</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">attributes</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">name</span><span class="o">:</span><span class="p">{</span>
+</span><span class='line'>        <span class="nx">type</span><span class="o">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span>
+</span><span class='line'>        <span class="nx">required</span><span class="o">:</span> <span class="kc">true</span>
+</span><span class='line'>    <span class="p">},</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">title</span><span class="o">:</span><span class="p">{</span>
+</span><span class='line'>        <span class="nx">type</span><span class="o">:</span> <span class="s1">&#39;string&#39;</span>
+</span><span class='line'>    <span class="p">},</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">email</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">type</span><span class="o">:</span> <span class="s1">&#39;email&#39;</span><span class="p">,</span>
+</span><span class='line'>      <span class="nx">required</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+</span><span class='line'>      <span class="nx">unique</span><span class="o">:</span> <span class="kc">true</span>
+</span><span class='line'>    <span class="p">},</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">encryptedPassword</span><span class="o">:</span><span class="p">{</span>
+</span><span class='line'>        <span class="nx">type</span><span class="o">:</span> <span class="s1">&#39;string&#39;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">//toJSON: function(){</span>
+</span><span class='line'>    <span class="c1">//  var obj = this.toObject();</span>
+</span><span class='line'>    <span class="c1">//  delete obj.password;</span>
+</span><span class='line'>    <span class="c1">//  delete obj.confirmation;</span>
+</span><span class='line'>    <span class="c1">//  delete obj.encryptedPassword;</span>
+</span><span class='line'>    <span class="c1">//  delete obj._csrf;</span>
+</span><span class='line'>    <span class="c1">//  return obj;</span>
+</span><span class='line'>    <span class="c1">//}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>從新啟動sails, 然後到瀏覽器, 記得清空瀏覽器緩存, 不然會有問題</p>
+
+<p>輸入註冊資訊, 然後看回傳的訊息</p>
+
+<figure class='code'><figcaption><span>http://localhost:1337/user/create</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='json'><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;HappyKenny&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="nt">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;HappyKennyYa&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="nt">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;happy@com.tw&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+</span><span class='line'>  <span class="nt">&quot;createdAt&quot;</span><span class="p">:</span> <span class="s2">&quot;2015-11-18T09:52:11.686Z&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="nt">&quot;updatedAt&quot;</span><span class="p">:</span> <span class="s2">&quot;2015-11-18T09:52:11.686Z&quot;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>同樣的, 沒有敏感的資訊</p>
+
+<p>你可以在瀏覽器輸入<code>http://localhost:1337/user</code></p>
+
+<p>來觀看以往建立的user資料</p>
+
+<p>OK, 這堂課就到這邊, 謝謝大家</p>
+]]></content>
+  </entry>
+  
+  <entry>
     <title type="html"><![CDATA[Sails練習之二]]></title>
     <link href="http://kennytu.github.io/blog/2015/11/17/sails-study02/"/>
     <updated>2015-11-17T10:54:23+08:00</updated>
     <id>http://kennytu.github.io/blog/2015/11/17/sails-study02</id>
-    <content type="html"><![CDATA[<p>本篇是接著Ponzi Coder的這篇</p>
+    <content type="html"><![CDATA[<p>本篇是接著Irl nathan的這篇</p>
 
 <p><a href="https://www.youtube.com/watch?v=qUAzpyThAB0&index=5&list=PLWsZeJCry-F4K4iRImeB3-i0S5mw9Ak-W" target="_blank">Building a Sails Application: Ep3[UPDATED] - A user model/controller, signup page, sails blueprints</a></p>
 
-<p>裡面為練習內容</p>
+<p>底下為練習內容</p>
 
 <!--more-->
 
@@ -508,11 +801,13 @@ actions: false,
 <span class='line-number'>59</span>
 <span class='line-number'>60</span>
 <span class='line-number'>61</span>
+<span class='line-number'>62</span>
 </pre></td><td class='code'><pre><code class='css'><span class='line'><span class="k">@white</span><span class="o">:</span> <span class="nf">#FFFFFF</span><span class="p">;</span>
 </span><span class='line'><span class="k">@green</span><span class="o">:</span> <span class="nf">#9EC03B</span><span class="p">;</span>
 </span><span class='line'><span class="k">@orange</span><span class="o">:</span> <span class="nf">#F48744</span><span class="p">;</span>
 </span><span class='line'><span class="k">@blue</span><span class="o">:</span> <span class="nf">#189ECA</span><span class="p">;</span>
 </span><span class='line'><span class="k">@gray</span><span class="o">:</span> <span class="nf">#777574</span><span class="p">;</span>
+</span><span class='line'><span class="k">@lightGrey</span><span class="o">:</span> <span class="nf">#AAAAAA</span><span class="p">;</span>
 </span><span class='line'><span class="k">@darkBlue</span><span class="o">:</span> <span class="nf">#106E8D</span><span class="p">;</span>
 </span><span class='line'><span class="k">@darkGray</span><span class="o">:</span> <span class="nf">#4A4A4A</span><span class="p">;</span> <span class="o">//</span> <span class="nt">paragraphs</span>
 </span><span class='line'><span class="k">@red</span><span class="o">:</span> <span class="nf">#D16565</span><span class="p">;</span> <span class="o">//</span> <span class="nt">error</span>
@@ -550,7 +845,7 @@ actions: false,
 </span><span class='line'>  <span class="k">padding</span><span class="o">:</span> <span class="m">19px</span> <span class="m">29px</span> <span class="m">29px</span><span class="p">;</span>
 </span><span class='line'>  <span class="k">margin</span><span class="o">:</span> <span class="m">0</span> <span class="k">auto</span> <span class="m">20px</span><span class="p">;</span>
 </span><span class='line'>  <span class="k">margin-top</span><span class="o">:</span> <span class="m">20px</span><span class="p">;</span>
-</span><span class='line'>  <span class="k">background-color</span><span class="o">:</span> <span class="o">@</span><span class="nb">gray</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">background-color</span><span class="o">:</span> <span class="o">@</span><span class="n">lightGrey</span><span class="p">;</span>
 </span><span class='line'>  <span class="k">border</span><span class="o">:</span> <span class="m">1px</span> <span class="k">solid</span> <span class="o">@</span><span class="nb">green</span><span class="p">;</span>
 </span><span class='line'>  <span class="o">-</span><span class="n">webkit</span><span class="o">-</span><span class="k">border</span><span class="o">-</span><span class="n">radius</span><span class="o">:</span> <span class="m">15px</span><span class="p">;</span>
 </span><span class='line'>  <span class="o">-</span><span class="n">moz</span><span class="o">-</span><span class="k">border</span><span class="o">-</span><span class="n">radius</span><span class="o">:</span> <span class="m">15px</span><span class="p">;</span>
@@ -1201,18 +1496,18 @@ categories: abc</p>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
 <span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Fixnum</span>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">prime?</span>
-</span><span class='line'>    <span class="p">(</span><span class="s1">&#39;1&#39;</span> <span class="o">*</span> <span class="nb">self</span><span class="p">)</span> <span class="o">!~</span> <span class="sr">/^1?$|^(11+?)\1+$/</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'> <span class="k">class</span> <span class="nc">Fixnum</span>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">prime?</span>
+</span><span class='line'>      <span class="p">(</span><span class="s1">&#39;1&#39;</span> <span class="o">*</span> <span class="nb">self</span><span class="p">)</span> <span class="o">!~</span> <span class="sr">/^1?$|^(11+?)\1+$/</span>
+</span><span class='line'>    <span class="k">end</span>
 </span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
 <p>語法是 三個``` [language] [title] [url] [link text]</p>
 
 <pre><code>``` ruby Discover if a number is prime http://www.noulakaz.net/weblog/2007/03/18/a-regular-expression-to-check-for-prime-numbers/ 點擊查看
-
+空一列
 class Fixnum
 
   def prime?
@@ -1222,9 +1517,11 @@ class Fixnum
   end
 
 end
-
+空一列   
 ```
 </code></pre>
+
+<p>上面的空一列是新增一行空白列的意思, 若沒有空一列, 有些內嵌的程式碼的語法可能會讓Markdown解釋錯誤, 要記得</p>
 
 <h2>連結圖片</h2>
 
