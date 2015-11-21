@@ -4,7 +4,7 @@
   <title><![CDATA[江湖險惡，我從來都不輕易留下我的姓名。]]></title>
   <link href="http://kennytu.github.io/atom.xml" rel="self"/>
   <link href="http://kennytu.github.io/"/>
-  <updated>2015-11-18T18:25:04+08:00</updated>
+  <updated>2015-11-22T00:08:02+08:00</updated>
   <id>http://kennytu.github.io/</id>
   <author>
     <name><![CDATA[Kenny Tu]]></name>
@@ -12,6 +12,28 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Sails練習之四]]></title>
+    <link href="http://kennytu.github.io/blog/2015/11/18/sails-study04/"/>
+    <updated>2015-11-18T18:38:20+08:00</updated>
+    <id>http://kennytu.github.io/blog/2015/11/18/sails-study04</id>
+    <content type="html"><![CDATA[<p>OK, 接下來這篇<a href="https://www.youtube.com/watch?v=4Gbc9ZA2-YY&list=PLWsZeJCry-F4K4iRImeB3-i0S5mw9Ak-W&index=7" target="_blank">Building a Sails Application: Ep5 - Handling validation errors with a flash message</a></p>
+
+<p>作者要示範如何handle error</p>
+
+<p>當我們登入註冊頁面, 然後沒有輸入任何資料, 或者資料輸入錯誤, 就按下Create Account. Sails會回傳錯誤資訊. 我們現在要handle這個錯誤, 請看以下練習</p>
+
+<p>到<code>UserController.js</code>, 修改create function</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Sails練習之三]]></title>
@@ -22,7 +44,7 @@
 
 <p>接下來我們按照Irl nathan的課程繼續我們的練習</p>
 
-<p>課程連結在此 <a href="" target="_blank">Building a Sails Application: Ep4 - Creating a user account.</a></p>
+<p>課程連結在此 <a href="https://www.youtube.com/watch?v=WKtmKha6Ehw&index=6&list=PLWsZeJCry-F4K4iRImeB3-i0S5mw9Ak-W" target="_blank">Building a Sails Application: Ep4 - Creating a user account.</a></p>
 
 <!--more-->
 
