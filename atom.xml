@@ -4,7 +4,7 @@
   <title><![CDATA[江湖險惡，我從來都不輕易留下我的姓名。]]></title>
   <link href="http://kennytu.github.io/atom.xml" rel="self"/>
   <link href="http://kennytu.github.io/"/>
-  <updated>2015-11-22T00:08:02+08:00</updated>
+  <updated>2015-11-23T16:25:50+08:00</updated>
   <id>http://kennytu.github.io/</id>
   <author>
     <name><![CDATA[Kenny Tu]]></name>
@@ -27,11 +27,132 @@
 <p>到<code>UserController.js</code>, 修改create function</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='js'><span class='line'>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>    <span class="s1">&#39;new&#39;</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">){</span>
+</span><span class='line'>        <span class="nx">res</span><span class="p">.</span><span class="nx">locals</span><span class="p">.</span><span class="nx">flash</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">clone</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">session</span><span class="p">.</span><span class="nx">flash</span><span class="p">);</span>
+</span><span class='line'>        <span class="nx">res</span><span class="p">.</span><span class="nx">view</span><span class="p">();</span>
+</span><span class='line'>        <span class="nx">req</span><span class="p">.</span><span class="nx">session</span><span class="p">.</span><span class="nx">flash</span> <span class="o">=</span> <span class="p">{};</span>
+</span><span class='line'>    <span class="p">},</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">create</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">User</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">params</span><span class="p">.</span><span class="nx">all</span><span class="p">(),</span> <span class="kd">function</span> <span class="nx">userCreated</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span><span class="nx">user</span><span class="p">){</span>
+</span><span class='line'>          <span class="c1">//if(err) return next(err);</span>
+</span><span class='line'>
+</span><span class='line'>          <span class="k">if</span><span class="p">(</span><span class="nx">err</span><span class="p">){</span>
+</span><span class='line'>            <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
+</span><span class='line'>            <span class="nx">req</span><span class="p">.</span><span class="nx">session</span><span class="p">.</span><span class="nx">flash</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>              <span class="nx">err</span><span class="o">:</span> <span class="nx">err</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>            <span class="c1">//if error redirect back to sign-up page</span>
+</span><span class='line'>            <span class="k">return</span> <span class="nx">res</span><span class="p">.</span><span class="nx">redirect</span><span class="p">(</span><span class="s1">&#39;/user/new&#39;</span><span class="p">);</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>          <span class="nx">res</span><span class="p">.</span><span class="nx">json</span><span class="p">(</span><span class="nx">user</span><span class="p">);</span>
+</span><span class='line'>        <span class="nx">req</span><span class="p">.</span><span class="nx">session</span><span class="p">.</span><span class="nx">flash</span> <span class="o">=</span> <span class="p">{};</span>
+</span><span class='line'>      <span class="p">});</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">};</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
+<p>OK.</p>
 
+<p>然後到new.ejs,參考底下程式碼</p>
+
+<figure class='code'><figcaption><span>new.ejs </span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="o">&lt;</span><span class="nx">form</span> <span class="nx">action</span><span class="o">=</span><span class="s2">&quot;/user/create&quot;</span> <span class="nx">method</span><span class="o">=</span><span class="s2">&quot;POST&quot;</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;form-signin&quot;</span><span class="o">&gt;</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="nx">h2</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;form-signin-heading&quot;</span><span class="o">&gt;</span> <span class="nx">Create</span> <span class="nx">an</span> <span class="nx">account</span><span class="o">&lt;</span><span class="err">/h2&gt;</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">&lt;%</span> <span class="k">if</span><span class="p">(</span><span class="nx">flash</span> <span class="o">&amp;&amp;</span> <span class="nx">flash</span><span class="p">.</span><span class="nx">err</span><span class="p">){</span> <span class="o">%&gt;</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="nx">ul</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;alert alert-success&quot;</span><span class="o">&gt;</span>
+</span><span class='line'>    <span class="o">&lt;%</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">flash</span><span class="p">.</span><span class="nx">err</span><span class="p">).</span><span class="nx">forEach</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">error</span><span class="p">){</span> <span class="o">%&gt;</span>
+</span><span class='line'>    <span class="o">&lt;</span><span class="nx">li</span><span class="o">&gt;&lt;%-</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">flash</span><span class="p">.</span><span class="nx">err</span><span class="p">[</span><span class="nx">error</span><span class="p">])</span> <span class="o">%&gt;&lt;</span><span class="err">/li&gt;</span>
+</span><span class='line'>    <span class="o">&lt;%</span> <span class="p">})</span><span class="o">%&gt;</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="err">/ul&gt;</span>
+</span><span class='line'>  <span class="o">&lt;%</span><span class="p">}</span><span class="o">%&gt;</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">&lt;</span><span class="nx">div</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;form-group&quot;</span><span class="o">&gt;</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="nx">input</span> <span class="nx">type</span><span class="o">=</span><span class="s2">&quot;text&quot;</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;form-control&quot;</span> <span class="nx">placeholder</span><span class="o">=</span><span class="s2">&quot;your name&quot;</span> <span class="nx">name</span><span class="o">=</span><span class="s2">&quot;name&quot;</span><span class="o">&gt;</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="err">/div&gt;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">&lt;</span><span class="nx">input</span> <span class="nx">type</span><span class="o">=</span><span class="s2">&quot;text&quot;</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;form-control&quot;</span> <span class="nx">placeholder</span><span class="o">=</span><span class="s2">&quot;your title&quot;</span> <span class="nx">name</span><span class="o">=</span><span class="s2">&quot;title&quot;</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">&lt;</span><span class="nx">input</span> <span class="nx">type</span><span class="o">=</span><span class="s2">&quot;text&quot;</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;form-control&quot;</span> <span class="nx">placeholder</span><span class="o">=</span><span class="s2">&quot;email address&quot;</span> <span class="nx">name</span><span class="o">=</span><span class="s2">&quot;email&quot;</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">&lt;</span><span class="nx">input</span> <span class="nx">type</span><span class="o">=</span><span class="s2">&quot;password&quot;</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;form-control&quot;</span> <span class="nx">placeholder</span><span class="o">=</span><span class="s2">&quot;password&quot;</span> <span class="nx">name</span><span class="o">=</span><span class="s2">&quot;password&quot;</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">&lt;</span><span class="nx">input</span> <span class="nx">type</span><span class="o">=</span><span class="s2">&quot;password&quot;</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;form-control&quot;</span> <span class="nx">placeholder</span><span class="o">=</span><span class="s2">&quot;password confirmation&quot;</span> <span class="nx">name</span><span class="o">=</span><span class="s2">&quot;confirmation&quot;</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">&lt;</span><span class="nx">input</span> <span class="nx">type</span><span class="o">=</span><span class="s2">&quot;submit&quot;</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;btn btn-lg btn-primary btn-block&quot;</span> <span class="nx">value</span><span class="o">=</span><span class="s2">&quot;Create Account&quot;</span><span class="o">/&gt;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">&lt;</span><span class="nx">input</span> <span class="nx">type</span><span class="o">=</span><span class="s2">&quot;hidden&quot;</span> <span class="nx">name</span><span class="o">=</span><span class="s2">&quot;_csrf&quot;</span> <span class="nx">value</span><span class="o">=</span><span class="s2">&quot;&lt;%= _csrf %&gt;&quot;</span><span class="o">/&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="err">/form&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>重新啟動, 測試看看, 應該就沒問題了</p>
+
+<p>這篇主要在講後端處理的技術, 以及在前端如何使用ejs的一些巧技巧</p>
+
+<p>精華的部分就是在<code>res.locals.flash</code>和<code>req.session.flash</code>這兩個上面, 以及前端頁面, 像是 <code>&lt;%</code> <code>%&gt;</code>這樣嵌入式的ejs用法..</p>
+
+<p>說實話, 我現階段還對ejs語法不是很熟, 到時候再來補齊相關資訊嚕</p>
 ]]></content>
   </entry>
   
