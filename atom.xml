@@ -4,7 +4,7 @@
   <title><![CDATA[江湖險惡，我從來都不輕易留下我的姓名。]]></title>
   <link href="http://kennytu.github.io/atom.xml" rel="self"/>
   <link href="http://kennytu.github.io/"/>
-  <updated>2015-11-23T16:25:50+08:00</updated>
+  <updated>2015-11-23T23:37:24+08:00</updated>
   <id>http://kennytu.github.io/</id>
   <author>
     <name><![CDATA[Kenny Tu]]></name>
@@ -12,6 +12,300 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Sails練習之五]]></title>
+    <link href="http://kennytu.github.io/blog/2015/11/23/sails-study05/"/>
+    <updated>2015-11-23T16:56:55+08:00</updated>
+    <id>http://kennytu.github.io/blog/2015/11/23/sails-study05</id>
+    <content type="html"><![CDATA[<p>終於來到練習的第五集了, 這一集是影片連結是<a href="https://www.youtube.com/watch?v=_wL2cS0GmJQ&index=8&list=PLWsZeJCry-F4K4iRImeB3-i0S5mw9Ak-W" target=_blank>Building a Sails Application: Ep6 - Creating a policy and adding client-side validation</a></p>
+
+<p>上一個單元, Irl nathan展示了如何在UserController中, 實現Handling validation errors with a flash message.</p>
+
+<p>想當然, sails有更優雅的做法, 那就是本章要介紹的policy機制.</p>
+
+<!--more-->
+
+
+<p>先來寫程式碼</p>
+
+<p>在<code>api\policies\</code> 創建 <code>flash.js</code>, 內如如下</p>
+
+<figure class='code'><figcaption><span>flash.js</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">res</span><span class="p">.</span><span class="nx">locals</span><span class="p">.</span><span class="nx">flash</span> <span class="o">=</span> <span class="p">{};</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">req</span><span class="p">.</span><span class="nx">session</span><span class="p">.</span><span class="nx">flash</span><span class="p">)</span> <span class="k">return</span> <span class="nx">next</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">res</span><span class="p">.</span><span class="nx">locals</span><span class="p">.</span><span class="nx">flash</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">clone</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">session</span><span class="p">.</span><span class="nx">flash</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// clear flash</span>
+</span><span class='line'>  <span class="nx">req</span><span class="p">.</span><span class="nx">session</span><span class="p">.</span><span class="nx">flash</span> <span class="o">=</span> <span class="p">{};</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">next</span><span class="p">();</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>然後在 <code>config\policies.js</code> 找到</p>
+
+<figure class='code'><figcaption><span>policies.js </span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'> <span class="c1">//&#39;*&#39;: true,</span>
+</span><span class='line'>   <span class="s1">&#39;*&#39;</span><span class="o">:</span> <span class="s1">&#39;flash&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>這樣就設定完成了, 接著, 重新啟動sails</p>
+
+<p>然後驗證一下註冊資訊若輸入錯誤, 是不是有相同的提示效果</p>
+
+<p>基本上應該都要很順利.</p>
+
+<p>接下來, 作者用JQuery來美化頁面上的錯誤訊息</p>
+
+<p>首先, 我們去下載<a href="http://jqueryvalidation.org/" target=_blank>jQuery Validation Plugin</a></p>
+
+<p>壓縮檔解壓縮之後, 在<code>dist</code>的目錄下找到<code>additional-methods.min.js</code></p>
+
+<p>把這個檔案copy到sails專案底下的<code>assets\js\dependencies</code></p>
+
+<p>接著修改<code>tasks\pipeline.js</code></p>
+
+<figure class='code'><figcaption><span>pipeline.js</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="c1">// Client-side javascript files to inject in order</span>
+</span><span class='line'><span class="c1">// (uses Grunt-style wildcard/glob/splat expressions)</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">jsFilesToInject</span> <span class="o">=</span> <span class="p">[</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Load sails.io before everything else</span>
+</span><span class='line'>  <span class="s1">&#39;js/dependencies/sails.io.js&#39;</span><span class="p">,</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Dependencies like jQuery, or Angular are brought in here</span>
+</span><span class='line'>  <span class="s1">&#39;js/dependencies/jquery.js&#39;</span><span class="p">,</span>
+</span><span class='line'>  <span class="s1">&#39;js/dependencies/jquery.validate.min.js&#39;</span><span class="p">,</span>
+</span><span class='line'>  <span class="s1">&#39;js/dependencies/**/*.js&#39;</span><span class="p">,</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// All of the rest of your client-side js files</span>
+</span><span class='line'>  <span class="c1">// will be injected here in no particular order.</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="s1">&#39;js/**/*.js&#39;</span><span class="p">,</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Use the &quot;exclude&quot; operator to ignore files</span>
+</span><span class='line'>  <span class="c1">// &#39;!js/ignore/these/files/*.js&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">];</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>注意以上的程式碼, 有先後順序, jquery.js在前面, 接下來才是<code>jquery.validate.min.js</code></p>
+
+<p>接著, 在新增<code>assets\js\dependencies\</code> 底下新增<code>customVaildate.js</code></p>
+
+<figure class='code'><figcaption><span>customVaildate.js</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">$</span><span class="p">(</span><span class="nb">document</span><span class="p">).</span><span class="nx">ready</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">$</span><span class="p">(</span><span class="s1">&#39;.form-signin&#39;</span><span class="p">).</span><span class="nx">validate</span><span class="p">({</span>
+</span><span class='line'>    <span class="nx">rules</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">name</span><span class="o">:</span><span class="p">{</span>
+</span><span class='line'>        <span class="nx">required</span><span class="o">:</span> <span class="kc">true</span>
+</span><span class='line'>      <span class="p">},</span>
+</span><span class='line'>      <span class="nx">email</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nx">type</span><span class="o">:</span> <span class="s1">&#39;email&#39;</span><span class="p">,</span>
+</span><span class='line'>        <span class="nx">required</span><span class="o">:</span> <span class="kc">true</span>
+</span><span class='line'>      <span class="p">},</span>
+</span><span class='line'>      <span class="nx">password</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nx">minlength</span><span class="o">:</span><span class="mi">6</span><span class="p">,</span>
+</span><span class='line'>        <span class="nx">required</span><span class="o">:</span> <span class="kc">true</span>
+</span><span class='line'>      <span class="p">},</span>
+</span><span class='line'>      <span class="nx">confirmation</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nx">minlength</span><span class="o">:</span><span class="mi">6</span><span class="p">,</span>
+</span><span class='line'>        <span class="nx">equalTo</span><span class="o">:</span> <span class="s2">&quot;#password&quot;</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>    <span class="p">},</span>
+</span><span class='line'>    <span class="nx">success</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">element</span><span class="p">){</span>
+</span><span class='line'>      <span class="nx">element</span><span class="p">.</span><span class="nx">text</span><span class="p">(</span><span class="s1">&#39;OK!&#39;</span><span class="p">).</span><span class="nx">addClass</span><span class="p">(</span><span class="s1">&#39;valid&#39;</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>這個檔案會被sails自動讀取, 是因為我們在<code>pipeline.js</code>裡面有一行敘述是<code>'js/**/*.js'</code> sails會自動讀取js目錄底下所有的java script檔案</p>
+
+<p>新增完成之後, 重新啟動sails</p>
+
+<p>就可以看到我們的註冊畫面有Jquery的Validate的檢查樣式了</p>
+
+<p>接著我們上下一課: <a href="https://www.youtube.com/watch?v=HozWtywQNMo&list=PLWsZeJCry-F4K4iRImeB3-i0S5mw9Ak-W&index=9" target="_blank">Building a Sails Application: Ep7 - Adding the show action.</a></p>
+
+<p>我們要來新增<code>show</code>每一個user的基本資料的action</p>
+
+<p>先修改UserController.js</p>
+
+<figure class='code'><figcaption><span>UserController.js </span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>    <span class="s1">&#39;new&#39;</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">){</span>
+</span><span class='line'>        <span class="c1">//res.locals.flash = _.clone(req.session.flash);</span>
+</span><span class='line'>        <span class="nx">res</span><span class="p">.</span><span class="nx">view</span><span class="p">();</span>
+</span><span class='line'>        <span class="c1">//req.session.flash = {};</span>
+</span><span class='line'>    <span class="p">},</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">create</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">User</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">params</span><span class="p">.</span><span class="nx">all</span><span class="p">(),</span> <span class="kd">function</span> <span class="nx">userCreated</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span><span class="nx">user</span><span class="p">){</span>
+</span><span class='line'>          <span class="c1">//if(err) return next(err);</span>
+</span><span class='line'>
+</span><span class='line'>          <span class="k">if</span><span class="p">(</span><span class="nx">err</span><span class="p">){</span>
+</span><span class='line'>            <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
+</span><span class='line'>            <span class="nx">req</span><span class="p">.</span><span class="nx">session</span><span class="p">.</span><span class="nx">flash</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>              <span class="nx">err</span><span class="o">:</span> <span class="nx">err</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>            <span class="c1">//if error redirect back to sign-up page</span>
+</span><span class='line'>            <span class="k">return</span> <span class="nx">res</span><span class="p">.</span><span class="nx">redirect</span><span class="p">(</span><span class="s1">&#39;/user/new&#39;</span><span class="p">);</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>        <span class="c1">//res.json(user);</span>
+</span><span class='line'>        <span class="c1">//req.session.flash = {};</span>
+</span><span class='line'>        <span class="nx">res</span><span class="p">.</span><span class="nx">redirect</span><span class="p">(</span><span class="s1">&#39;/user/show/&#39;</span><span class="o">+</span><span class="nx">user</span><span class="p">.</span><span class="nx">id</span><span class="p">);</span>
+</span><span class='line'>      <span class="p">});</span>
+</span><span class='line'>    <span class="p">},</span>
+</span><span class='line'>    <span class="c1">//render the profile view (e.g. /views/show.ejs)</span>
+</span><span class='line'>    <span class="nx">show</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">){</span>
+</span><span class='line'>      <span class="nx">User</span><span class="p">.</span><span class="nx">findOne</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">param</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">),</span> <span class="kd">function</span> <span class="nx">foundUser</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">user</span><span class="p">){</span>
+</span><span class='line'>        <span class="k">if</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="k">return</span> <span class="nx">next</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
+</span><span class='line'>        <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">user</span><span class="p">)</span> <span class="k">return</span> <span class="nx">next</span><span class="p">();</span>
+</span><span class='line'>        <span class="nx">res</span><span class="p">.</span><span class="nx">view</span><span class="p">({</span>
+</span><span class='line'>          <span class="nx">user</span><span class="o">:</span> <span class="nx">user</span>
+</span><span class='line'>        <span class="p">});</span>
+</span><span class='line'>      <span class="p">});</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>主要修改有<code>create</code>有一個<code>res.redirect</code>, 以及新增了一個<code>show</code>的function</p>
+
+<p>接著在<code>views\user\</code>底下新增<code>show.ejs</code></p>
+
+<figure class='code'><figcaption><span>show.ejs</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="o">&lt;</span><span class="nx">div</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;container&quot;</span><span class="o">&gt;</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="nx">h1</span><span class="o">&gt;&lt;%-</span> <span class="nx">user</span><span class="p">.</span><span class="nx">name</span> <span class="o">%&gt;&lt;</span><span class="err">/h1&gt;</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="nx">h3</span><span class="o">&gt;&lt;%-</span> <span class="nx">user</span><span class="p">.</span><span class="nx">title</span> <span class="o">%&gt;&lt;</span><span class="err">/h3&gt;</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="nx">hr</span><span class="o">&gt;</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="nx">h3</span><span class="o">&gt;</span><span class="nx">contact</span><span class="o">:</span> <span class="o">&lt;%-</span> <span class="nx">user</span><span class="p">.</span><span class="nx">email</span> <span class="o">%&gt;&lt;</span><span class="err">/h3&gt;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">&lt;</span><span class="nx">a</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;btn btn-medium btn-primary&quot;</span> <span class="nx">href</span><span class="o">=</span><span class="s2">&quot;/user/edit/&lt;%= user.id %&gt;%&gt;&quot;</span><span class="o">&gt;</span><span class="nx">Edit</span><span class="o">&lt;</span><span class="err">/a&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="err">/div&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>這樣,每一次在create使用者的時候, 就會導入show.ejs的頁面</p>
+
+<p>或者可以直接輸入 <code>http://localhost:1337/user/show/2</code> 這樣的url直接查詢</p>
+
+<p>好的, 今天的練習就到這邊</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Sails練習之四]]></title>
@@ -23,6 +317,9 @@
 <p>作者要示範如何handle error</p>
 
 <p>當我們登入註冊頁面, 然後沒有輸入任何資料, 或者資料輸入錯誤, 就按下Create Account. Sails會回傳錯誤資訊. 我們現在要handle這個錯誤, 請看以下練習</p>
+
+<!--more-->
+
 
 <p>到<code>UserController.js</code>, 修改create function</p>
 

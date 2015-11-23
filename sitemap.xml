@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>http://kennytu.github.io/blog/2015/11/23/sails-study05/</loc>
+    <lastmod>2015-11-23T16:56:55+08:00</lastmod>
+  </url>
+  <url>
     <loc>http://kennytu.github.io/blog/2015/11/18/sails-study04/</loc>
     <lastmod>2015-11-18T18:38:20+08:00</lastmod>
   </url>

@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Sails | 江湖險惡，我從來都不輕易留下我的姓名。]]></title>
   <link href="http://kennytu.github.io/blog/categories/sails/atom.xml" rel="self"/>
   <link href="http://kennytu.github.io/"/>
-  <updated>2015-11-23T16:25:50+08:00</updated>
+  <updated>2015-11-23T23:37:24+08:00</updated>
   <id>http://kennytu.github.io/</id>
   <author>
     <name><![CDATA[Kenny Tu]]></name>
@@ -12,6 +12,197 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Sails練習之五]]></title>
+    <link href="http://kennytu.github.io/blog/2015/11/23/sails-study05/"/>
+    <updated>2015-11-23T16:56:55+08:00</updated>
+    <id>http://kennytu.github.io/blog/2015/11/23/sails-study05</id>
+    <content type="html"><![CDATA[<p>終於來到練習的第五集了, 這一集是影片連結是<a href="https://www.youtube.com/watch?v=_wL2cS0GmJQ&index=8&list=PLWsZeJCry-F4K4iRImeB3-i0S5mw9Ak-W" target=_blank>Building a Sails Application: Ep6 - Creating a policy and adding client-side validation</a></p>
+
+<p>上一個單元, Irl nathan展示了如何在UserController中, 實現Handling validation errors with a flash message.</p>
+
+<p>想當然, sails有更優雅的做法, 那就是本章要介紹的policy機制.</p>
+
+<!--more-->
+
+
+<p>先來寫程式碼</p>
+
+<p>在<code>api\policies\</code> 創建 <code>flash.js</code>, 內如如下</p>
+
+<pre><code class="js flash.js">
+module.exports = function(req, res, next) {
+
+  res.locals.flash = {};
+
+  if(!req.session.flash) return next();
+
+  res.locals.flash = _.clone(req.session.flash);
+
+  // clear flash
+  req.session.flash = {};
+
+  next();
+};
+</code></pre>
+
+<p>然後在 <code>config\policies.js</code> 找到</p>
+
+<pre><code class="js policies.js ">
+ //'*': true,
+   '*': 'flash'
+</code></pre>
+
+<p>這樣就設定完成了, 接著, 重新啟動sails</p>
+
+<p>然後驗證一下註冊資訊若輸入錯誤, 是不是有相同的提示效果</p>
+
+<p>基本上應該都要很順利.</p>
+
+<p>接下來, 作者用JQuery來美化頁面上的錯誤訊息</p>
+
+<p>首先, 我們去下載<a href="http://jqueryvalidation.org/" target=_blank>jQuery Validation Plugin</a></p>
+
+<p>壓縮檔解壓縮之後, 在<code>dist</code>的目錄下找到<code>additional-methods.min.js</code></p>
+
+<p>把這個檔案copy到sails專案底下的<code>assets\js\dependencies</code></p>
+
+<p>接著修改<code>tasks\pipeline.js</code></p>
+
+<pre><code class="js pipeline.js">
+// Client-side javascript files to inject in order
+// (uses Grunt-style wildcard/glob/splat expressions)
+var jsFilesToInject = [
+
+  // Load sails.io before everything else
+  'js/dependencies/sails.io.js',
+
+  // Dependencies like jQuery, or Angular are brought in here
+  'js/dependencies/jquery.js',
+  'js/dependencies/jquery.validate.min.js',
+  'js/dependencies/**/*.js',
+
+  // All of the rest of your client-side js files
+  // will be injected here in no particular order.
+
+  'js/**/*.js',
+
+  // Use the "exclude" operator to ignore files
+  // '!js/ignore/these/files/*.js'
+
+];
+</code></pre>
+
+<p>注意以上的程式碼, 有先後順序, jquery.js在前面, 接下來才是<code>jquery.validate.min.js</code></p>
+
+<p>接著, 在新增<code>assets\js\dependencies\</code> 底下新增<code>customVaildate.js</code></p>
+
+<pre><code class="js customVaildate.js">
+$(document).ready(function () {
+
+  $('.form-signin').validate({
+    rules: {
+      name:{
+        required: true
+      },
+      email: {
+        type: 'email',
+        required: true
+      },
+      password: {
+        minlength:6,
+        required: true
+      },
+      confirmation: {
+        minlength:6,
+        equalTo: "#password"
+      }
+    },
+    success: function(element){
+      element.text('OK!').addClass('valid');
+    }
+  });
+
+});
+</code></pre>
+
+<p>這個檔案會被sails自動讀取, 是因為我們在<code>pipeline.js</code>裡面有一行敘述是<code>'js/**/*.js'</code> sails會自動讀取js目錄底下所有的java script檔案</p>
+
+<p>新增完成之後, 重新啟動sails</p>
+
+<p>就可以看到我們的註冊畫面有Jquery的Validate的檢查樣式了</p>
+
+<p>接著我們上下一課: <a href="https://www.youtube.com/watch?v=HozWtywQNMo&list=PLWsZeJCry-F4K4iRImeB3-i0S5mw9Ak-W&index=9" target="_blank">Building a Sails Application: Ep7 - Adding the show action.</a></p>
+
+<p>我們要來新增<code>show</code>每一個user的基本資料的action</p>
+
+<p>先修改UserController.js</p>
+
+<pre><code class="js UserController.js ">
+module.exports = {
+    'new': function(req, res){
+        //res.locals.flash = _.clone(req.session.flash);
+        res.view();
+        //req.session.flash = {};
+    },
+
+    create: function (req, res, next) {
+      User.create(req.params.all(), function userCreated(err,user){
+          //if(err) return next(err);
+
+          if(err){
+            console.log(err);
+            req.session.flash = {
+              err: err
+            }
+            //if error redirect back to sign-up page
+            return res.redirect('/user/new');
+          }
+        //res.json(user);
+        //req.session.flash = {};
+        res.redirect('/user/show/'+user.id);
+      });
+    },
+    //render the profile view (e.g. /views/show.ejs)
+    show: function(req, res, next){
+      User.findOne(req.param('id'), function foundUser(err, user){
+        if(err) return next(err);
+        if(!user) return next();
+        res.view({
+          user: user
+        });
+      });
+    }
+};
+</code></pre>
+
+<p>主要修改有<code>create</code>有一個<code>res.redirect</code>, 以及新增了一個<code>show</code>的function</p>
+
+<p>接著在<code>views\user\</code>底下新增<code>show.ejs</code></p>
+
+<p>```js show.ejs</p>
+
+<div class="container">
+  <h1><%- user.name %></h1>
+  <h3><%- user.title %></h3>
+  <hr>
+  <h3>contact: <%- user.email %></h3>
+
+  <a class="btn btn-medium btn-primary" href="http://kennytu.github.io/user/edit/<%= user.id %>%>">Edit</a>
+
+</div>
+
+
+<p>```</p>
+
+<p>這樣,每一次在create使用者的時候, 就會導入show.ejs的頁面</p>
+
+<p>或者可以直接輸入 <code>http://localhost:1337/user/show/2</code> 這樣的url直接查詢</p>
+
+<p>好的, 今天的練習就到這邊</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Sails練習之四]]></title>
@@ -23,6 +214,9 @@
 <p>作者要示範如何handle error</p>
 
 <p>當我們登入註冊頁面, 然後沒有輸入任何資料, 或者資料輸入錯誤, 就按下Create Account. Sails會回傳錯誤資訊. 我們現在要handle這個錯誤, 請看以下練習</p>
+
+<!--more-->
+
 
 <p>到<code>UserController.js</code>, 修改create function</p>
 
@@ -191,7 +385,7 @@ shortcuts: true</p>
 <p>{
   &ldquo;name&rdquo;: &ldquo;kg&rdquo;,
   &ldquo;title&rdquo;: &ldquo;kaaa&rdquo;,
-  &ldquo;email&rdquo;: &ldquo;<a href="&#x6d;&#97;&#x69;&#108;&#116;&#111;&#58;&#107;&#50;&#50;&#51;&#x40;&#x68;&#x6f;&#x74;&#x2e;&#99;&#111;&#109;">&#107;&#50;&#50;&#x33;&#x40;&#x68;&#x6f;&#116;&#46;&#x63;&#x6f;&#109;</a>&rdquo;,
+  &ldquo;email&rdquo;: &ldquo;<a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#107;&#50;&#x32;&#51;&#x40;&#104;&#111;&#116;&#x2e;&#x63;&#111;&#x6d;">&#x6b;&#50;&#50;&#51;&#64;&#104;&#111;&#x74;&#46;&#99;&#x6f;&#109;</a>&rdquo;,
   &ldquo;password&rdquo;: &ldquo;1234&rdquo;,
   &ldquo;comfirmation&rdquo;: &ldquo;5678&rdquo;,
   &ldquo;_csrf&rdquo;: &ldquo;gdMb0LUb-zUlpCgAUgC0LW41ILym6M6_svV4&rdquo;,
@@ -290,7 +484,7 @@ encryptedPassword:{
 <p>{
   &ldquo;name&rdquo;: &ldquo;HappyKenny&rdquo;,
   &ldquo;title&rdquo;: &ldquo;HappyKennyYa&rdquo;,
-  &ldquo;email&rdquo;: &ldquo;<a href="&#x6d;&#x61;&#x69;&#x6c;&#116;&#111;&#x3a;&#x68;&#97;&#x70;&#112;&#x79;&#x40;&#x63;&#111;&#x6d;&#x2e;&#116;&#x77;">&#x68;&#97;&#x70;&#x70;&#x79;&#64;&#x63;&#111;&#109;&#x2e;&#x74;&#x77;</a>&rdquo;,
+  &ldquo;email&rdquo;: &ldquo;<a href="&#x6d;&#x61;&#105;&#108;&#116;&#x6f;&#x3a;&#x68;&#x61;&#x70;&#112;&#121;&#64;&#x63;&#111;&#x6d;&#46;&#x74;&#x77;">&#104;&#97;&#112;&#x70;&#x79;&#x40;&#x63;&#111;&#109;&#46;&#x74;&#119;</a>&rdquo;,
   &ldquo;id&rdquo;: 6,
   &ldquo;createdAt&rdquo;: &ldquo;2015-11-18T09:52:11.686Z&rdquo;,
   &ldquo;updatedAt&rdquo;: &ldquo;2015-11-18T09:52:11.686Z&rdquo;
