@@ -1,0 +1,96 @@
+---
+layout: post
+title: "Sails練習之四"
+date: 2015-11-18 18:38:20 +0800
+comments: true
+categories: sails
+---
+
+
+OK, 接下來這篇<a href="https://www.youtube.com/watch?v=4Gbc9ZA2-YY&list=PLWsZeJCry-F4K4iRImeB3-i0S5mw9Ak-W&index=7" target="_blank">Building a Sails Application: Ep5 - Handling validation errors with a flash message</a>
+
+作者要示範如何handle error
+
+當我們登入註冊頁面, 然後沒有輸入任何資料, 或者資料輸入錯誤, 就按下Create Account. Sails會回傳錯誤資訊. 我們現在要handle這個錯誤, 請看以下練習
+
+<!--more-->
+
+
+到`UserController.js`, 修改create function
+
+```js
+
+module.exports = {
+    'new': function(req, res){
+        res.locals.flash = _.clone(req.session.flash);
+        res.view();
+        req.session.flash = {};
+    },
+
+    create: function (req, res, next) {
+      User.create(req.params.all(), function userCreated(err,user){
+          //if(err) return next(err);
+
+          if(err){
+            console.log(err);
+            req.session.flash = {
+              err: err
+            }
+            //if error redirect back to sign-up page
+            return res.redirect('/user/new');
+          }
+
+          res.json(user);
+        req.session.flash = {};
+      });
+    }
+};
+
+```
+
+OK. 
+
+然後到new.ejs,參考底下程式碼
+
+```js new.ejs 
+
+<form action="/user/create" method="POST" class="form-signin">
+  <h2 class="form-signin-heading"> Create an account</h2>
+
+
+  <% if(flash && flash.err){ %>
+  <ul class="alert alert-success">
+    <% Object.keys(flash.err).forEach(function(error){ %>
+    <li><%- JSON.stringify(flash.err[error]) %></li>
+    <% })%>
+  </ul>
+  <%}%>
+
+
+  <div class="form-group">
+  <input type="text" class="form-control" placeholder="your name" name="name">
+  </div>
+
+  <input type="text" class="form-control" placeholder="your title" name="title">
+
+  <input type="text" class="form-control" placeholder="email address" name="email">
+
+  <input type="password" class="form-control" placeholder="password" name="password">
+
+  <input type="password" class="form-control" placeholder="password confirmation" name="confirmation">
+
+  <input type="submit" class="btn btn-lg btn-primary btn-block" value="Create Account"/>
+
+  <input type="hidden" name="_csrf" value="<%= _csrf %>"/>
+
+</form>
+
+```
+
+重新啟動, 測試看看, 應該就沒問題了
+
+這篇主要在講後端處理的技術, 以及在前端如何使用ejs的一些巧技巧
+
+精華的部分就是在`res.locals.flash`和`req.session.flash`這兩個上面, 以及前端頁面, 像是 `<%` `%>`這樣嵌入式的ejs用法..
+
+說實話, 我現階段還對ejs語法不是很熟, 到時候再來補齊相關資訊嚕

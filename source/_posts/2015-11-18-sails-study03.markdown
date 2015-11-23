@@ -10,7 +10,7 @@ categories: sails
 
 接下來我們按照Irl nathan的課程繼續我們的練習
 
-課程連結在此 <a href="" target="_blank">Building a Sails Application: Ep4 - Creating a user account.</a>
+課程連結在此 <a href="https://www.youtube.com/watch?v=WKtmKha6Ehw&index=6&list=PLWsZeJCry-F4K4iRImeB3-i0S5mw9Ak-W" target="_blank">Building a Sails Application: Ep4 - Creating a user account.</a>
 
 <!--more-->
 

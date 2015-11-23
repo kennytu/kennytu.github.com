@@ -1,0 +1,203 @@
+---
+layout: post
+title: "Sails練習之五"
+date: 2015-11-23 16:56:55 +0800
+comments: true
+categories: sails
+---
+
+
+終於來到練習的第五集了, 這一集是影片連結是<a href="https://www.youtube.com/watch?v=_wL2cS0GmJQ&index=8&list=PLWsZeJCry-F4K4iRImeB3-i0S5mw9Ak-W" target=_blank>Building a Sails Application: Ep6 - Creating a policy and adding client-side validation</a>
+
+
+上一個單元, Irl nathan展示了如何在UserController中, 實現Handling validation errors with a flash message.
+
+想當然, sails有更優雅的做法, 那就是本章要介紹的policy機制.
+
+<!--more-->
+
+先來寫程式碼
+
+在`api\policies\` 創建 `flash.js`, 內如如下
+
+```js flash.js
+
+module.exports = function(req, res, next) {
+
+  res.locals.flash = {};
+
+  if(!req.session.flash) return next();
+
+  res.locals.flash = _.clone(req.session.flash);
+
+  // clear flash
+  req.session.flash = {};
+
+  next();
+};
+
+```
+
+然後在 `config\policies.js` 找到
+
+```js policies.js 
+
+ //'*': true,
+   '*': 'flash'
+
+```
+
+這樣就設定完成了, 接著, 重新啟動sails
+
+然後驗證一下註冊資訊若輸入錯誤, 是不是有相同的提示效果
+
+基本上應該都要很順利.
+
+接下來, 作者用JQuery來美化頁面上的錯誤訊息
+
+首先, 我們去下載<a href="http://jqueryvalidation.org/" target=_blank>jQuery Validation Plugin</a>
+
+壓縮檔解壓縮之後, 在`dist`的目錄下找到`additional-methods.min.js`
+
+把這個檔案copy到sails專案底下的`assets\js\dependencies`
+
+接著修改`tasks\pipeline.js`
+
+```js pipeline.js
+
+// Client-side javascript files to inject in order
+// (uses Grunt-style wildcard/glob/splat expressions)
+var jsFilesToInject = [
+
+  // Load sails.io before everything else
+  'js/dependencies/sails.io.js',
+
+  // Dependencies like jQuery, or Angular are brought in here
+  'js/dependencies/jquery.js',
+  'js/dependencies/jquery.validate.min.js',
+  'js/dependencies/**/*.js',
+
+  // All of the rest of your client-side js files
+  // will be injected here in no particular order.
+
+  'js/**/*.js',
+
+  // Use the "exclude" operator to ignore files
+  // '!js/ignore/these/files/*.js'
+
+];
+
+```
+
+注意以上的程式碼, 有先後順序, jquery.js在前面, 接下來才是`jquery.validate.min.js`
+
+接著, 在新增`assets\js\dependencies\` 底下新增`customVaildate.js`
+
+```js customVaildate.js
+
+$(document).ready(function () {
+
+  $('.form-signin').validate({
+    rules: {
+      name:{
+        required: true
+      },
+      email: {
+        type: 'email',
+        required: true
+      },
+      password: {
+        minlength:6,
+        required: true
+      },
+      confirmation: {
+        minlength:6,
+        equalTo: "#password"
+      }
+    },
+    success: function(element){
+      element.text('OK!').addClass('valid');
+    }
+  });
+
+});
+
+```
+
+這個檔案會被sails自動讀取, 是因為我們在`pipeline.js`裡面有一行敘述是`'js/**/*.js'` sails會自動讀取js目錄底下所有的java script檔案
+
+新增完成之後, 重新啟動sails
+
+就可以看到我們的註冊畫面有Jquery的Validate的檢查樣式了
+
+
+接著我們上下一課: <a href="https://www.youtube.com/watch?v=HozWtywQNMo&list=PLWsZeJCry-F4K4iRImeB3-i0S5mw9Ak-W&index=9" target="_blank">Building a Sails Application: Ep7 - Adding the show action.</a>
+
+我們要來新增`show`每一個user的基本資料的action
+
+先修改UserController.js
+
+```js UserController.js 
+
+module.exports = {
+    'new': function(req, res){
+        //res.locals.flash = _.clone(req.session.flash);
+        res.view();
+        //req.session.flash = {};
+    },
+
+    create: function (req, res, next) {
+      User.create(req.params.all(), function userCreated(err,user){
+          //if(err) return next(err);
+
+          if(err){
+            console.log(err);
+            req.session.flash = {
+              err: err
+            }
+            //if error redirect back to sign-up page
+            return res.redirect('/user/new');
+          }
+        //res.json(user);
+        //req.session.flash = {};
+        res.redirect('/user/show/'+user.id);
+      });
+    },
+    //render the profile view (e.g. /views/show.ejs)
+    show: function(req, res, next){
+      User.findOne(req.param('id'), function foundUser(err, user){
+        if(err) return next(err);
+        if(!user) return next();
+        res.view({
+          user: user
+        });
+      });
+    }
+};
+
+```
+
+主要修改有`create`有一個`res.redirect`, 以及新增了一個`show`的function
+
+接著在`views\user\`底下新增`show.ejs`
+
+```js show.ejs
+
+<div class="container">
+  <h1><%- user.name %></h1>
+  <h3><%- user.title %></h3>
+  <hr>
+  <h3>contact: <%- user.email %></h3>
+
+  <a class="btn btn-medium btn-primary" href="/user/edit/<%= user.id %>%>">Edit</a>
+
+</div>
+
+```
+
+這樣,每一次在create使用者的時候, 就會導入show.ejs的頁面
+
+或者可以直接輸入 `http://localhost:1337/user/show/2` 這樣的url直接查詢
+
+
+好的, 今天的練習就到這邊
