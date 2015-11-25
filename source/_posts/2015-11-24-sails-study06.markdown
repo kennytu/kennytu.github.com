@@ -1,0 +1,225 @@
+---
+layout: post
+title: "Sails練習之六"
+date: 2015-11-24 22:12:51 +0800
+comments: true
+categories: sails
+---
+
+本章接著<a href="https://www.youtube.com/watch?v=GHp1g7Z0Yo4" target=_blank>Building a Sails Application: Ep8 - Adding a user list, index, edit, and update action.</a>
+
+影片一開始, Irl nathan介紹了ejs中, `<%- %>`以及`<%= %>`有什麼不同
+
+<!--more-->
+
+簡單來說
+
+ `<%- %>`有 `-` 這個記號的, 若被此tag包含起來的程式碼有java script, 那麼ejs就會去執行它, 這個是一個很常會讓人侵入的地方,
+
+而`<%= %>`就不會對java script做解讀,ejs會直接跳過js, 直接輸出到頁面上
+
+還有一個是`<% %>`, 沒有加任何符號的, 這個就是單純的ejs嵌入javascript程式碼用的.
+
+Irl nathan示範了如何在新增使用者的欄位, 注入java script程式碼, 讓其可以執行的例子
+
+我們在新增使用者的頁面, 在第二個欄位, 輸入user title的這個,
+
+輸入`<script> alert("I am a bad guy");</script>`
+
+將其他輸入項輸入完成之後, 按下Enter, 跳轉到User Info頁面的時候
+
+會跳出一個`I am a bad guy`的alert,
+
+這很不好, 所以我們要來改寫程式碼
+
+將所有`<%-`都換成`<%=`
+
+```js show.ejs
+
+<div class="container">
+  <h1><%= user.name %></h1>
+  <h3><%= user.title %></h3>
+  <hr>
+  <h3>contact: <%= user.email %></h3>
+
+  <a class="btn btn-medium btn-primary" href="/user/edit/<%= user.id %>%>">Edit</a>
+
+</div>
+
+```
+
+好的, 基礎原理介紹了一下之後, 我們要進入正題
+
+我們要修改當我們在瀏覽器輸入`http://localhost:1337/user`的時候,
+
+後端會回傳一個user model的json格式回來, 我們要來將這個json做成精美的網頁
+
+先到`UserController.js`
+
+加入底下程式碼
+
+```js UserController.js 加入index function
+
+//render the profile view (e.g. /views/show.ejs)
+    show: function(req, res, next){
+      User.findOne(req.param('id'), function foundUser(err, user){
+        if(err) return next(err);
+        if(!user) return next();
+        res.view({
+          user: user
+        });
+      });
+    },
+
+    index: function(req, res, next){
+      console.log("hi! there!");
+      //Get an array of all users in the User collection(e.g. table)
+      User.find(function foundUsers(err, users){
+        if(err) return (err);
+        //pass the array down to the /views/index.ejs page
+        res.view({
+          users: users
+        });
+      });
+    }
+
+```
+
+接著在`views\user\` 新增 `index.ejs`
+
+```js views\user\index.ejs
+
+<div class="container">
+  <h3>Users</h3>
+  <table class="table">
+    <tr>
+      <th>ID</th>
+      <th>Name</th>
+      <th>Title</th>
+      <th>Email</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+
+    <% _.each(users, function(user){ %>
+    <tr data-id="<%= user.id %>" data-model="user">
+      <td><%= user.id %></td>
+      <td><%= user.name %></td>
+      <td><%= user.title%></td>
+      <td><%= user.email%></td>
+      <td><a href="/user/show/<%= user.id %>" class="btn btn-sm btn-primary">Show</a></td>
+      <td><a href="/user/edit/<%= user.id %>" class="btn btn-sm btn-warning">Edit</a></td>
+      <td><a href="/user/destroy/<%= user.id %>" class="btn btn-sm btn-danger">Delete</a></td>
+    </tr>
+
+    <%}) %>
+  </table>
+</div>
+
+```
+
+新增完成之後, 剩下的就是Saisl框架會幫我們處理的事情
+
+存檔之後, 重啟sails
+
+輸入 `http://localhost:1337/user`
+
+就可以看到精美的User List列表啦!
+
+接下來我們來處理`edit`以及`update`這兩個action
+
+回到`UserController.js`,新增`edit`以及`update`
+
+```js Usercontroller.js add Edit & update
+
+//render the edit view (e.g. /views/edit.ejs)
+  edit: function(req, res, next){
+
+    //Find the user from the id passed in via params
+    User.findOne(req.param('id'), function foundUser(err, user){
+      if(err) return next(err);
+      if(!user) return next();
+
+      res.view({
+        user: user
+      });
+    });
+  },
+
+  // process the info from edit view
+  update: function(req, res, next){
+    User.update(req.param('id'), req.params.all(), function userUpdated(err){
+      if (err){
+        return res.redirect('/user/edit/' + req.param('id'));
+      }
+
+      res.redirect('/user/show/' + req.param('id'));
+    });
+  }
+
+```
+
+接著在`views\user\`新增`edit.ejs`
+
+```js views\user\edit.ejs 
+
+<form action="/user/update/<%= user.id %>" method="POST" class="form-signin">
+
+  <h2> Hey, you're editing a user...</h2>
+
+  <input value="<%= user.name%>" name="name" type="text" class="form-control"/>
+  <input value="<%= user.title%>" name="title" type="text" class="form-control"/>
+  <input value="<%= user.email%>" name="email" type="text" class="form-control"/>
+  <input type="submit" value="Proceed" class="btn btn-lg btn-primary btn-block"/>
+  <input type="hidden" name="_csrf" value="<%= _csrf %>"/>
+</form>
+
+```
+
+重啟sails, 我們試試看Edit, 應該有畫面出來了
+
+接下來嘗試輸入一下資料, 發現居然有jQuery的Validation出來作怪!!!
+
+作者在這邊大叫了一聲!!!~~~ 阿!~~~ 
+
+隨即馬上說這個超簡單可以解決, 讓我們繼續看下去
+
+我們先到`assets\js\dependencies\customVaildate.js`
+
+將這行 `$('.form-signin').validate({` 修改成 `$('#sign-up-form').validate({`
+
+注意我們將`.form-signin`改成`#sign-up-form`, 一個點變成一個井號
+
+這邊要提到`CSS`以及`Javascript`的Class以及ID的用法
+
+對於CSS來說, 使用`.`定義的都是Class, 而使用`#`的則是ID命名
+
+關於Class以及ID的觀念和用法, 請參考底下網站
+
+<a href="http://www.minwt.com/webdesign-dev/css/30.html" target="_blank">[CSS]id 與 class 別再傻傻分不清楚</a>
+
+<a href="http://www.1keydata.com/css-tutorial/tw/class-id.php" target="_blank"> CSS Class 與 CSS ID</a>
+
+<a href="http://www.1keydata.com/css-tutorial/tw/syntax.php" target="_blank">CSS 教學 > 語法</a>
+
+所以呢, 我們作者就把jQuery這一段改成`id`之後, 就可以唯一指定登錄頁面是使用這個邏輯了
+
+接著, 我們要去改views\user\new.ejs
+
+```html new.ejs 新增id的屬性
+
+<form action="/user/create" method="POST" id="sign-up-form" class="form-signin">
+
+```
+
+存檔之後, 重啟sails, 就可以在測試看看, JQuery的Vaildation就不會出現在Edit的頁面上了
+
+> 更新 我剛剛把edit.js裡面的action打成actoin, 結果debug半天阿! 拎老師咧
+
+好的, Edit功能做完之後, 測試完若沒有問題... 我們接下來就來處理Delete了
+
+由於Delete會學習到POST的概念, 所以作者把它放在下一個課程
+
+今天就先到這邊啦!
+

@@ -7,7 +7,7 @@ categories: sails
 ---
 
 
-終於來到練習的第五集了, 這一集是影片連結是<a href="https://www.youtube.com/watch?v=_wL2cS0GmJQ&index=8&list=PLWsZeJCry-F4K4iRImeB3-i0S5mw9Ak-W" target=_blank>Building a Sails Application: Ep6 - Creating a policy and adding client-side validation</a>
+終於來到練習的第五集了, 這一集的影片連結是<a href="https://www.youtube.com/watch?v=_wL2cS0GmJQ&index=8&list=PLWsZeJCry-F4K4iRImeB3-i0S5mw9Ak-W" target=_blank>Building a Sails Application: Ep6 - Creating a policy and adding client-side validation</a>
 
 
 上一個單元, Irl nathan展示了如何在UserController中, 實現Handling validation errors with a flash message.
