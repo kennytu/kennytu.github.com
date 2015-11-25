@@ -4,7 +4,7 @@
   <title><![CDATA[江湖險惡，我從來都不輕易留下我的姓名。]]></title>
   <link href="http://kennytu.github.io/atom.xml" rel="self"/>
   <link href="http://kennytu.github.io/"/>
-  <updated>2015-11-25T18:45:57+08:00</updated>
+  <updated>2015-11-25T18:46:39+08:00</updated>
   <id>http://kennytu.github.io/</id>
   <author>
     <name><![CDATA[Kenny Tu]]></name>
@@ -21,6 +21,9 @@
     <content type="html"><![CDATA[<p>本章接著<a href="https://www.youtube.com/watch?v=GHp1g7Z0Yo4" target=_blank>Building a Sails Application: Ep8 - Adding a user list, index, edit, and update action.</a></p>
 
 <p>影片一開始, Irl nathan介紹了ejs中, <code>&lt;%- %&gt;</code>以及<code>&lt;%= %&gt;</code>有什麼不同</p>
+
+<!--more-->
+
 
 <p>簡單來說</p>
 

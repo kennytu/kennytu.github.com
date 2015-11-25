@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Sails | 江湖險惡，我從來都不輕易留下我的姓名。]]></title>
   <link href="http://kennytu.github.io/blog/categories/sails/atom.xml" rel="self"/>
   <link href="http://kennytu.github.io/"/>
-  <updated>2015-11-25T18:45:57+08:00</updated>
+  <updated>2015-11-25T18:46:39+08:00</updated>
   <id>http://kennytu.github.io/</id>
   <author>
     <name><![CDATA[Kenny Tu]]></name>
@@ -21,6 +21,9 @@
     <content type="html"><![CDATA[<p>本章接著<a href="https://www.youtube.com/watch?v=GHp1g7Z0Yo4" target=_blank>Building a Sails Application: Ep8 - Adding a user list, index, edit, and update action.</a></p>
 
 <p>影片一開始, Irl nathan介紹了ejs中, <code>&lt;%- %&gt;</code>以及<code>&lt;%= %&gt;</code>有什麼不同</p>
+
+<!--more-->
+
 
 <p>簡單來說</p>
 
@@ -604,7 +607,7 @@ shortcuts: true</p>
 <p>{
   &ldquo;name&rdquo;: &ldquo;kg&rdquo;,
   &ldquo;title&rdquo;: &ldquo;kaaa&rdquo;,
-  &ldquo;email&rdquo;: &ldquo;<a href="&#x6d;&#97;&#x69;&#108;&#116;&#111;&#x3a;&#107;&#x32;&#50;&#51;&#64;&#x68;&#111;&#116;&#x2e;&#x63;&#111;&#x6d;">&#107;&#x32;&#x32;&#x33;&#x40;&#x68;&#111;&#116;&#46;&#x63;&#x6f;&#109;</a>&rdquo;,
+  &ldquo;email&rdquo;: &ldquo;<a href="&#109;&#x61;&#105;&#x6c;&#116;&#x6f;&#58;&#107;&#50;&#x32;&#51;&#64;&#104;&#111;&#x74;&#x2e;&#x63;&#x6f;&#x6d;">&#107;&#x32;&#50;&#51;&#64;&#x68;&#111;&#x74;&#x2e;&#x63;&#111;&#109;</a>&rdquo;,
   &ldquo;password&rdquo;: &ldquo;1234&rdquo;,
   &ldquo;comfirmation&rdquo;: &ldquo;5678&rdquo;,
   &ldquo;_csrf&rdquo;: &ldquo;gdMb0LUb-zUlpCgAUgC0LW41ILym6M6_svV4&rdquo;,
@@ -703,7 +706,7 @@ encryptedPassword:{
 <p>{
   &ldquo;name&rdquo;: &ldquo;HappyKenny&rdquo;,
   &ldquo;title&rdquo;: &ldquo;HappyKennyYa&rdquo;,
-  &ldquo;email&rdquo;: &ldquo;<a href="&#x6d;&#97;&#x69;&#x6c;&#116;&#111;&#58;&#x68;&#x61;&#x70;&#x70;&#121;&#x40;&#99;&#111;&#109;&#46;&#x74;&#x77;">&#x68;&#97;&#112;&#x70;&#121;&#x40;&#x63;&#111;&#x6d;&#x2e;&#116;&#119;</a>&rdquo;,
+  &ldquo;email&rdquo;: &ldquo;<a href="&#109;&#97;&#x69;&#108;&#x74;&#x6f;&#x3a;&#104;&#97;&#112;&#x70;&#121;&#64;&#99;&#111;&#x6d;&#x2e;&#116;&#x77;">&#104;&#x61;&#x70;&#x70;&#x79;&#64;&#x63;&#111;&#x6d;&#46;&#x74;&#x77;</a>&rdquo;,
   &ldquo;id&rdquo;: 6,
   &ldquo;createdAt&rdquo;: &ldquo;2015-11-18T09:52:11.686Z&rdquo;,
   &ldquo;updatedAt&rdquo;: &ldquo;2015-11-18T09:52:11.686Z&rdquo;
