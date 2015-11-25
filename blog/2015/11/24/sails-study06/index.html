@@ -5,7 +5,7 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>江湖險惡，我從來都不輕易留下我的姓名。</title>
+  <title>Sails練習之六 - 江湖險惡，我從來都不輕易留下我的姓名。</title>
   <meta name="author" content="Kenny Tu">
 
   
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://kennytu.github.io/">
+  <link rel="canonical" href="http://kennytu.github.io/blog/2015/11/24/sails-study06/">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="江湖險惡，我從來都不輕易留下我的姓名。" type="application/atom+xml">
@@ -63,15 +63,12 @@
 </nav>
   <div id="main">
     <div id="content">
-      <div class="blog-index">
+      <div>
+<article class="hentry" role="article">
   
-  
-  
-    <article>
-      
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2015/11/24/sails-study06/">Sails練習之六</a></h1>
+      <h1 class="entry-title">Sails練習之六</h1>
     
     
       <p class="meta">
@@ -82,15 +79,15 @@
 
 <time class='entry-date' datetime='2015-11-24T22:12:51+08:00'><span class='date'>2015 年11 月24 日</span> <span class='time'>10:12 pm</span></time>
         
-           | <a href="/blog/2015/11/24/sails-study06/#disqus_thread"
-             data-disqus-identifier="http://kennytu.github.io/blog/2015/11/24/sails-study06/">Comments</a>
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://kennytu.github.io">Comments</a>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>本章接著<a href="https://www.youtube.com/watch?v=GHp1g7Z0Yo4" target=_blank>Building a Sails Application: Ep8 - Adding a user list, index, edit, and update action.</a></p>
+<div class="entry-content"><p>本章接著<a href="https://www.youtube.com/watch?v=GHp1g7Z0Yo4" target=_blank>Building a Sails Application: Ep8 - Adding a user list, index, edit, and update action.</a></p>
 
 <p>影片一開始, Irl nathan介紹了ejs中, <code>&lt;%- %&gt;</code>以及<code>&lt;%= %&gt;</code>有什麼不同</p>
 
@@ -386,322 +383,58 @@
 
 <p>今天就先到這邊啦!</p>
 </div>
-  
-  
 
 
-    </article>
-  
-  
-    <article>
+  <footer>
+    <p class="meta">
       
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/11/23/sails-study05/">Sails練習之五</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-11-23T16:56:55+08:00'><span class='date'>2015 年11 月23 日</span> <span class='time'>4:56 pm</span></time>
-        
-           | <a href="/blog/2015/11/23/sails-study05/#disqus_thread"
-             data-disqus-identifier="http://kennytu.github.io/blog/2015/11/23/sails-study05/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>終於來到練習的第五集了, 這一集的影片連結是<a href="https://www.youtube.com/watch?v=_wL2cS0GmJQ&index=8&list=PLWsZeJCry-F4K4iRImeB3-i0S5mw9Ak-W" target=_blank>Building a Sails Application: Ep6 - Creating a policy and adding client-side validation</a></p>
-
-<p>上一個單元, Irl nathan展示了如何在UserController中, 實現Handling validation errors with a flash message.</p>
-
-<p>想當然, sails有更優雅的做法, 那就是本章要介紹的policy機制.</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2015/11/23/sails-study05/">點擊這裡繼續閱讀 &rarr;</a>
-    </footer>
   
 
+<span class="byline author vcard">Posted by <span class="fn">Kenny Tu</span></span>
 
-    </article>
-  
-  
-    <article>
       
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/11/18/sails-study04/">Sails練習之四</a></h1>
-    
-    
-      <p class="meta">
-        
 
 
 
 
-<time class='entry-date' datetime='2015-11-18T18:38:20+08:00'><span class='date'>2015 年11 月18 日</span> <span class='time'>6:38 pm</span></time>
-        
-           | <a href="/blog/2015/11/18/sails-study04/#disqus_thread"
-             data-disqus-identifier="http://kennytu.github.io/blog/2015/11/18/sails-study04/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>OK, 接下來這篇<a href="https://www.youtube.com/watch?v=4Gbc9ZA2-YY&list=PLWsZeJCry-F4K4iRImeB3-i0S5mw9Ak-W&index=7" target="_blank">Building a Sails Application: Ep5 - Handling validation errors with a flash message</a></p>
-
-<p>作者要示範如何handle error</p>
-
-<p>當我們登入註冊頁面, 然後沒有輸入任何資料, 或者資料輸入錯誤, 就按下Create Account. Sails會回傳錯誤資訊. 我們現在要handle這個錯誤, 請看以下練習</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2015/11/18/sails-study04/">點擊這裡繼續閱讀 &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
-  
-    <article>
+<time class='entry-date' datetime='2015-11-24T22:12:51+08:00'><span class='date'>2015 年11 月24 日</span> <span class='time'>10:12 pm</span></time>
       
-  <header>
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/sails/'>sails</a>
+  
+</span>
+
+
+    </p>
     
-      <h1 class="entry-title"><a href="/blog/2015/11/18/sails-study03/">Sails練習之三</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-11-18T12:05:14+08:00'><span class='date'>2015 年11 月18 日</span> <span class='time'>12:05 pm</span></time>
-        
-           | <a href="/blog/2015/11/18/sails-study03/#disqus_thread"
-             data-disqus-identifier="http://kennytu.github.io/blog/2015/11/18/sails-study03/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>前面兩個練習都做完之後, 我們終於有了一個還滿順眼的登入畫面</p>
-
-<p>接下來我們按照Irl nathan的課程繼續我們的練習</p>
-
-<p>課程連結在此 <a href="https://www.youtube.com/watch?v=WKtmKha6Ehw&index=6&list=PLWsZeJCry-F4K4iRImeB3-i0S5mw9Ak-W" target="_blank">Building a Sails Application: Ep4 - Creating a user account.</a></p>
-
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://kennytu.github.io/blog/2015/11/24/sails-study06/" data-via="" data-counturl="http://kennytu.github.io/blog/2015/11/24/sails-study06/" >Tweet</a>
+  
+  
+  
 </div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2015/11/18/sails-study03/">點擊這裡繼續閱讀 &rarr;</a>
-    </footer>
-  
 
-
-    </article>
-  
-  
-    <article>
+    
+    <p class="meta">
       
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/11/17/sails-study02/">Sails練習之二</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-11-17T10:54:23+08:00'><span class='date'>2015 年11 月17 日</span> <span class='time'>10:54 am</span></time>
-        
-           | <a href="/blog/2015/11/17/sails-study02/#disqus_thread"
-             data-disqus-identifier="http://kennytu.github.io/blog/2015/11/17/sails-study02/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>本篇是接著Irl nathan的這篇</p>
-
-<p><a href="https://www.youtube.com/watch?v=qUAzpyThAB0&index=5&list=PLWsZeJCry-F4K4iRImeB3-i0S5mw9Ak-W" target="_blank">Building a Sails Application: Ep3[UPDATED] - A user model/controller, signup page, sails blueprints</a></p>
-
-<p>底下為練習內容</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2015/11/17/sails-study02/">點擊這裡繼續閱讀 &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
-  
-    <article>
+        <a class="basic-alignment left" href="/blog/2015/11/23/sails-study05/" title="Previous Post: Sails練習之五">&laquo; Sails練習之五</a>
       
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/11/16/sails-study01/">Sails練習之一</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-11-16T11:29:18+08:00'><span class='date'>2015 年11 月16 日</span> <span class='time'>11:29 am</span></time>
-        
-           | <a href="/blog/2015/11/16/sails-study01/#disqus_thread"
-             data-disqus-identifier="http://kennytu.github.io/blog/2015/11/16/sails-study01/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>這一系列的文章, 出自於youtube上的Building a Sails Application教學.</p>
-
-<p>這位仁兄的一系列教學文章都寫得非常好</p>
-
-<p>他的網址在<a href="https://www.youtube.com/watch?v=ep6EQ5f82Ts&index=2&list=PLWsZeJCry-F4K4iRImeB3-i0S5mw9Ak-W" target="_blank">這邊</a></p>
-
-<p>然後作者的github在<a href="https://github.com/irlnathan" target="_blank">這邊</a></p>
-
-<p>這個版本是<code>activityoverlord 1.0</code>版本</p>
-
-<p>在2015年, Irl nathan又出了<code>activityoverlord 2.0</code>版本, 主要是用新的Sails.js來實作</p>
-
-<p>但我在練習<code>Sails</code>的時候, 我也是用<code>新版0.11.2</code>的版本, 所以在舊版到新版的改動我也會一併在練習中說明.</p>
-
-<p>底下分別是他的各個教學章節, 我只是用文字來記錄我的學習過程</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2015/11/16/sails-study01/">點擊這裡繼續閱讀 &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
-  
-    <article>
       
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/11/12/octopress-advance/">Octopress的進階技巧</a></h1>
-    
-    
-      <p class="meta">
-        
+    </p>
+  </footer>
+</article>
 
-
-
-
-<time class='entry-date' datetime='2015-11-12T20:06:58+08:00'><span class='date'>2015 年11 月12 日</span> <span class='time'>8:06 pm</span></time>
-        
-           | <a href="/blog/2015/11/12/octopress-advance/#disqus_thread"
-             data-disqus-identifier="http://kennytu.github.io/blog/2015/11/12/octopress-advance/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>這篇Blog我記錄了一些我在網路上找到的資料, 很多分享, 也滿受用的</p>
-
-<p>我整理在底下, 內容有</p>
-
-<ol>
-<li>進階的安裝文章分享</li>
-<li>多台電腦上寫作同步</li>
-<li>加上分類雲</li>
-<li>程式碼高亮</li>
-<li>imgcap的使用</li>
-</ol>
-
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
 
 </div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2015/11/12/octopress-advance/">點擊這裡繼續閱讀 &rarr;</a>
-    </footer>
-  
 
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/11/11/init-blog/">在Windows 7系統安裝 Octopress</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-11-11T19:53:26+08:00'><span class='date'>2015 年11 月11 日</span> <span class='time'>7:53 pm</span></time>
-        
-           | <a href="/blog/2015/11/11/init-blog/#disqus_thread"
-             data-disqus-identifier="http://kennytu.github.io/blog/2015/11/11/init-blog/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>好的, 事出有因, 源自我看到滿多人都開始使用github寫Blog, 我也開始有這個想法</p>
-
-<p>但因為手頭上的作業系統是win7, 想順手來試試看, 但卻遭遇了不少困難</p>
-
-<p>最後花了不少時間終於把Octopress弄到我的Github上面, 在此記錄了一下我的安裝經驗</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2015/11/11/init-blog/">點擊這裡繼續閱讀 &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
-  <div class="pagination">
-    
-    <a href="/blog/archives">Blog Archives</a>
-    
-  </div>
-</div>
 <aside class="sidebar">
   
     <section>
@@ -742,6 +475,7 @@
   
 </aside>
 
+
     </div>
   </div>
   <footer role="contentinfo"><p>
@@ -756,7 +490,10 @@
       var disqus_shortname = 'kennytu';
       
         
-        var disqus_script = 'count.js';
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://kennytu.github.io/blog/2015/11/24/sails-study06/';
+        var disqus_url = 'http://kennytu.github.io/blog/2015/11/24/sails-study06/';
+        var disqus_script = 'embed.js';
       
     (function () {
       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;

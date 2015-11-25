@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Sails | 江湖險惡，我從來都不輕易留下我的姓名。]]></title>
   <link href="http://kennytu.github.io/blog/categories/sails/atom.xml" rel="self"/>
   <link href="http://kennytu.github.io/"/>
-  <updated>2015-11-23T23:37:24+08:00</updated>
+  <updated>2015-11-25T18:45:57+08:00</updated>
   <id>http://kennytu.github.io/</id>
   <author>
     <name><![CDATA[Kenny Tu]]></name>
@@ -14,11 +14,230 @@
 
   
   <entry>
+    <title type="html"><![CDATA[Sails練習之六]]></title>
+    <link href="http://kennytu.github.io/blog/2015/11/24/sails-study06/"/>
+    <updated>2015-11-24T22:12:51+08:00</updated>
+    <id>http://kennytu.github.io/blog/2015/11/24/sails-study06</id>
+    <content type="html"><![CDATA[<p>本章接著<a href="https://www.youtube.com/watch?v=GHp1g7Z0Yo4" target=_blank>Building a Sails Application: Ep8 - Adding a user list, index, edit, and update action.</a></p>
+
+<p>影片一開始, Irl nathan介紹了ejs中, <code>&lt;%- %&gt;</code>以及<code>&lt;%= %&gt;</code>有什麼不同</p>
+
+<p>簡單來說</p>
+
+<p> <code>&lt;%- %&gt;</code>有 <code>-</code> 這個記號的, 若被此tag包含起來的程式碼有java script, 那麼ejs就會去執行它, 這個是一個很常會讓人侵入的地方,</p>
+
+<p>而<code>&lt;%= %&gt;</code>就不會對java script做解讀,ejs會直接跳過js, 直接輸出到頁面上</p>
+
+<p>還有一個是<code>&lt;% %&gt;</code>, 沒有加任何符號的, 這個就是單純的ejs嵌入javascript程式碼用的.</p>
+
+<p>Irl nathan示範了如何在新增使用者的欄位, 注入java script程式碼, 讓其可以執行的例子</p>
+
+<p>我們在新增使用者的頁面, 在第二個欄位, 輸入user title的這個,</p>
+
+<p>輸入<code>&lt;script&gt; alert("I am a bad guy");&lt;/script&gt;</code></p>
+
+<p>將其他輸入項輸入完成之後, 按下Enter, 跳轉到User Info頁面的時候</p>
+
+<p>會跳出一個<code>I am a bad guy</code>的alert,</p>
+
+<p>這很不好, 所以我們要來改寫程式碼</p>
+
+<p>將所有<code>&lt;%-</code>都換成<code>&lt;%=</code></p>
+
+<p>```js show.ejs</p>
+
+<div class="container">
+  <h1><%= user.name %></h1>
+  <h3><%= user.title %></h3>
+  <hr>
+  <h3>contact: <%= user.email %></h3>
+
+  <a class="btn btn-medium btn-primary" href="http://kennytu.github.io/user/edit/<%= user.id %>%>">Edit</a>
+
+</div>
+
+
+<pre><code>
+好的, 基礎原理介紹了一下之後, 我們要進入正題
+
+我們要修改當我們在瀏覽器輸入`http://localhost:1337/user`的時候,
+
+後端會回傳一個user model的json格式回來, 我們要來將這個json做成精美的網頁
+
+先到`UserController.js`
+
+加入底下程式碼
+</code></pre>
+
+<p>//render the profile view (e.g. /views/show.ejs)
+    show: function(req, res, next){
+      User.findOne(req.param(&lsquo;id&rsquo;), function foundUser(err, user){
+        if(err) return next(err);
+        if(!user) return next();
+        res.view({
+          user: user
+        });
+      });
+    },</p>
+
+<pre><code>index: function(req, res, next){
+  console.log("hi! there!");
+  //Get an array of all users in the User collection(e.g. table)
+  User.find(function foundUsers(err, users){
+    if(err) return (err);
+    //pass the array down to the /views/index.ejs page
+    res.view({
+      users: users
+    });
+  });
+}
+</code></pre>
+
+<pre><code>
+接著在`views\user\` 新增 `index.ejs`
+</code></pre>
+
+<div class="container">
+  <h3>Users</h3>
+  <table class="table">
+    <tr>
+      <th>ID</th>
+      <th>Name</th>
+      <th>Title</th>
+      <th>Email</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+
+    <% _.each(users, function(user){ %>
+    <tr data-id="<%= user.id %>" data-model="user">
+      <td><%= user.id %></td>
+      <td><%= user.name %></td>
+      <td><%= user.title%></td>
+      <td><%= user.email%></td>
+      <td><a href="http://kennytu.github.io/user/show/<%= user.id %>" class="btn btn-sm btn-primary">Show</a></td>
+      <td><a href="http://kennytu.github.io/user/edit/<%= user.id %>" class="btn btn-sm btn-warning">Edit</a></td>
+      <td><a href="http://kennytu.github.io/user/destroy/<%= user.id %>" class="btn btn-sm btn-danger">Delete</a></td>
+    </tr>
+
+    <%}) %>
+  </table>
+</div>
+
+
+<pre><code>
+新增完成之後, 剩下的就是Saisl框架會幫我們處理的事情
+
+存檔之後, 重啟sails
+
+輸入 `http://localhost:1337/user`
+
+就可以看到精美的User List列表啦!
+
+接下來我們來處理`edit`以及`update`這兩個action
+
+回到`UserController.js`,新增`edit`以及`update`
+</code></pre>
+
+<p>//render the edit view (e.g. /views/edit.ejs)
+  edit: function(req, res, next){</p>
+
+<pre><code>//Find the user from the id passed in via params
+User.findOne(req.param('id'), function foundUser(err, user){
+  if(err) return next(err);
+  if(!user) return next();
+
+  res.view({
+    user: user
+  });
+});
+</code></pre>
+
+<p>  },</p>
+
+<p>  // process the info from edit view
+  update: function(req, res, next){
+    User.update(req.param(&lsquo;id&rsquo;), req.params.all(), function userUpdated(err){
+      if (err){
+        return res.redirect(&lsquo;/user/edit/&rsquo; + req.param(&lsquo;id&rsquo;));
+      }</p>
+
+<pre><code>  res.redirect('/user/show/' + req.param('id'));
+});
+</code></pre>
+
+<p>  }</p>
+
+<pre><code>
+接著在`views\user\`新增`edit.ejs`
+</code></pre>
+
+<p><form action="/user/update/<%= user.id %>&ldquo; method="POST&rdquo; class=&ldquo;form-signin&rdquo;></p>
+
+<p>  <h2> Hey, you&rsquo;re editing a user&hellip;</h2></p>
+
+<p>  <input value="<%= user.name%>&ldquo; name="name&rdquo; type=&ldquo;text&rdquo; class=&ldquo;form-control&rdquo;/>
+  <input value="<%= user.title%>&ldquo; name="title&rdquo; type=&ldquo;text&rdquo; class=&ldquo;form-control&rdquo;/>
+  <input value="<%= user.email%>&ldquo; name="email&rdquo; type=&ldquo;text&rdquo; class=&ldquo;form-control&rdquo;/>
+  <input type="submit" value="Proceed" class="btn btn-lg btn-primary btn-block"/>
+  <input type="hidden" name="_csrf" value="<%= _csrf %>&ldquo;/>
+</form></p>
+
+<pre><code>
+重啟sails, 我們試試看Edit, 應該有畫面出來了
+
+接下來嘗試輸入一下資料, 發現居然有jQuery的Validation出來作怪!!!
+
+作者在這邊大叫了一聲!!!~~~ 阿!~~~ 
+
+隨即馬上說這個超簡單可以解決, 讓我們繼續看下去
+
+我們先到`assets\js\dependencies\customVaildate.js`
+
+將這行 `$('.form-signin').validate({` 修改成 `$('#sign-up-form').validate({`
+
+注意我們將`.form-signin`改成`#sign-up-form`, 一個點變成一個井號
+
+這邊要提到`CSS`以及`Javascript`的Class以及ID的用法
+
+對於CSS來說, 使用`.`定義的都是Class, 而使用`#`的則是ID命名
+
+關於Class以及ID的觀念和用法, 請參考底下網站
+
+&lt;a href="http://www.minwt.com/webdesign-dev/css/30.html" target="_blank"&gt;[CSS]id 與 class 別再傻傻分不清楚&lt;/a&gt;
+
+&lt;a href="http://www.1keydata.com/css-tutorial/tw/class-id.php" target="_blank"&gt; CSS Class 與 CSS ID&lt;/a&gt;
+
+&lt;a href="http://www.1keydata.com/css-tutorial/tw/syntax.php" target="_blank"&gt;CSS 教學 &gt; 語法&lt;/a&gt;
+
+所以呢, 我們作者就把jQuery這一段改成`id`之後, 就可以唯一指定登錄頁面是使用這個邏輯了
+
+接著, 我們要去改views\user\new.ejs
+</code></pre>
+
+<p><form action="/user/create" method="POST" id="sign-up-form" class="form-signin"></p>
+
+<p>```</p>
+
+<p>存檔之後, 重啟sails, 就可以在測試看看, JQuery的Vaildation就不會出現在Edit的頁面上了</p>
+
+<blockquote><p>更新 我剛剛把edit.js裡面的action打成actoin, 結果debug半天阿! 拎老師咧</p></blockquote>
+
+<p>好的, Edit功能做完之後, 測試完若沒有問題&hellip; 我們接下來就來處理Delete了</p>
+
+<p>由於Delete會學習到POST的概念, 所以作者把它放在下一個課程</p>
+
+<p>今天就先到這邊啦!</p>
+]]></content>
+  </entry>
+  
+  <entry>
     <title type="html"><![CDATA[Sails練習之五]]></title>
     <link href="http://kennytu.github.io/blog/2015/11/23/sails-study05/"/>
     <updated>2015-11-23T16:56:55+08:00</updated>
     <id>http://kennytu.github.io/blog/2015/11/23/sails-study05</id>
-    <content type="html"><![CDATA[<p>終於來到練習的第五集了, 這一集是影片連結是<a href="https://www.youtube.com/watch?v=_wL2cS0GmJQ&index=8&list=PLWsZeJCry-F4K4iRImeB3-i0S5mw9Ak-W" target=_blank>Building a Sails Application: Ep6 - Creating a policy and adding client-side validation</a></p>
+    <content type="html"><![CDATA[<p>終於來到練習的第五集了, 這一集的影片連結是<a href="https://www.youtube.com/watch?v=_wL2cS0GmJQ&index=8&list=PLWsZeJCry-F4K4iRImeB3-i0S5mw9Ak-W" target=_blank>Building a Sails Application: Ep6 - Creating a policy and adding client-side validation</a></p>
 
 <p>上一個單元, Irl nathan展示了如何在UserController中, 實現Handling validation errors with a flash message.</p>
 
@@ -385,7 +604,7 @@ shortcuts: true</p>
 <p>{
   &ldquo;name&rdquo;: &ldquo;kg&rdquo;,
   &ldquo;title&rdquo;: &ldquo;kaaa&rdquo;,
-  &ldquo;email&rdquo;: &ldquo;<a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#107;&#50;&#x32;&#51;&#x40;&#104;&#111;&#116;&#x2e;&#x63;&#111;&#x6d;">&#x6b;&#50;&#50;&#51;&#64;&#104;&#111;&#x74;&#46;&#99;&#x6f;&#109;</a>&rdquo;,
+  &ldquo;email&rdquo;: &ldquo;<a href="&#x6d;&#97;&#x69;&#108;&#116;&#111;&#x3a;&#107;&#x32;&#50;&#51;&#64;&#x68;&#111;&#116;&#x2e;&#x63;&#111;&#x6d;">&#107;&#x32;&#x32;&#x33;&#x40;&#x68;&#111;&#116;&#46;&#x63;&#x6f;&#109;</a>&rdquo;,
   &ldquo;password&rdquo;: &ldquo;1234&rdquo;,
   &ldquo;comfirmation&rdquo;: &ldquo;5678&rdquo;,
   &ldquo;_csrf&rdquo;: &ldquo;gdMb0LUb-zUlpCgAUgC0LW41ILym6M6_svV4&rdquo;,
@@ -484,7 +703,7 @@ encryptedPassword:{
 <p>{
   &ldquo;name&rdquo;: &ldquo;HappyKenny&rdquo;,
   &ldquo;title&rdquo;: &ldquo;HappyKennyYa&rdquo;,
-  &ldquo;email&rdquo;: &ldquo;<a href="&#x6d;&#x61;&#105;&#108;&#116;&#x6f;&#x3a;&#x68;&#x61;&#x70;&#112;&#121;&#64;&#x63;&#111;&#x6d;&#46;&#x74;&#x77;">&#104;&#97;&#112;&#x70;&#x79;&#x40;&#x63;&#111;&#109;&#46;&#x74;&#119;</a>&rdquo;,
+  &ldquo;email&rdquo;: &ldquo;<a href="&#x6d;&#97;&#x69;&#x6c;&#116;&#111;&#58;&#x68;&#x61;&#x70;&#x70;&#121;&#x40;&#99;&#111;&#109;&#46;&#x74;&#x77;">&#x68;&#97;&#112;&#x70;&#121;&#x40;&#x63;&#111;&#x6d;&#x2e;&#116;&#119;</a>&rdquo;,
   &ldquo;id&rdquo;: 6,
   &ldquo;createdAt&rdquo;: &ldquo;2015-11-18T09:52:11.686Z&rdquo;,
   &ldquo;updatedAt&rdquo;: &ldquo;2015-11-18T09:52:11.686Z&rdquo;
@@ -875,366 +1094,6 @@ Make sure it is triggering its `initialize()` callback, or else set `sails.confi
 <p>OK, 回到瀏覽器, 在reflash一次, 應該會出現像樣的登入畫面了</p>
 
 <p>以上就是這一堂課的練習</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Sails練習之一]]></title>
-    <link href="http://kennytu.github.io/blog/2015/11/16/sails-study01/"/>
-    <updated>2015-11-16T11:29:18+08:00</updated>
-    <id>http://kennytu.github.io/blog/2015/11/16/sails-study01</id>
-    <content type="html"><![CDATA[<p>這一系列的文章, 出自於youtube上的Building a Sails Application教學.</p>
-
-<p>這位仁兄的一系列教學文章都寫得非常好</p>
-
-<p>他的網址在<a href="https://www.youtube.com/watch?v=ep6EQ5f82Ts&index=2&list=PLWsZeJCry-F4K4iRImeB3-i0S5mw9Ak-W" target="_blank">這邊</a></p>
-
-<p>底下分別是他的各個教學章節, 我只是用文字來記錄我的學習過程</p>
-
-<!--more-->
-
-
-<h2>Building a Sails Application: Ep1 - Installing Sails and Create Initial Project</h2>
-
-<p>OK, 這個章節主要就是教安裝, 你要先安裝好<code>npm</code>, 接下來都好辦了</p>
-
-<p>安裝sails</p>
-
-<p><code>npm install -g sails</code></p>
-
-<p>指令一下去就裝好了. -g是代表安裝到大家都可以存取到的目錄, npm的共用目錄是放在<code>C:\Users\KennyTu\AppData\Roaming\npm</code></p>
-
-<p>你可以用npm config get prefix來取得global的目錄</p>
-
-<p><code>E:\sails_app&gt;npm config get prefix</code></p>
-
-<p>安裝好sails之後, 就可以用sails來create project</p>
-
-<pre><code class="batch">    E:\sails_app&gt;sails new activeityOverload --linker
-    info: Created a new Sails app `activeityOverload`!
-</code></pre>
-
-<p><code>--linker</code> 的意思是在傳輸的過程啟動壓縮功能, 先讓資料變小, 然後傳輸, 節省網路開銷</p>
-
-<p><strong>但在0.10版本之後, sails就捨棄了linker, 要注意一下</strong></p>
-
-<p>詳情請參考<a href="http://stackoverflow.com/questions/22042260/sails-js-v0-10-create-new-project-linker-not-working-gruntfile-js-not-used" target="_blank">這裡</a></p>
-
-<p>接著啟動sails的serve來看結果
-<code>batch
-E:\sails_app&gt;cd activeityOverload
-E:\sails_app\activeityOverload&gt;sails lift
-</code></p>
-
-<pre><code class="batch">info: Starting app...
-
-info:
-info:                .-..-.
-info:
-info:    Sails              &lt;|    .-..-.
-info:    v0.11.2             |\
-info:                       /|.\
-info:                      / || \
-info:                    ,'  |'  \
-info:                 .-'.-==|/_--'
-info:                 `--'-------'
-info:    __---___--___---___--___---___--___
-info:  ____---___--___---___--___---___--___-__
-info:
-info: Server lifted in `E:\sails_app\activeityOverload`
-info: To see your app, visit http://localhost:1337
-info: To shut down Sails, press &lt;CTRL&gt; + C at any time.
-
-debug: --------------------------------------------------------
-debug: :: Mon Nov 16 2015 15:24:06 GMT+0800 (台北標準時間)
-
-debug: Environment : development
-debug: Port        : 1337
-debug: --------------------------------------------------------
-</code></pre>
-
-<p>看到以上的訊息之後, 就可以到瀏覽器中輸入 <code>http://localhost:1337</code></p>
-
-<p>就可以看到網頁啦!</p>
-
-<p>好~ 第一課就是這樣囉, 結束</p>
-
-<p>底下是第二課</p>
-
-<h2>Building a Sails Application: Ep2 - Creating a sign-up page, adding twitter bootstrap</h2>
-
-<p>進入到我們剛剛create的資料夾, 也就是activeityOverload, 我們會看到幾個資料夾和檔案</p>
-
-<p>我們先專注在 <code>config/routes.js</code></p>
-
-<p>這個檔案決定使用者個要求如何導向我們設定的資源</p>
-
-<p>詳細的介紹在<a href="http://sailsjs.org/#!/documentation/concepts/Routes/RouteTargetSyntax.html" target="_blank">這邊</a></p>
-
-<p>主要是這個結構</p>
-
-<pre><code class="js">module.exports.routes = {
-
-  '/': {
-    view: 'homepage'
-  }
-
-};
-</code></pre>
-
-<p>這個是說, 根目錄的頁面是呈現主要是view的hompage檔案</p>
-
-<p>所以我們可以在views的目錄下找到homepage.ejs</p>
-
-<p>EJS 是一個 client 端的 JavaScript template library，可以讓整個網頁程式碼結構更清楚、更整潔。有興趣的人可以參考<a href="http://blogger.gtwang.org/2014/02/ejs-embedded-javascript.html" target="_blank">這裡</a></p>
-
-<p>現在呢, 我們要做以下事情</p>
-
-<ol>
-<li>在views下create一個資料夾static</li>
-<li>在static資料夾下新增index.ejs</li>
-</ol>
-
-
-<p>在index.ejs新增</p>
-
-<p>```html</p>
-
-<h1> this is our homepage </h1>
-
-
-<pre><code>
-回到`config/routes.js` 修改我們的首頁的目錄, 如下
-</code></pre>
-
-<p>module.exports.routes = {</p>
-
-<p>  &lsquo;/&rsquo;: {
-    view: &lsquo;static/index&rsquo;
-  }</p>
-
-<p>};
-```</p>
-
-<p>修改完成, 重新啟動sails,</p>
-
-<p><code>sails lift</code></p>
-
-<p>然後到瀏覽器(在這邊我用Firefox)就可以看到結果</p>
-
-<p>在這邊用瀏覽器的觀看原始碼功能, 會看到source code多了很多東西出來</p>
-
-<p>這是因為sails會用layout.ejs (在views底下)</p>
-
-<p>重新幫我們產生出一個頁面出來</p>
-
-<p>為了實驗一下layout.ejs, 我們來修改一下內容</p>
-
-<p>在layout.ejs檔案中, 大約31行開始</p>
-
-<pre><code class="html">    &lt;!--STYLES--&gt;
-    &lt;link rel="stylesheet" href="http://kennytu.github.io/styles/bootstrap.css"&gt;
-    &lt;link rel="stylesheet" href="http://kennytu.github.io/styles/importer.css"&gt;
-    &lt;!--STYLES END--&gt;
-</code></pre>
-
-<p>上面那個<code>bootstrap.css</code>是我加的</p>
-
-<p>目的是在於, 我們改用<code>bootstrap.css</code>來重新render(渲染)我們的html元素</p>
-
-<p>也就是我們的<code>index.ejs</code>當中的<code>h2</code>的元素, 會被<code>layout.ejs</code>用<code>bootstrap.css</code>來重新渲染</p>
-
-<p>底下是作法</p>
-
-<ol>
-<li>去下載bootstrap, 最新的是bootstrap-3.3.5-dist.zip, 裡面有js, css, fonts</li>
-<li>把css下面的bootstrap.css copy 到 sails app 目錄下的 <code>activeityOverload\assets\styles</code></li>
-<li>到layout.ejs去新增 styles, 就如同上面的layout.ejs的範例一樣</li>
-</ol>
-
-
-<p>接著就是重新啟動sails, 你會看到首頁的字型變得不太一樣了</p>
-
-<p>在這邊要提到一個目錄, 也就是assets, assets中文是資源的意思, 意思就是你create的任何files都可以放在這個資料夾啦!</p>
-
-<p>當我們把files放到這個assets的目錄時, sails會在啟動的時候, 將底下的檔案copy到要發行的另外一個目錄, 在這邊是<code>.tmp\public\styles</code></p>
-
-<p>OK, 接下來作者就要再次修改主頁了, 修改之前, 他shows出了Gruntfile.js,</p>
-
-<p>看到這邊出現了一個不熟悉的東西, 就上網google了一下</p>
-
-<p>原來grunt是一個前端的建構工具, 他很像C的Make, Java的Ant, Ruby的Rake&hellip;</p>
-
-<p>在前端和Node.js的開發環境中, 就是使用grunt來建置</p>
-
-<p>Grunt是一個Task Runner，常用來執行 JS/CSS 打包壓縮、SASS/LESS/CoffeeScript 編譯、單元測試… 等工作，常被拿來當成前端開發自動化的引擎。</p>
-
-<p>上網study了一下, 發現(2015年)出現了一個比Grunt更好用的Tool, 叫作Gulp</p>
-
-<p>可能作者在出這個教學影片的時候, 還沒有Gulp, 所以就用了Grunt.</p>
-
-<p>但既然已經有了Gulp, 我就來用Gulp來取代Grunt吧(以後啦!)</p>
-
-<p>Sails的官網有教學, 如何把Grunt給DISABLE掉&hellip;請參考<a href="http://sailsjs.org/documentation/concepts/assets/disabling-grunt" target="_blank">官方網站</a></p>
-
-<p>一些gulp的教學文件我列在底下</p>
-
-<p><a href="http://www.oxxostudio.tw/articles/201503/gulp-install-webserver.html" target="_blank">Gulp 學習 1</a></p>
-
-<p><a href="http://www.jianshu.com/p/3779f708f5d7" target="_blank">Gulp 挑戰 Grunt，背後的哲學 </a></p>
-
-<p><a href="http://blog.darkthread.net/post-2014-09-25-gulp-grunt-bower-npm.aspx" target="_blank">Gulp, Grunt, Bower 以及 npm</a></p>
-
-<p><a href="http://koanda.de/blog/53b9a67acba90doc1636380824-How-to-disable-Grunt-in-Sails-js" target="_blank">How to disable Grunt in Sails.js</a></p>
-
-<p>好, 現在繼續, 在這邊有個小插曲</p>
-
-<p>作者忘記把JQuery以及一些相關的檔案加進來, 他額外寫了一個blog, 參考
-<a href="https://www.youtube.com/watch?v=zootilxmo4M" target="_blank">Building a Sails Application: Ep2a - adding jquery, custom.less, minor footer changes</a></p>
-
-<p>底下是步驟</p>
-
-<ol>
-<li>先把JQuery下載下來, 我下載的是<a href="http://jquery.com/download/" target="_blank">The compressed, production jQuery 2.1.4</a></li>
-<li>把jquery-2.1.4.min.js 改名成jquery.js, 放到assets\js\dependencies底下</li>
-<li>到task\底下,找到<code>pipeline.js</code> (新的Sails把Grunt關於inject的部份放到tasks裡面的<code>pipeline.js</code>), 參考<a href="http://sailsjs.org/documentation/concepts/assets/task-automation" target="_blank">這裡</a></li>
-<li>本來我們要把jquery放到pipeline.js, 結果發現pipeline.js已經幫我們處理好了</li>
-</ol>
-
-
-<p>從程式碼當中可以看到</p>
-
-<pre><code class="javascript">// Client-side javascript files to inject in order
-// (uses Grunt-style wildcard/glob/splat expressions)
-var jsFilesToInject = [
-
-  // Load sails.io before everything else
-  'js/dependencies/sails.io.js',
-
-  // Dependencies like jQuery, or Angular are brought in here
-  'js/dependencies/**/*.js',
-
-  // All of the rest of your client-side js files
-  // will be injected here in no particular order.
-  'js/**/*.js',
-
-  // Use the "exclude" operator to ignore files
-  // '!js/ignore/these/files/*.js'
-];
-</code></pre>
-
-<p>OK, 所以我們就不用修改, 把jquery放到正確的目錄就好</p>
-
-<p>接著新增<code>custom.less</code>
-參考下面的內容, 放到<code>assets\styles</code>中</p>
-
-<pre><code class="css">body {
-  padding-top: 60px;
-  padding-bottom: 40px;
-}
-
-.jumbotron {
-  text-align: center;
-}
-
-.jumbotron h2 {
-  font-size: 1.5em;
-  letter-spacing: -1px;
-  margin-bottom: 30px;
-  text-align: center;
-  font-weight: normal;
-  color: gray;
-}
-
-.container .gray{
-  color: gray
-}
-
-.container{
-  .footer{
-    width: 25%;
-  }
-}
-</code></pre>
-
-<p>接著, 我們修改importer.less, 新增<code>@import 'custom.less';</code> 如下表</p>
-
-<pre><code class="css">// For example:
-//
-// @import 'variables/colors.less';
-// @import 'mixins/foo.less';
-// @import 'mixins/bar.less';
-// @import 'mixins/baz.less';
-//
-// @import 'styleguide.less';
-// @import 'pages/login.less';
-// @import 'pages/signup.less';
-//
-// etc.
-
-@import 'custom.less';
-</code></pre>
-
-<p>PS: 我剛剛把custom.less放到assets\styles中的時候, layout.ejs好像就會幫我把custom.css自動加到STYLE裡面去.. 超強的&hellip; 還是我自己之前有改過我忘記了&hellip; XD</p>
-
-<p>作者有在layout.ejs新增了一些屬性, <code>navbar</code>以及<code>footer</code></p>
-
-<p>相關程式碼我寫在下面</p>
-
-<pre><code class="html">  &lt;div class="navbar navbar-inverse navbar-fixed-top"&gt;
-      &lt;div class="container"&gt;
-          &lt;a class="navbar-brand" href="http://kennytu.github.io/"&gt; activityOverload&lt;/a&gt;
-      &lt;/div&gt;
-  &lt;/div&gt;
-
-  &lt;%- body %&gt;
-
-  &lt;div class="container"&gt;
-    &lt;hr&gt;
-    &lt;footer class="footer pull-right"&gt;
-      &lt;div&gt;
-        &lt;a href="http://sailsja.com"&gt;sails.js&lt;/a&gt;
-        &lt;div&gt;Tutorial by irl nathan...&lt;/div&gt;
-      &lt;/div&gt;
-    &lt;/footer&gt;
-  &lt;/div&gt;
-</code></pre>
-
-<p>其中 &lt;%- body %> 上面的code是navbar, 下面的是footer</p>
-
-<p>好的, 總之大功告成啦</p>
-
-<p>現在要回頭修改index.ejs了</p>
-
-<p>內容如下</p>
-
-<p>```html</p>
-
-<div class="container">
-  <div class="jumbotron">
-    <h1>activityOverload</h1>
-
-    <h2>...tracking app activity better than the NSA since 1899.</h2>
-    <div class="text-center">
-      <a href="http://kennytu.github.io/user/new" style="text-align:center" class="btn btn-lg btn-success">Sign up now!</a>
-    </div>
-  </div>
-</div>
-
-
-<p>```</p>
-
-<p>其中如果照著youtube上面寫的, button不會置中, 所以我就加了<code>div class="text-center"</code> 讓button置中, 我們使用的class是bootstrap的class, 請參考<a href="http://stackoverflow.com/questions/22578853/how-to-center-buttons-in-twitter-bootstrap-3" target="_balnk">這裡</a></p>
-
-<p>好, 以上就是教學影片的第一課以及第二課, 附上網址</p>
-
-<ol>
-<li><a href="https://www.youtube.com/watch?v=1H0UfbGdwd8&list=PLWsZeJCry-F4K4iRImeB3-i0S5mw9Ak-W&index=1" target="_blank">activityOverlord - An overview of the project</a></li>
-<li><a href="https://www.youtube.com/watch?v=ep6EQ5f82Ts&list=PLWsZeJCry-F4K4iRImeB3-i0S5mw9Ak-W&index=2" target="_blank">Building a Sails Application: Ep1 - Installing Sails and Create Initial Project</a></li>
-<li><a href="http://irlnathan.github.io/sailscasts/blog/2013/08/22/building-a-sails-application-ep2a-a-quick-supplement-to-some-stuff-i-forgot-to-mention-in-episode-2/" target="_blank">Building a Sails Application: Ep2a - Stuff I Forgot to Mention in Episode two&hellip;because I&rsquo;m Old.</a></li>
-<li><a href="https://www.youtube.com/watch?v=ZE7ye2G_H9Q&list=PLWsZeJCry-F4K4iRImeB3-i0S5mw9Ak-W&index=3" target="_blank">Building a Sails Application: Ep2 - Creating a sign-up page, adding twitter bootstrap</a></li>
-</ol>
-
 ]]></content>
   </entry>
   
