@@ -10,8 +10,6 @@ categories: sails
 
 影片一開始, Irl nathan介紹了ejs中, `<%- %>`以及`<%= %>`有什麼不同
 
-<!--more-->
-
 簡單來說
 
  `<%- %>`有 `-` 這個記號的, 若被此tag包含起來的程式碼有java script, 那麼ejs就會去執行它, 這個是一個很常會讓人侵入的地方,
@@ -19,6 +17,8 @@ categories: sails
 而`<%= %>`就不會對java script做解讀,ejs會直接跳過js, 直接輸出到頁面上
 
 還有一個是`<% %>`, 沒有加任何符號的, 這個就是單純的ejs嵌入javascript程式碼用的.
+
+<!--more-->
 
 Irl nathan示範了如何在新增使用者的欄位, 注入java script程式碼, 讓其可以執行的例子
 
@@ -215,7 +215,7 @@ Irl nathan示範了如何在新增使用者的欄位, 注入java script程式碼
 
 存檔之後, 重啟sails, 就可以在測試看看, JQuery的Vaildation就不會出現在Edit的頁面上了
 
-> 更新 我剛剛把edit.js裡面的action打成actoin, 結果debug半天阿! 拎老師咧
+>更新-> 我剛剛把edit.js裡面的action打成actoin,結果debug半天阿~ 拎老師咧
 
 好的, Edit功能做完之後, 測試完若沒有問題... 我們接下來就來處理Delete了
 
