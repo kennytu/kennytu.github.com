@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Sails | 江湖險惡，我從來都不輕易留下我的姓名。]]></title>
   <link href="http://kennytu.github.io/blog/categories/sails/atom.xml" rel="self"/>
   <link href="http://kennytu.github.io/"/>
-  <updated>2015-11-25T18:46:39+08:00</updated>
+  <updated>2015-11-25T18:55:08+08:00</updated>
   <id>http://kennytu.github.io/</id>
   <author>
     <name><![CDATA[Kenny Tu]]></name>
@@ -22,9 +22,6 @@
 
 <p>影片一開始, Irl nathan介紹了ejs中, <code>&lt;%- %&gt;</code>以及<code>&lt;%= %&gt;</code>有什麼不同</p>
 
-<!--more-->
-
-
 <p>簡單來說</p>
 
 <p> <code>&lt;%- %&gt;</code>有 <code>-</code> 這個記號的, 若被此tag包含起來的程式碼有java script, 那麼ejs就會去執行它, 這個是一個很常會讓人侵入的地方,</p>
@@ -32,6 +29,9 @@
 <p>而<code>&lt;%= %&gt;</code>就不會對java script做解讀,ejs會直接跳過js, 直接輸出到頁面上</p>
 
 <p>還有一個是<code>&lt;% %&gt;</code>, 沒有加任何符號的, 這個就是單純的ejs嵌入javascript程式碼用的.</p>
+
+<!--more-->
+
 
 <p>Irl nathan示範了如何在新增使用者的欄位, 注入java script程式碼, 讓其可以執行的例子</p>
 
@@ -225,7 +225,7 @@ User.findOne(req.param('id'), function foundUser(err, user){
 
 <p>存檔之後, 重啟sails, 就可以在測試看看, JQuery的Vaildation就不會出現在Edit的頁面上了</p>
 
-<blockquote><p>更新 我剛剛把edit.js裡面的action打成actoin, 結果debug半天阿! 拎老師咧</p></blockquote>
+<blockquote><p>更新-> 我剛剛把edit.js裡面的action打成actoin,結果debug半天阿~ 拎老師咧</p></blockquote>
 
 <p>好的, Edit功能做完之後, 測試完若沒有問題&hellip; 我們接下來就來處理Delete了</p>
 
@@ -607,7 +607,7 @@ shortcuts: true</p>
 <p>{
   &ldquo;name&rdquo;: &ldquo;kg&rdquo;,
   &ldquo;title&rdquo;: &ldquo;kaaa&rdquo;,
-  &ldquo;email&rdquo;: &ldquo;<a href="&#109;&#x61;&#105;&#x6c;&#116;&#x6f;&#58;&#107;&#50;&#x32;&#51;&#64;&#104;&#111;&#x74;&#x2e;&#x63;&#x6f;&#x6d;">&#107;&#x32;&#50;&#51;&#64;&#x68;&#111;&#x74;&#x2e;&#x63;&#111;&#109;</a>&rdquo;,
+  &ldquo;email&rdquo;: &ldquo;<a href="&#x6d;&#x61;&#x69;&#108;&#x74;&#111;&#58;&#107;&#x32;&#50;&#51;&#64;&#x68;&#x6f;&#x74;&#x2e;&#x63;&#x6f;&#x6d;">&#x6b;&#x32;&#x32;&#x33;&#64;&#x68;&#111;&#116;&#46;&#99;&#111;&#x6d;</a>&rdquo;,
   &ldquo;password&rdquo;: &ldquo;1234&rdquo;,
   &ldquo;comfirmation&rdquo;: &ldquo;5678&rdquo;,
   &ldquo;_csrf&rdquo;: &ldquo;gdMb0LUb-zUlpCgAUgC0LW41ILym6M6_svV4&rdquo;,
@@ -706,7 +706,7 @@ encryptedPassword:{
 <p>{
   &ldquo;name&rdquo;: &ldquo;HappyKenny&rdquo;,
   &ldquo;title&rdquo;: &ldquo;HappyKennyYa&rdquo;,
-  &ldquo;email&rdquo;: &ldquo;<a href="&#109;&#97;&#x69;&#108;&#x74;&#x6f;&#x3a;&#104;&#97;&#112;&#x70;&#121;&#64;&#99;&#111;&#x6d;&#x2e;&#116;&#x77;">&#104;&#x61;&#x70;&#x70;&#x79;&#64;&#x63;&#111;&#x6d;&#46;&#x74;&#x77;</a>&rdquo;,
+  &ldquo;email&rdquo;: &ldquo;<a href="&#109;&#97;&#x69;&#108;&#x74;&#111;&#x3a;&#104;&#x61;&#112;&#x70;&#x79;&#x40;&#99;&#111;&#x6d;&#46;&#116;&#119;">&#104;&#x61;&#112;&#x70;&#121;&#64;&#x63;&#111;&#x6d;&#x2e;&#116;&#119;</a>&rdquo;,
   &ldquo;id&rdquo;: 6,
   &ldquo;createdAt&rdquo;: &ldquo;2015-11-18T09:52:11.686Z&rdquo;,
   &ldquo;updatedAt&rdquo;: &ldquo;2015-11-18T09:52:11.686Z&rdquo;

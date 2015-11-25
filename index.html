@@ -9,7 +9,7 @@
   <meta name="author" content="Kenny Tu">
 
   
-  <meta name="description" content="本章接著Building a Sails Application: Ep8 - Adding a user list, index, edit, and update action. 影片一開始, Irl nathan介紹了ejs中, &lt;%- %&gt;以及&lt;%= %&gt;有什麼不同 ">
+  <meta name="description" content="本章接著Building a Sails Application: Ep8 - Adding a user list, index, edit, and update action. 影片一開始, Irl nathan介紹了ejs中, &lt;%- %&gt;以及&lt;%= %&gt;有什麼不同 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -93,6 +93,14 @@
   <div class="entry-content"><p>本章接著<a href="https://www.youtube.com/watch?v=GHp1g7Z0Yo4" target=_blank>Building a Sails Application: Ep8 - Adding a user list, index, edit, and update action.</a></p>
 
 <p>影片一開始, Irl nathan介紹了ejs中, <code>&lt;%- %&gt;</code>以及<code>&lt;%= %&gt;</code>有什麼不同</p>
+
+<p>簡單來說</p>
+
+<p> <code>&lt;%- %&gt;</code>有 <code>-</code> 這個記號的, 若被此tag包含起來的程式碼有java script, 那麼ejs就會去執行它, 這個是一個很常會讓人侵入的地方,</p>
+
+<p>而<code>&lt;%= %&gt;</code>就不會對java script做解讀,ejs會直接跳過js, 直接輸出到頁面上</p>
+
+<p>還有一個是<code>&lt;% %&gt;</code>, 沒有加任何符號的, 這個就是單純的ejs嵌入javascript程式碼用的.</p>
 
 </div>
   
