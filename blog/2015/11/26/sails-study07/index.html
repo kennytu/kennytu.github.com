@@ -1,0 +1,386 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Sails練習之七 - 江湖險惡，我從來都不輕易留下我的姓名。</title>
+  <meta name="author" content="Kenny Tu">
+
+  
+  <meta name="description" content="本章緊接著前一篇, 我們要來實作Delete的功能 這篇參考此Youtube:Building a Sails Application: Ep9 - Deleting a user account. 我們到UserController.js去新增我們的delete程式碼 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://kennytu.github.io/blog/2015/11/26/sails-study07/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="江湖險惡，我從來都不輕易留下我的姓名。" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">江湖險惡，我從來都不輕易留下我的姓名。</a></h1>
+  
+    <h2>憑你的智慧，我唬得了你嗎？</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="kennytu.github.io">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Sails練習之七</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-11-26T10:34:50+08:00'><span class='date'>2015 年11 月26 日</span> <span class='time'>10:34 am</span></time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://kennytu.github.io">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>本章緊接著前一篇, 我們要來實作Delete的功能</p>
+
+<p>這篇參考此Youtube:<a href="https://www.youtube.com/watch?v=6sIrHPlJJQk" target="_blank">Building a Sails Application: Ep9 - Deleting a user account.</a></p>
+
+<p>我們到<code>UserController.js</code>去新增我們的delete程式碼</p>
+
+<figure class='code'><figcaption><span>UserController.js 新增 destroy function</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'>  <span class="nx">destroy</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">){</span>
+</span><span class='line'>    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Hi, destroy&quot;</span><span class="p">);</span>
+</span><span class='line'>    <span class="nx">User</span><span class="p">.</span><span class="nx">findOne</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">param</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">),</span> <span class="kd">function</span> <span class="nx">foundUser</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">user</span><span class="p">){</span>
+</span><span class='line'>      <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="k">return</span> <span class="nx">next</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
+</span><span class='line'>      <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">user</span><span class="p">)</span> <span class="k">return</span> <span class="nx">next</span><span class="p">(</span><span class="s1">&#39;User doesn\&#39;t exist.&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="nx">User</span><span class="p">.</span><span class="nx">destroy</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">param</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">),</span> <span class="kd">function</span> <span class="nx">userDestroyed</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">if</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="k">return</span> <span class="nx">next</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
+</span><span class='line'>      <span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="nx">res</span><span class="p">.</span><span class="nx">redirect</span><span class="p">(</span><span class="s1">&#39;/user&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<!--more-->
+
+
+<p>我們注意到<code>if(!user) return next('User doesn\'t exist.');</code></p>
+
+<p>我們也把這一段敘述加到<code>edit action</code>裡面</p>
+
+<figure class='code'><figcaption><span>UserController.js 修改 edit action</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">edit</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">){</span>
+</span><span class='line'>    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;hi, edit!&quot;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">//Find the user from the id passed in via params</span>
+</span><span class='line'>    <span class="nx">User</span><span class="p">.</span><span class="nx">findOne</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">param</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">),</span> <span class="kd">function</span> <span class="nx">foundUser</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">user</span><span class="p">){</span>
+</span><span class='line'>      <span class="k">if</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="k">return</span> <span class="nx">next</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
+</span><span class='line'>      <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">user</span><span class="p">)</span> <span class="k">return</span> <span class="nx">next</span><span class="p">(</span><span class="s1">&#39;User doesn\&#39;t exist.&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="nx">res</span><span class="p">.</span><span class="nx">view</span><span class="p">({</span>
+</span><span class='line'>        <span class="nx">user</span><span class="o">:</span> <span class="nx">user</span>
+</span><span class='line'>      <span class="p">});</span>
+</span><span class='line'>    <span class="p">});</span>
+</span><span class='line'><span class="p">},</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>然後我們回到<code>views\user\index.ejs</code>, 加入以下程式碼</p>
+
+<figure class='code'><figcaption><span>views\user\index.ejs 加入destroy (使用POST方法)</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;container&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;h3&gt;</span>Users<span class="nt">&lt;/h3&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;table</span> <span class="na">class=</span><span class="s">&quot;table&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;tr&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;th&gt;</span>ID<span class="nt">&lt;/th&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;th&gt;</span>Name<span class="nt">&lt;/th&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;th&gt;</span>Title<span class="nt">&lt;/th&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;th&gt;</span>Email<span class="nt">&lt;/th&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;th&gt;&lt;/th&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;th&gt;&lt;/th&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;th&gt;&lt;/th&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/tr&gt;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="err">&lt;</span>% _.each(users, function(user){ %&gt;
+</span><span class='line'>    <span class="nt">&lt;tr</span> <span class="na">data-id=</span><span class="s">&quot;&lt;%= user.id %&gt;&quot;</span> <span class="na">data-model=</span><span class="s">&quot;user&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;td&gt;</span><span class="err">&lt;</span>%= user.id %&gt;<span class="nt">&lt;/td&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;td&gt;</span><span class="err">&lt;</span>%= user.name %&gt;<span class="nt">&lt;/td&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;td&gt;</span><span class="err">&lt;</span>%= user.title%&gt;<span class="nt">&lt;/td&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;td&gt;</span><span class="err">&lt;</span>%= user.email%&gt;<span class="nt">&lt;/td&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;td&gt;&lt;a</span> <span class="na">href=</span><span class="s">&quot;/user/show/&lt;%= user.id %&gt;&quot;</span> <span class="na">class=</span><span class="s">&quot;btn btn-sm btn-primary&quot;</span><span class="nt">&gt;</span>Show<span class="nt">&lt;/a&gt;&lt;/td&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;td&gt;&lt;a</span> <span class="na">href=</span><span class="s">&quot;/user/edit/&lt;%= user.id %&gt;&quot;</span> <span class="na">class=</span><span class="s">&quot;btn btn-sm btn-warning&quot;</span><span class="nt">&gt;</span>Edit<span class="nt">&lt;/a&gt;&lt;/td&gt;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="nt">&lt;td&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;form</span> <span class="na">action=</span><span class="s">&quot;/user/destroy/&lt;%= user.id%&gt;&quot;</span> <span class="na">method=</span><span class="s">&quot;POST&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>          <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;hidden&quot;</span> <span class="na">name=</span><span class="s">&quot;_method&quot;</span> <span class="na">value=</span><span class="s">&quot;delete&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>          <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;submit&quot;</span> <span class="na">class=</span><span class="s">&quot;btn btn-sm btn-danger&quot;</span> <span class="na">value=</span><span class="s">&quot;Delete&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>          <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;hidden&quot;</span> <span class="na">name=</span><span class="s">&quot;_csrf&quot;</span> <span class="na">value=</span><span class="s">&quot;&lt;%= _csrf %&gt;&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/form&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;/td&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/tr&gt;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="err">&lt;</span>%}) %&gt;
+</span><span class='line'>  <span class="nt">&lt;/table&gt;</span>
+</span><span class='line'><span class="nt">&lt;/div&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>注意到我們對<code>destroy</code>使用<code>POST</code>方法, 其他的<code>action</code>我們是用<code>GET</code>方法</p>
+
+<p>由於我們的destroy是用另外一個form, 所以我們要在新增一個hidden的_csrf, 否則我們會沒有辦法access網頁</p>
+
+<p>好, 完成之後, 存檔, 重啟sails</p>
+
+<p>瀏覽器輸入<code>http://localhost:1337/user</code></p>
+
+<p>就可以玩玩看delete的功能了!</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Kenny Tu</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2015-11-26T10:34:50+08:00'><span class='date'>2015 年11 月26 日</span> <span class='time'>10:34 am</span></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/sails/'>sails</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://kennytu.github.io/blog/2015/11/26/sails-study07/" data-via="" data-counturl="http://kennytu.github.io/blog/2015/11/26/sails-study07/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/11/24/sails-study06/" title="Previous Post: Sails練習之六">&laquo; Sails練習之六</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Categories</h1>
+    <ul id="category-list"><li><a href='/blog/categories/octopress/'>octopress (2)</a></li><li><a href='/blog/categories/sails/'>sails (7)</a></li></ul>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/11/26/sails-study07/">Sails練習之七</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/24/sails-study06/">Sails練習之六</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/23/sails-study05/">Sails練習之五</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/18/sails-study04/">Sails練習之四</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/18/sails-study03/">Sails練習之三</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Kenny Tu -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'kennytu';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://kennytu.github.io/blog/2015/11/26/sails-study07/';
+        var disqus_url = 'http://kennytu.github.io/blog/2015/11/26/sails-study07/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Sails | 江湖險惡，我從來都不輕易留下我的姓名。]]></title>
   <link href="http://kennytu.github.io/blog/categories/sails/atom.xml" rel="self"/>
   <link href="http://kennytu.github.io/"/>
-  <updated>2015-11-25T18:55:08+08:00</updated>
+  <updated>2015-11-26T12:07:25+08:00</updated>
   <id>http://kennytu.github.io/</id>
   <author>
     <name><![CDATA[Kenny Tu]]></name>
@@ -12,6 +12,110 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Sails練習之七]]></title>
+    <link href="http://kennytu.github.io/blog/2015/11/26/sails-study07/"/>
+    <updated>2015-11-26T10:34:50+08:00</updated>
+    <id>http://kennytu.github.io/blog/2015/11/26/sails-study07</id>
+    <content type="html"><![CDATA[<p>本章緊接著前一篇, 我們要來實作Delete的功能</p>
+
+<p>這篇參考此Youtube:<a href="https://www.youtube.com/watch?v=6sIrHPlJJQk" target="_blank">Building a Sails Application: Ep9 - Deleting a user account.</a></p>
+
+<p>我們到<code>UserController.js</code>去新增我們的delete程式碼</p>
+
+<pre><code class="js UserController.js 新增 destroy function">
+  destroy: function(req, res, next){
+    console.log("Hi, destroy");
+    User.findOne(req.param('id'), function foundUser(err, user){
+      if (err) return next(err);
+      if(!user) return next('User doesn\'t exist.');
+
+      User.destroy(req.param('id'), function userDestroyed(err) {
+        if(err) return next(err);
+      });
+
+      res.redirect('/user');
+
+  });
+</code></pre>
+
+<!--more-->
+
+
+<p>我們注意到<code>if(!user) return next('User doesn\'t exist.');</code></p>
+
+<p>我們也把這一段敘述加到<code>edit action</code>裡面</p>
+
+<pre><code class="js UserController.js 修改 edit action">
+edit: function(req, res, next){
+    console.log("hi, edit!");
+
+    //Find the user from the id passed in via params
+    User.findOne(req.param('id'), function foundUser(err, user){
+      if(err) return next(err);
+      if(!user) return next('User doesn\'t exist.');
+
+      res.view({
+        user: user
+      });
+    });
+},
+</code></pre>
+
+<p>然後我們回到<code>views\user\index.ejs</code>, 加入以下程式碼</p>
+
+<p>```html views\user\index.ejs 加入destroy (使用POST方法)</p>
+
+<div class="container">
+  <h3>Users</h3>
+  <table class="table">
+    <tr>
+      <th>ID</th>
+      <th>Name</th>
+      <th>Title</th>
+      <th>Email</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+
+    <% _.each(users, function(user){ %>
+    <tr data-id="<%= user.id %>" data-model="user">
+      <td><%= user.id %></td>
+      <td><%= user.name %></td>
+      <td><%= user.title%></td>
+      <td><%= user.email%></td>
+      <td><a href="http://kennytu.github.io/user/show/<%= user.id %>" class="btn btn-sm btn-primary">Show</a></td>
+      <td><a href="http://kennytu.github.io/user/edit/<%= user.id %>" class="btn btn-sm btn-warning">Edit</a></td>
+
+      <td>
+        <form action="/user/destroy/<%= user.id%>" method="POST">
+          <input type="hidden" name="_method" value="delete"/>
+          <input type="submit" class="btn btn-sm btn-danger" value="Delete"/>
+          <input type="hidden" name="_csrf" value="<%= _csrf %>"/>
+        </form>
+      </td>
+    </tr>
+
+    <%}) %>
+  </table>
+</div>
+
+
+<p>```</p>
+
+<p>注意到我們對<code>destroy</code>使用<code>POST</code>方法, 其他的<code>action</code>我們是用<code>GET</code>方法</p>
+
+<p>由於我們的destroy是用另外一個form, 所以我們要在新增一個hidden的_csrf, 否則我們會沒有辦法access網頁</p>
+
+<p>好, 完成之後, 存檔, 重啟sails</p>
+
+<p>瀏覽器輸入<code>http://localhost:1337/user</code></p>
+
+<p>就可以玩玩看delete的功能了!</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Sails練習之六]]></title>
@@ -607,7 +711,7 @@ shortcuts: true</p>
 <p>{
   &ldquo;name&rdquo;: &ldquo;kg&rdquo;,
   &ldquo;title&rdquo;: &ldquo;kaaa&rdquo;,
-  &ldquo;email&rdquo;: &ldquo;<a href="&#x6d;&#x61;&#x69;&#108;&#x74;&#111;&#58;&#107;&#x32;&#50;&#51;&#64;&#x68;&#x6f;&#x74;&#x2e;&#x63;&#x6f;&#x6d;">&#x6b;&#x32;&#x32;&#x33;&#64;&#x68;&#111;&#116;&#46;&#99;&#111;&#x6d;</a>&rdquo;,
+  &ldquo;email&rdquo;: &ldquo;<a href="&#x6d;&#x61;&#x69;&#x6c;&#116;&#x6f;&#x3a;&#x6b;&#x32;&#x32;&#x33;&#x40;&#x68;&#x6f;&#116;&#x2e;&#x63;&#x6f;&#109;">&#107;&#x32;&#x32;&#51;&#64;&#x68;&#111;&#x74;&#x2e;&#99;&#x6f;&#109;</a>&rdquo;,
   &ldquo;password&rdquo;: &ldquo;1234&rdquo;,
   &ldquo;comfirmation&rdquo;: &ldquo;5678&rdquo;,
   &ldquo;_csrf&rdquo;: &ldquo;gdMb0LUb-zUlpCgAUgC0LW41ILym6M6_svV4&rdquo;,
@@ -706,7 +810,7 @@ encryptedPassword:{
 <p>{
   &ldquo;name&rdquo;: &ldquo;HappyKenny&rdquo;,
   &ldquo;title&rdquo;: &ldquo;HappyKennyYa&rdquo;,
-  &ldquo;email&rdquo;: &ldquo;<a href="&#109;&#97;&#x69;&#108;&#x74;&#111;&#x3a;&#104;&#x61;&#112;&#x70;&#x79;&#x40;&#99;&#111;&#x6d;&#46;&#116;&#119;">&#104;&#x61;&#112;&#x70;&#121;&#64;&#x63;&#111;&#x6d;&#x2e;&#116;&#119;</a>&rdquo;,
+  &ldquo;email&rdquo;: &ldquo;<a href="&#109;&#97;&#105;&#x6c;&#116;&#111;&#58;&#x68;&#x61;&#x70;&#x70;&#x79;&#64;&#99;&#111;&#x6d;&#x2e;&#x74;&#x77;">&#x68;&#97;&#x70;&#x70;&#x79;&#64;&#x63;&#111;&#109;&#x2e;&#116;&#119;</a>&rdquo;,
   &ldquo;id&rdquo;: 6,
   &ldquo;createdAt&rdquo;: &ldquo;2015-11-18T09:52:11.686Z&rdquo;,
   &ldquo;updatedAt&rdquo;: &ldquo;2015-11-18T09:52:11.686Z&rdquo;
@@ -721,382 +825,6 @@ encryptedPassword:{
 <p>來觀看以往建立的user資料</p>
 
 <p>OK, 這堂課就到這邊, 謝謝大家</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Sails練習之二]]></title>
-    <link href="http://kennytu.github.io/blog/2015/11/17/sails-study02/"/>
-    <updated>2015-11-17T10:54:23+08:00</updated>
-    <id>http://kennytu.github.io/blog/2015/11/17/sails-study02</id>
-    <content type="html"><![CDATA[<p>本篇是接著Irl nathan的這篇</p>
-
-<p><a href="https://www.youtube.com/watch?v=qUAzpyThAB0&index=5&list=PLWsZeJCry-F4K4iRImeB3-i0S5mw9Ak-W" target="_blank">Building a Sails Application: Ep3[UPDATED] - A user model/controller, signup page, sails blueprints</a></p>
-
-<p>底下為練習內容</p>
-
-<!--more-->
-
-
-<h2>MVC架構</h2>
-
-<p>Sails有支援MVC架構, 所以若你有想要完成一個概念性的物件, 這個物件有相對的屬性和行為,Sails會將這個物件的屬性放在Modules, 而行為就放在Controller</p>
-
-<p>使用下列的語法來讓Sails自動創建Controller以及Module</p>
-
-<pre><code class="batch">E:\sails_app\activeityOverload&gt;sails generate api user
-info: Created a new api!
-</code></pre>
-
-<p>PS: 舊版的只要輸入<code>sails generate user</code> 就可以了</p>
-
-<p>這樣Sails會在</p>
-
-<p><code>api\controllers</code> 產生 <code>UserController.js</code></p>
-
-<p><code>api\models</code> 產生 <code>User.js</code></p>
-
-<p>其中,</p>
-
-<p><code>controllers</code>放的是<code>action</code>的邏輯</p>
-
-<p><code>modules</code>裡面放的是<code>attributes</code>的設定</p>
-
-<p>OK, 接著我們來設計User的屬性, 修改 User.js</p>
-
-<pre><code class="js">module.exports = {
-
-  attributes: {
-    name:{
-        type: 'string',
-        required: true
-    },
-
-    title:{
-        type: 'string'
-    },
-
-    email: {
-      type: 'email',
-      required: true,
-      unique: true
-    },
-
-    encryptedPassword:{
-        type: 'string'
-    }
-  }
-};
-</code></pre>
-
-<p>要注意上面的email寫法, sails 0.10以後, type要改成'email'</p>
-
-<p>然後原本的email: true要拿掉</p>
-
-<p>參考<a href="https://github.com/irlnathan/activityoverlord20/issues/13" target="_blank">這裡</a></p>
-
-<p>編輯完成之後, 存檔, 執行 <code>sails lift</code></p>
-
-<p>若是第一次新增api, sails應該會跳出底下的訊息</p>
-
-<pre><code class="batch">E:\sails_app\activeityOverload&gt;sails lift
-
-info: Starting app...
-
------------------------------------------------------------------
-
- Excuse my interruption, but it looks like this app
- does not have a project-wide "migrate" setting configured yet.
- (perhaps this is the first time you're lifting it with models?)
-
- In short, this setting controls whether/how Sails will attempt to automatically
- rebuild the tables/collections/sets/etc. in your database schema.
- You can read more about the "migrate" setting here:
- http://sailsjs.org/#/documentation/concepts/ORM/model-settings.html?q=migrate
-
- In a production environment (NODE_ENV==="production") Sails always uses
- migrate:"safe" to protect inadvertent deletion of your data.
- However during development, you have a few other options for convenience:
-
- 1. safe  - never auto-migrate my database(s). I will do it myself (by hand)
- 2. alter - auto-migrate, but attempt to keep my existing data (experimental)
- 3. drop  - wipe/drop ALL my data and rebuild models every time I lift Sails
-
-What would you like Sails to do?
-
-info: To skip this prompt in the future, set `sails.config.models.migrate`.
-info: (conventionally, this is done in `config/models.js`)
-
-warn: ** DO NOT CHOOSE "2" or "3" IF YOU ARE WORKING WITH PRODUCTION DATA **
-
-prompt: ?:  error: Error: The hook `orm` is taking too long to load.
-Make sure it is triggering its `initialize()` callback, or else set `sails.config.orm._hookTimeout to a higher value (currently 20000)
-    at tooLong [as _onTimeout] (C:\Users\KennyTu\AppData\Roaming\npm\node_modules\sails\lib\app\private\loadHooks.js:92:21)
-    at Timer.listOnTimeout (timers.js:89:15)
-</code></pre>
-
-<p>既然上面有提示到這個<a href="http://sailsjs.org/documentation/concepts/models-and-orm/model-settings#?migrate" target="_blank">網頁</a>, 我們就去看一下</p>
-
-<p>大意就是說, sails他會做一些策略, 來和我們的資料庫互動, migrate(中文有遷移, 移居的意思), 有三種策略, 分別是safe, alter以及drop, 詳細我就不多說了, 去看網頁寫的很清楚</p>
-
-<p>OK, 接下來我們要做的動作是去修改<code>config/models.js</code></p>
-
-<pre><code class="js">module.exports.models = {
-
-  /***************************************************************************
-  *                                                                          *
-  * Your app's default connection. i.e. the name of one of your app's        *
-  * connections (see `config/connections.js`)                                *
-  *                                                                          *
-  ***************************************************************************/
-  // connection: 'localDiskDb',
-
-  /***************************************************************************
-  *                                                                          *
-  * How and whether Sails will attempt to automatically rebuild the          *
-  * tables/collections/etc. in your schema.                                  *
-  *                                                                          *
-  * See http://sailsjs.org/#!/documentation/concepts/ORM/model-settings.html  *
-  *                                                                          *
-  ***************************************************************************/
-   migrate: 'safe'
-
-};
-</code></pre>
-
-<p>把migrate改成safe, 再重新執行<code>sails lift</code></p>
-
-<p>基本上應該就沒問題可以正常執行了</p>
-
-<p>接下來開啟瀏覽器, 輸入底下網址..</p>
-
-<p>作者在輸入到一半的時候,故意只輸入部分, 來讓我們看一下出錯的效果</p>
-
-<p><code>http://localhost:1337/user/create?name=kenny</code></p>
-
-<p>伺服器回應的結果是:</p>
-
-<pre><code class="js">{
-  "error": "E_VALIDATION",
-  "status": 400,
-  "summary": "1 attribute is invalid",
-  "model": "User",
-  "invalidAttributes": {
-    "email": [
-      {
-        "rule": "email",
-        "message": "`undefined` should be a email (instead of \"null\", which is a object)"
-      },
-      {
-        "rule": "required",
-        "message": "\"required\" validation rule failed for input: null"
-      }
-    ]
-  }
-}
-</code></pre>
-
-<p>大意就是說, email需要輸入</p>
-
-<p>我們再改一個正常的</p>
-
-<p>在瀏覽器輸入URL如下</p>
-
-<p><a href="http://localhost:1337/user/create?name=kennyg&amp;email=i@a.com">http://localhost:1337/user/create?name=kennyg&amp;email=i@a.com</a></p>
-
-<p>注意email不能有用過的, 因為我們將<code>email</code>的其中一個<code>unique</code>的屬性設定為true</p>
-
-<p>若沒有意外, 應該出現如下視窗</p>
-
-<pre><code class="js">{
-  "name": "kennyg",
-  "email": "i@a.com",
-  "createdAt": "2015-11-17T07:19:54.897Z",
-  "updatedAt": "2015-11-17T07:19:54.897Z",
-  "id": 2
-}
-</code></pre>
-
-<p>大功告成啦!</p>
-
-<p>注意一點, 我們現在還沒有對<code>UserController.js</code>寫任何邏輯, 以上的行為都是sails系統預設的 :)</p>
-
-<blockquote><p>預設行為都放在blueprints.js下</p></blockquote>
-
-<p>接下來, 我們要開始弄View的東西, 之前Sails幫我們自動生成Module以及Controller,</p>
-
-<p>我們手動在<code>views</code>新增一個資料夾<code>user</code>,然後在<code>user</code>資料夾新增一個檔案名為<code>new.ejs</code>, 新增內容如下</p>
-
-<p>```html</p>
-
-<h1> User signup Form </h1>
-
-
-<pre><code>
-回到`UserController.js`, 在`api\controllers`底下
-
-我們新增以下的code
-</code></pre>
-
-<p>module.exports = {
-    &lsquo;new&rsquo;: function(req, res){
-        res.view();
-    }
-};</p>
-
-<pre><code>
-重新啟動sails, 回到瀏覽器輸入localhost:1337, 按下Sing Up now, 視窗就會跳到new.ejs的page去
-
-還記得嗎? 我們在static底下的index.ejs, button的href是指到/user/new這個action, 所以就會跳到new這邊來了
-
-一般來說, sails會自動幫我們對應action以及底下的檔案, 若要關掉它, 就要去設定
-
-現在我們修改`blueprints.js`, 在`config`底下
-
-找到`rest`, 把他設定成`false`. __記得要把註解拿掉__
-
-參照以下設定
-
-    rest: false,
-    shortcuts: false,
-    actions: false,
-
-
-設定好, 存檔, 重新啟動sails 
-
-這時候進入首頁, 按下Sing up now, 我們會被導入404 pages
-
-接著我們就開始手工打造我們的mapping
-
-回到routes.js, 加入底下的code
-</code></pre>
-
-<pre><code>'/': {
-    view: 'static/index'
-},
-'/user/new': {
-    view: 'user/new'
-}
-</code></pre>
-
-<pre><code>
-
-從新啟動sails, 再次執行sing up now, 就可以導向到我們的頁面了
-
-另一種routes.js風格的寫法, 如下
-</code></pre>
-
-<pre><code>'user/new': {
-    controller: "UserController",
-    action:"new"
-}
-</code></pre>
-
-<pre><code>
-
-這樣的寫法我在新版的sails上面都沒有辦法get到頁面, 不知道是不是要明確指定view才行
-
-另外, 有關routes的其他寫法, 請參考&lt;a href="http://sailsjs.org/documentation/concepts/routes/custom-routes" target="_blank"&gt;Custom Routes&lt;/a&gt;的 __Controller / action target syntax__ 章節
-
-&gt; ok, 我們先繼續, 等之後有靈感在回來試試看
-
-
-現在先將剛剛在routes.js加入的'user/new'這一些敘述都刪掉, 存檔
-
-回到`blueprints.js`, 將`action`改成`true`
-
-然後修改new.ejs, 如底下的程式碼
-</code></pre>
-
-<p><form action="/user/create" method="POST" class="form-signin">
-  <h2 > Create an account</h2>
-  <input type="text" class="form-control" placeholder="your name" name="name">
-  <input type="text" class="form-control" placeholder="your title" name="title">
-  <input type="text" class="form-control" placeholder="email address" name="email">
-  <input type="password" class="form-control" placeholder="password" name="password">
-  <input type="password" class="form-control" placeholder="password confirmation" name="comfirmation"></p>
-
-<p>  <input type="submit" class="btn btn-lg btn-primary btn-block" value="Create Account"/>
-  <input type="hidden" name="_csrf" value="<%= _csrf %>&ldquo;/></p>
-
-<p></form></p>
-
-<pre><code>
-由於new.ejs有用到一些css, 作者也對custom.less做了一些修改
-
-程式碼如下
-</code></pre>
-
-<p>@white: #FFFFFF;
-@green: #9EC03B;
-@orange: #F48744;
-@blue: #189ECA;
-@gray: #777574;
-@lightGrey: #AAAAAA;
-@darkBlue: #106E8D;
-@darkGray: #4A4A4A; // paragraphs
-@red: #D16565; // error</p>
-
-<p>body {
-  padding-top: 60px;
-  padding-bottom: 40px;
-}</p>
-
-<p>.jumbotron {
-  text-align: center;
-}</p>
-
-<p>.jumbotron h2 {
-  font-size: 1.5em;
-  letter-spacing: -1px;
-  margin-bottom: 30px;
-  text-align: center;
-  font-weight: normal;
-  color: gray;
-}</p>
-
-<p>.container .gray{
-  color: gray
-}</p>
-
-<p>.container{
-  .footer{
-    width: 25%;
-  }
-}</p>
-
-<p>.form-signin {
-  max-width: 30%;
-  padding: 19px 29px 29px;
-  margin: 0 auto 20px;
-  margin-top: 20px;
-  background-color: @lightGrey;
-  border: 1px solid @green;
-  -webkit-border-radius: 15px;
-  -moz-border-radius: 15px;
-  border-radius: 15px;</p>
-
-<pre><code>h2{
-  text-align: center;
-  margin-top: 0px;
-}
-</code></pre>
-
-<p>}</p>
-
-<p>.form-signin input[type=&ldquo;text&rdquo;],
-.form-signin input[type=&ldquo;password&rdquo;]{
-  font-size: 16px;
-  height: auto;
-  margin-bottom: 15px;
-  padding: 7px 9px;
-}</p>
-
-<p>```</p>
-
-<p>OK, 回到瀏覽器, 在reflash一次, 應該會出現像樣的登入畫面了</p>
-
-<p>以上就是這一堂課的練習</p>
 ]]></content>
   </entry>
   
