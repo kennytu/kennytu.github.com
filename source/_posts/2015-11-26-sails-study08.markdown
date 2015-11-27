@@ -1,0 +1,153 @@
+---
+layout: post
+title: "Sails練習之八-連結資料庫"
+date: 2015-11-26 17:56:17 +0800
+comments: true
+categories: sails
+---
+
+各位客官, 終於到了要使用到資料庫的時機了
+
+本章節, Irl nathan介紹了Mongo Db的使用, 以及如何新增Mongo Db到我們的sails專案.
+
+不過因為我現在用的sails是0.11.x的版本, 而Irl兄是0.9.x之前的, 所以一些設定上面都有些不同
+
+Irl老兄的影片連結在這:<a href="https://www.youtube.com/watch?v=G4-fm_h8z-0" target="_blank">Building a Sails Application: Ep10 - Changing databases to mongoDB with sails adapters.</a>
+
+
+我在這邊主要以新版的sails為主. 底下介紹安裝方法
+
+<!--more-->
+
+首先, 進去sails的專案, 例如在`E:\sails_app\activeityOverload>` 輸入
+
+`npm install sails-mongo --save`
+
+接著`npm`會下載`mongo`的程式碼, 若在windows系統, 會預設使用`visual studio`的C++來compiler,
+
+這邊要注意, sails-mongo在windows系統下, __預設使用visual studio 2013的版本編譯, 若比2013的版本低, 會發生編譯錯誤. 而若版本比2013高, 則需要額外的輸入條件__, 底下舉例
+
+版本是visual studio 2013
+
+`npm install sails-mongo --save`
+
+版本若是**大於**visual studio 2013, 則需要輸入
+
+`npm install sails-mongo --save --msvs_version=2013`
+
+PS. 大於Visual Studio 2013的版本我還沒試過
+
+若還有任何問題, 請在google輸入`node-gyp v8.h syntax error`這幾個關鍵字, 應該有些線索你可以嘗試看看
+
+好的, 基本上只要注意到這些, 應該就沒問題, Mongo Db就順利裝上去了
+
+接下來要設定Sails專案的Mongo Db的檔案
+
+修改兩個檔案, 一個是`connection.js`,
+
+```js config\connections.js 修改someMongodbServer
+
+ /***************************************************************************
+  *                                                                          *
+  * MongoDB is the leading NoSQL database.                                   *
+  * http://en.wikipedia.org/wiki/MongoDB                                     *
+  *                                                                          *
+  * Run: npm install sails-mongo                                             *
+  *                                                                          *
+  ***************************************************************************/
+  someMongodbServer: {
+    adapter: 'sails-mongo',
+    host: 'localhost',
+    port: 27017,
+    user: '',
+    password: '',
+    database: 'activityoverlord'
+  },
+
+```
+
+另一個是`models.js`
+
+```js config\models.js 修改connection
+
+module.exports.models = {
+
+  /***************************************************************************
+  *                                                                          *
+  * Your app's default connection. i.e. the name of one of your app's        *
+  * connections (see `config/connections.js`)                                *
+  *                                                                          *
+  ***************************************************************************/
+  // connection: 'localDiskDb',
+  connection: 'someMongodbServer',
+  autoCreatedAt: true,
+  autoUpdatedAt: true,
+  /***************************************************************************
+  *                                                                          *
+  * How and whether Sails will attempt to automatically rebuild the          *
+  * tables/collections/etc. in your schema.                                  *
+  *                                                                          *
+  * See http://sailsjs.org/#!/documentation/concepts/ORM/model-settings.html  *
+  *                                                                          *
+  ***************************************************************************/
+   migrate: 'safe'
+
+};
+
+```
+
+設定好之後, 存檔.
+
+最後我們來安裝Mongo DB, 因為Irl nathan是在Mac OS上面已經裝好, 直接執行就可以了, 我們要在Win7上面裝MongoDB.
+
+開啟`cmd`
+
+輸入 `wmic os get caption` 確認 作業系統版本
+
+輸入 `wmic os get osarchitecture` 確認是幾位元的作業系統
+
+確定完之後,到<a href="https://www.mongodb.org/downloads" target="_blank">MongoDb</a>下載相對應的版本.
+
+例如我的作業系統是`Win7 64bits`, 那就下載`Windows 64-bit 2008 R2+`.
+
+下載完成, 安裝, 請選Custom, 將安裝路徑裝到`C:\MongoDB`底下,我是裝到`D:\MongoDB`, 
+
+因為MongoDB預設會裝到C:\Program Files...巴拉巴拉, 太長了, 往後輸入指令不方便, 所以就縮短裝到比較方便找的目錄.
+
+裝完之後, 在MongoDB安裝的那個磁碟區, 例如我裝在D槽, 打開cmd, 輸入`md \data\db`, 這會在`D:\`產生`data\db`的資料夾, 而這個資料夾是**MongoDB預設會存取的資料夾**.
+
+OK, 接下來使用`cmd`切換到`MongoDB`的安裝路徑底下的`bin`目錄,輸入`mongod.exe`, `MongoDb`就啟動啦! 
+
+PS: 若你沒有Create \data\db, 那麼你執行`mongod.exe`就會發生錯誤
+
+若你想要指定其他的資料庫存取目錄, 請在輸入`mongod.exe`的同時, 加入`--dbpath`, 例如 
+
+`D:\MongoDB\bin>mongod.exe --dbpath=D:\MongoDB\data`
+
+這樣就可以了!
+
+以上安裝MongoDb的教學, 可參考以下網站
+
+<a href="http://blog.gtwang.org/windows/windows-install-mongodb-database/" target="_blank">在 Windows 中安裝 MongoDB 資料庫</a>
+
+<a href="http://fecbob.pixnet.net/blog/post/38494357-mongodb%E5%9C%A8windows%E4%B8%8B%E5%AE%89%E8%A3%9D%E9%85%8D%E7%BD%AE" target="_blank">MongoDB 在 Windows 下安裝配置</a>
+
+<a href="http://www.runoob.com/mongodb/mongodb-window-install.html" target="_blank">window 平台安装 MongoDB</a>
+
+好, 啟動MongoDb之後, 我們就可以切回來Sails專案了
+
+我們重啟Sails, 指令`sails lift`
+
+接下來我們在瀏覽器輸入`http://localhost:1337`, 新增使用者
+
+成功之後, 你會發現使用者已經被新增到MongoDb裡面去了, 試一下其他功能如修改, 應該都能正常運作!
+
+今天就上到這邊啦! 下課~~~
+
+
+
+
+
+
+
+
