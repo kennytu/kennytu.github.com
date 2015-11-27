@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Sails | 江湖險惡，我從來都不輕易留下我的姓名。]]></title>
   <link href="http://kennytu.github.io/blog/categories/sails/atom.xml" rel="self"/>
   <link href="http://kennytu.github.io/"/>
-  <updated>2015-11-26T12:07:25+08:00</updated>
+  <updated>2015-11-27T21:31:34+08:00</updated>
   <id>http://kennytu.github.io/</id>
   <author>
     <name><![CDATA[Kenny Tu]]></name>
@@ -12,6 +12,147 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Sails練習之八-連結資料庫]]></title>
+    <link href="http://kennytu.github.io/blog/2015/11/26/sails-study08/"/>
+    <updated>2015-11-26T17:56:17+08:00</updated>
+    <id>http://kennytu.github.io/blog/2015/11/26/sails-study08</id>
+    <content type="html"><![CDATA[<p>各位客官, 終於到了要使用到資料庫的時機了</p>
+
+<p>本章節, Irl nathan介紹了Mongo Db的使用, 以及如何新增Mongo Db到我們的sails專案.</p>
+
+<p>不過因為我現在用的sails是0.11.x的版本, 而Irl兄是0.9.x之前的, 所以一些設定上面都有些不同</p>
+
+<p>Irl老兄的影片連結在這:<a href="https://www.youtube.com/watch?v=G4-fm_h8z-0" target="_blank">Building a Sails Application: Ep10 - Changing databases to mongoDB with sails adapters.</a></p>
+
+<p>我在這邊主要以新版的sails為主. 底下介紹安裝方法</p>
+
+<!--more-->
+
+
+<p>首先, 進去sails的專案, 例如在<code>E:\sails_app\activeityOverload&gt;</code> 輸入</p>
+
+<p><code>npm install sails-mongo --save</code></p>
+
+<p>接著<code>npm</code>會下載<code>mongo</code>的程式碼, 若在windows系統, 會預設使用<code>visual studio</code>的C++來compiler,</p>
+
+<p>這邊要注意, sails-mongo在windows系統下, <strong>預設使用visual studio 2013的版本編譯, 若比2013的版本低, 會發生編譯錯誤. 而若版本比2013高, 則需要額外的輸入條件</strong>, 底下舉例</p>
+
+<p>版本是visual studio 2013</p>
+
+<p><code>npm install sails-mongo --save</code></p>
+
+<p>版本若是<strong>大於</strong>visual studio 2013, 則需要輸入</p>
+
+<p><code>npm install sails-mongo --save --msvs_version=2013</code></p>
+
+<p>PS. 大於Visual Studio 2013的版本我還沒試過</p>
+
+<p>若還有任何問題, 請在google輸入<code>node-gyp v8.h syntax error</code>這幾個關鍵字, 應該有些線索你可以嘗試看看</p>
+
+<p>好的, 基本上只要注意到這些, 應該就沒問題, Mongo Db就順利裝上去了</p>
+
+<p>接下來要設定Sails專案的Mongo Db的檔案</p>
+
+<p>修改兩個檔案, 一個是<code>connection.js</code>,</p>
+
+<pre><code class="js config\connections.js 修改someMongodbServer">
+ /***************************************************************************
+  *                                                                          *
+  * MongoDB is the leading NoSQL database.                                   *
+  * http://en.wikipedia.org/wiki/MongoDB                                     *
+  *                                                                          *
+  * Run: npm install sails-mongo                                             *
+  *                                                                          *
+  ***************************************************************************/
+  someMongodbServer: {
+    adapter: 'sails-mongo',
+    host: 'localhost',
+    port: 27017,
+    user: '',
+    password: '',
+    database: 'activityoverlord'
+  },
+</code></pre>
+
+<p>另一個是<code>models.js</code></p>
+
+<pre><code class="js config\models.js 修改connection">
+module.exports.models = {
+
+  /***************************************************************************
+  *                                                                          *
+  * Your app's default connection. i.e. the name of one of your app's        *
+  * connections (see `config/connections.js`)                                *
+  *                                                                          *
+  ***************************************************************************/
+  // connection: 'localDiskDb',
+  connection: 'someMongodbServer',
+  autoCreatedAt: true,
+  autoUpdatedAt: true,
+  /***************************************************************************
+  *                                                                          *
+  * How and whether Sails will attempt to automatically rebuild the          *
+  * tables/collections/etc. in your schema.                                  *
+  *                                                                          *
+  * See http://sailsjs.org/#!/documentation/concepts/ORM/model-settings.html  *
+  *                                                                          *
+  ***************************************************************************/
+   migrate: 'safe'
+
+};
+</code></pre>
+
+<p>設定好之後, 存檔.</p>
+
+<p>最後我們來安裝Mongo DB, 因為Irl nathan是在Mac OS上面已經裝好, 直接執行就可以了, 我們要在Win7上面裝MongoDB.</p>
+
+<p>開啟<code>cmd</code></p>
+
+<p>輸入 <code>wmic os get caption</code> 確認 作業系統版本</p>
+
+<p>輸入 <code>wmic os get osarchitecture</code> 確認是幾位元的作業系統</p>
+
+<p>確定完之後,到<a href="https://www.mongodb.org/downloads" target="_blank">MongoDb</a>下載相對應的版本.</p>
+
+<p>例如我的作業系統是<code>Win7 64bits</code>, 那就下載<code>Windows 64-bit 2008 R2+</code>.</p>
+
+<p>下載完成, 安裝, 請選Custom, 將安裝路徑裝到<code>C:\MongoDB</code>底下,我是裝到<code>D:\MongoDB</code>,</p>
+
+<p>因為MongoDB預設會裝到C:\Program Files&hellip;巴拉巴拉, 太長了, 往後輸入指令不方便, 所以就縮短裝到比較方便找的目錄.</p>
+
+<p>裝完之後, 在MongoDB安裝的那個磁碟區, 例如我裝在D槽, 打開cmd, 輸入<code>md \data\db</code>, 這會在<code>D:\</code>產生<code>data\db</code>的資料夾, 而這個資料夾是<strong>MongoDB預設會存取的資料夾</strong>.</p>
+
+<p>OK, 接下來使用<code>cmd</code>切換到<code>MongoDB</code>的安裝路徑底下的<code>bin</code>目錄,輸入<code>mongod.exe</code>, <code>MongoDb</code>就啟動啦!</p>
+
+<p>PS: 若你沒有Create \data\db, 那麼你執行<code>mongod.exe</code>就會發生錯誤</p>
+
+<p>若你想要指定其他的資料庫存取目錄, 請在輸入<code>mongod.exe</code>的同時, 加入<code>--dbpath</code>, 例如</p>
+
+<p><code>D:\MongoDB\bin&gt;mongod.exe --dbpath=D:\MongoDB\data</code></p>
+
+<p>這樣就可以了!</p>
+
+<p>以上安裝MongoDb的教學, 可參考以下網站</p>
+
+<p><a href="http://blog.gtwang.org/windows/windows-install-mongodb-database/" target="_blank">在 Windows 中安裝 MongoDB 資料庫</a></p>
+
+<p><a href="http://fecbob.pixnet.net/blog/post/38494357-mongodb%E5%9C%A8windows%E4%B8%8B%E5%AE%89%E8%A3%9D%E9%85%8D%E7%BD%AE" target="_blank">MongoDB 在 Windows 下安裝配置</a></p>
+
+<p><a href="http://www.runoob.com/mongodb/mongodb-window-install.html" target="_blank">window 平台安装 MongoDB</a></p>
+
+<p>好, 啟動MongoDb之後, 我們就可以切回來Sails專案了</p>
+
+<p>我們重啟Sails, 指令<code>sails lift</code></p>
+
+<p>接下來我們在瀏覽器輸入<code>http://localhost:1337</code>, 新增使用者</p>
+
+<p>成功之後, 你會發現使用者已經被新增到MongoDb裡面去了, 試一下其他功能如修改, 應該都能正常運作!</p>
+
+<p>今天就上到這邊啦! 下課~~~</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Sails練習之七]]></title>
@@ -618,213 +759,6 @@ module.exports = {
 <p>精華的部分就是在<code>res.locals.flash</code>和<code>req.session.flash</code>這兩個上面, 以及前端頁面, 像是 <code>&lt;%</code> <code>%&gt;</code>這樣嵌入式的ejs用法..</p>
 
 <p>說實話, 我現階段還對ejs語法不是很熟, 到時候再來補齊相關資訊嚕</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Sails練習之三]]></title>
-    <link href="http://kennytu.github.io/blog/2015/11/18/sails-study03/"/>
-    <updated>2015-11-18T12:05:14+08:00</updated>
-    <id>http://kennytu.github.io/blog/2015/11/18/sails-study03</id>
-    <content type="html"><![CDATA[<p>前面兩個練習都做完之後, 我們終於有了一個還滿順眼的登入畫面</p>
-
-<p>接下來我們按照Irl nathan的課程繼續我們的練習</p>
-
-<p>課程連結在此 <a href="https://www.youtube.com/watch?v=WKtmKha6Ehw&index=6&list=PLWsZeJCry-F4K4iRImeB3-i0S5mw9Ak-W" target="_blank">Building a Sails Application: Ep4 - Creating a user account.</a></p>
-
-<!--more-->
-
-
-<p>在一開始, Nathan他shows了一個new.ejs的程式碼</p>
-
-<p>你會發現它多了</p>
-
-<p>```html</p>
-
-<div class="control-group">
-...
-</div>
-
-
-<pre><code>
-若你用的是bootstrap3.x的版本, 就會發生找不到control-group的class, 這時候請到&lt;a href="http://getbootstrap.com/migration/" target="_blank"&gt;這裡&lt;/a&gt;, 找到對照bootstrap2.x 改版到3.x有關於一些相對應class名稱的修改.你就知道要怎麼對應這些bootstrap3.x的CSS了
-
-
-接著, Ponzi花了點時間解釋`&lt;%= _csrf %&gt;`這個tag的用意
-
-我們先到config/csrf.js, 將csrf Enable起來
-</code></pre>
-
-<p>/<strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong>
-*                                                                           *
-* Enabled CSRF protection for your site?                                    *
-*                                                                           *
-</strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong>/</p>
-
-<p>  module.exports.csrf = true;</p>
-
-<pre><code>
-至於CSRF是什麼東西, 之後我在整理出來寫在另一篇文章中
-
-簡言之, CSRF是某種保護機制, 讓你可以識別使用者..
-
-接著, 到`blueprints.js` 設定
-</code></pre>
-
-<p>actions: true,
-rest: true,
-shortcuts: true</p>
-
-<pre><code>
-存檔, 接著到UserController.js
-
-加入以下程式碼
-</code></pre>
-
-<p>module.exports = {
-    &lsquo;new&rsquo;: function(req, res){
-        res.view();
-    },</p>
-
-<pre><code>create: function (req, res, next) {
-  User.create(req.params.all(), function userCreated(err,user){
-      if(err) return next(err);
-      res.json(user);
-  });
-}
-</code></pre>
-
-<p>};</p>
-
-<pre><code>
-主要是新增`create`這個method. 
-
-從新啟動sails
-
-`sails lift`
-
-輸入`http://localhost:1337`, 點擊 sing up now, 進入登錄畫面
-
-輸入必要的資訊之後, 按下Create an account, 此時Sails會回傳下列的資訊
-</code></pre>
-
-<p>{
-  &ldquo;name&rdquo;: &ldquo;kg&rdquo;,
-  &ldquo;title&rdquo;: &ldquo;kaaa&rdquo;,
-  &ldquo;email&rdquo;: &ldquo;<a href="&#x6d;&#x61;&#x69;&#x6c;&#116;&#x6f;&#x3a;&#x6b;&#x32;&#x32;&#x33;&#x40;&#x68;&#x6f;&#116;&#x2e;&#x63;&#x6f;&#109;">&#107;&#x32;&#x32;&#51;&#64;&#x68;&#111;&#x74;&#x2e;&#99;&#x6f;&#109;</a>&rdquo;,
-  &ldquo;password&rdquo;: &ldquo;1234&rdquo;,
-  &ldquo;comfirmation&rdquo;: &ldquo;5678&rdquo;,
-  &ldquo;_csrf&rdquo;: &ldquo;gdMb0LUb-zUlpCgAUgC0LW41ILym6M6_svV4&rdquo;,
-  &ldquo;id&rdquo;: 3,
-  &ldquo;createdAt&rdquo;: &ldquo;2015-11-18T09:20:31.268Z&rdquo;,
-  &ldquo;updatedAt&rdquo;: &ldquo;2015-11-18T09:20:31.268Z&rdquo;
-}</p>
-
-<pre><code>
-GOOD, 大功告成. 現在美中不足的就是密碼部分會是明碼的格式傳回, 這個我們馬上來處理
-
-我們到`User.js`, 也就是`api\models\User.js`
-
-加入底下的程式碼
-</code></pre>
-
-<p>toJSON: function(){
-      var obj = this.toObject();
-      delete obj.password;
-      delete obj.confirmation;
-      delete obj.encryptedPassword;
-      delete obj._csrf;
-      return obj;
-    }</p>
-
-<pre><code>
-將toJSON加入, 然後重新啟動Sails
-
-我們在測試一次, 就可以看到回傳的資訊已經隱藏了`password`, `confirmation`, `encryptedPassword`以及`_csrf`
-
-測試內容如下
-</code></pre>
-
-<p>{
-  &ldquo;name&rdquo;: &ldquo;23423&rdquo;,
-  &ldquo;title&rdquo;: &ldquo;42344&rdquo;,
-  &ldquo;email&rdquo;: &ldquo;3242@gmail.com&rdquo;,
-  &ldquo;id&rdquo;: 4,
-  &ldquo;createdAt&rdquo;: &ldquo;2015-11-18T09:34:28.608Z&rdquo;,
-  &ldquo;updatedAt&rdquo;: &ldquo;2015-11-18T09:34:28.608Z&rdquo;
-}</p>
-
-<pre><code>
-我們發現回傳的已經沒有敏感的資訊了.
-
-另一方面, sails有更優雅的解決方案, sails提供了在model的一個Setting, 叫做`schema`, 若把`schema`設為`true`, 那麼`sails`只會保存在model中有定義的屬性, 若為false, 那麼sails就允許你可以任意儲存你想要的record的資料
-
-官方網站的資料請參考&lt;a href="http://sailsjs.org/documentation/concepts/models-and-orm/model-settings#?schema" target="_blank"&gt;這裡&lt;/a&gt;
-
-我們修改User.js, 把toJSON拿掉, 加入schema
-</code></pre>
-
-<p>module.exports = {</p>
-
-<p>  schema: true,</p>
-
-<p>  attributes: {
-    name:{
-        type: &lsquo;string&rsquo;,
-        required: true
-    },</p>
-
-<pre><code>title:{
-    type: 'string'
-},
-
-email: {
-  type: 'email',
-  required: true,
-  unique: true
-},
-
-encryptedPassword:{
-    type: 'string'
-}
-
-//toJSON: function(){
-//  var obj = this.toObject();
-//  delete obj.password;
-//  delete obj.confirmation;
-//  delete obj.encryptedPassword;
-//  delete obj._csrf;
-//  return obj;
-//}
-</code></pre>
-
-<p>  }
-};</p>
-
-<pre><code>
-從新啟動sails, 然後到瀏覽器, 記得清空瀏覽器緩存, 不然會有問題
-
-輸入註冊資訊, 然後看回傳的訊息
-</code></pre>
-
-<p>{
-  &ldquo;name&rdquo;: &ldquo;HappyKenny&rdquo;,
-  &ldquo;title&rdquo;: &ldquo;HappyKennyYa&rdquo;,
-  &ldquo;email&rdquo;: &ldquo;<a href="&#109;&#97;&#105;&#x6c;&#116;&#111;&#58;&#x68;&#x61;&#x70;&#x70;&#x79;&#64;&#99;&#111;&#x6d;&#x2e;&#x74;&#x77;">&#x68;&#97;&#x70;&#x70;&#x79;&#64;&#x63;&#111;&#109;&#x2e;&#116;&#119;</a>&rdquo;,
-  &ldquo;id&rdquo;: 6,
-  &ldquo;createdAt&rdquo;: &ldquo;2015-11-18T09:52:11.686Z&rdquo;,
-  &ldquo;updatedAt&rdquo;: &ldquo;2015-11-18T09:52:11.686Z&rdquo;
-}</p>
-
-<p>```</p>
-
-<p>同樣的, 沒有敏感的資訊</p>
-
-<p>你可以在瀏覽器輸入<code>http://localhost:1337/user</code></p>
-
-<p>來觀看以往建立的user資料</p>
-
-<p>OK, 這堂課就到這邊, 謝謝大家</p>
 ]]></content>
   </entry>
   

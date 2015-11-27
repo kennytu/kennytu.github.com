@@ -4,7 +4,7 @@
   <title><![CDATA[江湖險惡，我從來都不輕易留下我的姓名。]]></title>
   <link href="http://kennytu.github.io/atom.xml" rel="self"/>
   <link href="http://kennytu.github.io/"/>
-  <updated>2015-11-26T12:07:25+08:00</updated>
+  <updated>2015-11-27T21:31:34+08:00</updated>
   <id>http://kennytu.github.io/</id>
   <author>
     <name><![CDATA[Kenny Tu]]></name>
@@ -12,6 +12,381 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Mongo Database 簡介以及GUI介面使用]]></title>
+    <link href="http://kennytu.github.io/blog/2015/11/27/mongodb-setting/"/>
+    <updated>2015-11-27T19:25:17+08:00</updated>
+    <id>http://kennytu.github.io/blog/2015/11/27/mongodb-setting</id>
+    <content type="html"><![CDATA[<p>在進行sails練習的下一章之前, 有需要對Mongo Database做一些簡單的練習.</p>
+
+<p>由於我看到Irl nathan是使用<a href="http://genghisapp.com/" target="_blank">Genghis</a>來作為Mongo DB的Web GUI介面, 但是是在MAC OS上安裝的, 我想在Win7上面也來裝一下, 以方便連接Mongo DB, 但天殺的在win7上安裝遇到太多問題, 甚至還要修改C語言的程式碼&hellip;.</p>
+
+<p>我review了一下genghis, 發現這個作者在2014年年底就沒有再維護了&hellip;</p>
+
+<p>奮戰了三到四個小時之後, 我更改戰略, 到mongodb的官網看看還有沒有其他更適合的WEB ADMIN GUI可以用</p>
+
+<p>所以我改用了<a href="https://github.com/andzdroid/mongo-express" target="_blank">mongo-express</a></p>
+
+<p>這篇文章就是在介紹mongo-express怎麼使用(最基本的)</p>
+
+<!--more-->
+
+
+<p>若要看看其他Mongo database的其他延伸應用, 請參考<a href="https://docs.mongodb.org/ecosystem/tools/administration-interfaces/" target="_blank">MongoDB Integration and Tools > Admin UIs</a></p>
+
+<p>說實在的我之前都是用SQL的, 對於NOSQL還真的沒啥概念.</p>
+
+<p>底下開始介紹Mongo Database</p>
+
+<h2>我的版本</h2>
+
+<p>npm版本 <code>2.14.4</code>, 使用<code>npm -v</code> 取得</p>
+
+<p>node版本 <code>v4.1.1</code>, 使用<code>node -v</code> 取得</p>
+
+<p>mongod版本:</p>
+
+<pre><code>db version v3.0.7
+git version: 6ce7cbe8c6b899552dadd907604559806aa2e9bd
+</code></pre>
+
+<p>使用 <code>mongod.exe --version</code> 取得</p>
+
+<p>mongo-express版本 <code>0.27.3</code>, 使用<code>npm list mongo-express -g</code> 取得</p>
+
+<p><strong>其實MongoDB的版本2.4, 版本2.6以及3.x版本的改動很大&hellip; 也沒有向下相容, 所以在學習上頗有曲線</strong></p>
+
+<h2>安裝Mongo Database</h2>
+
+<p>基礎的安裝我描述在<strong>Sails練習之八-連結資料庫</strong>, 可以參考. 基本上我是安裝到<code>global</code></p>
+
+<h2>Mongo Database基本指令</h2>
+
+<h3>Server端常用指令</h3>
+
+<p><code>mongod.exe -d user_path_for_db</code></p>
+
+<h3>Client端常用指令</h3>
+
+<p>在MongoDB的安裝路徑下的bin目錄, 輸入<code>mongo.exe</code>, 進入互動CMD介面</p>
+
+<p><code>db</code> : 列出現在使用的database</p>
+
+<p><code>show dbs</code> : 列出所有的databases</p>
+
+<p><code>show users</code> :  列出所有的用戶</p>
+
+<p><code>use [database]</code> : 使用use切換到指定的database, ex: <code>use test</code></p>
+
+<h2>Server Side</h2>
+
+<p>啟動伺服器端, 在 <code>MongoDB\bin</code>目錄下執行<code>mongod.exe</code> 就可以了, 記得要定義預設的資料庫存放路徑, 例如<code>/data/db</code> (若Mongo DB的執行檔在<code>C槽</code>, 那就是<code>C:\data\db</code>, 若沒有定義預設存放路徑, 則需要指名存放資料庫的路徑, 例如<code>D:\MongoDB\bin&gt;mongod.exe --dbpath=D:\MongoDB\data</code></p>
+
+<p>另外, 如果要讓Client連進來的時候需要Auth, 則在啟動mongo的時候, 在後面加入<code>--auth</code> 就可以了, 例如 <code>mongod.exe --auth</code></p>
+
+<p>基本上為了方便起見, 我都<strong>先不加</strong><code>auth</code></p>
+
+<p>請參考<a href="https://docs.mongodb.org/manual/tutorial/enable-authentication/" target="_blank">Enable Client Access Control</a></p>
+
+<h2>新增使用者在MongoDB</h2>
+
+<p>進入Mongo Client Tool, 然後輸入底下指令</p>
+
+<pre><code>use admin
+db.createUser({user:"root",pwd:"kenny888",roles:[]})
+</code></pre>
+
+<p>這樣就可以了, 詳細的官方網站步驟請到底下兩個網頁</p>
+
+<ul>
+<li><a href="https://docs.mongodb.org/manual/tutorial/enable-authentication/" target="_blank">Enable Client Access Control</a></li>
+<li><a href="https://docs.mongodb.org/manual/tutorial/manage-users-and-roles/" target="_blank">Manage User and Roles</a></li>
+</ul>
+
+
+<p>參考以上兩個網頁的步驟照著做也可以.</p>
+
+<p>好的, 這樣我們就已經有一個在Admin資料庫的使用者root了</p>
+
+<p>接下來要來安裝<code>mongo-express</code>啦</p>
+
+<h3>安裝mongo-express</h3>
+
+<pre><code>npm install -g mongo-express
+</code></pre>
+
+<p>安裝的時候須注意, mongo-express在win7上面可能需要visual studio 2013的編譯器來編譯一些C程式碼, 若沒有安裝visual studio 2013, 請先安裝完成之後再回頭來install mongo-express</p>
+
+<p>接著, 因為我們是把mongo-express安裝到global去, 我們要找到安裝路徑, 你可以使用<code>npm list -g</code>來找出安裝路徑(會show在第一行), 在我的電腦就是<code>C:\Users\KennyTu\AppData\Roaming\npm</code></p>
+
+<p>好的, 接下來切換路徑到<code>C:\Users\KennyTu\AppData\Roaming\npm\node_modules\mongo-express</code></p>
+
+<p><code>copy</code>一份<code>config.default.js</code>到<code>config.js</code></p>
+
+<p>然後修改<code>config.js</code></p>
+
+<figure class='code'><figcaption><span>config.js</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'>   <span class="p">...</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">//leave username and password empty if no admin account exists</span>
+</span><span class='line'>    <span class="nx">adminUsername</span><span class="o">:</span> <span class="s1">&#39;root&#39;</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">adminPassword</span><span class="o">:</span> <span class="s1">&#39;kenny888&#39;</span><span class="p">,</span>
+</span><span class='line'>  <span class="p">...</span>
+</span><span class='line'>  <span class="nx">basicAuth</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">username</span><span class="o">:</span> <span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">ME_CONFIG_BASICAUTH_USERNAME</span> <span class="o">||</span> <span class="s1">&#39;root&#39;</span><span class="p">,</span>
+</span><span class='line'>      <span class="nx">password</span><span class="o">:</span> <span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">ME_CONFIG_BASICAUTH_PASSWORD</span> <span class="o">||</span> <span class="s1">&#39;kenny888&#39;</span>
+</span><span class='line'>      <span class="p">},</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="p">...</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>其實這一份config.js我還有很多東西沒有搞懂, 但先這樣設定, 我們的mongo-express就可以run了</p>
+
+<p>有時候設定錯誤, 執行mongo-express會直接跳出來給你看, 沒有任何錯誤訊息&hellip;滿無言的</p>
+
+<p>好,設定完之後, 存檔, 我們直接打開CMD</p>
+
+<p>輸入<code>mongo-express</code>, 若沒有問題, 它會shows出底下訊息,</p>
+
+<pre><code>Mongo Express server listening on port 8081 at 0.0.0.0
+Database connected!
+Admin Database connected
+</code></pre>
+
+<blockquote><p>記得輸入mongo-express之前, 要先執行mongod (server), 這樣mongo-express才不會出錯</p></blockquote>
+
+<p>大功告成啦</p>
+
+<p>這時候打開瀏覽器, 輸入<code>localhost:8081</code> 應該就看得到Web版本的管理頁面了!!!</p>
+
+<p>最後, 附上網路上找到的一些Mongo DB的觀念</p>
+
+<h2>mongod 概念</h2>
+
+<p>一個 mongod 服務可以有建立多個數據庫，每個數據庫可以有多張表，這裡的表名叫 collection，每個 collection 可以存放多個文檔 (document)，每個文檔都以 BSON(binary json) 的形式存放於硬盤中，因此可以存儲比較復雜的數據類型。它是以單文檔為單位存儲的，你可以任意給一個或一批文檔新增或刪除字段，而不會對其它文檔造成影響，這就是所謂的 schema-free，這也是文檔型數據庫最主要的優點。跟一般的 key-value 數據庫不一樣的是，它的 value 中存儲了結構信息，所以你又可以像關系型數據庫那樣對某些域進行讀寫、統計等操作。Mongo 最大的特點是他支持的查詢語言非常強大，其語法有點類似於面向對象的查詢語言，幾乎可以實現類似關系數據庫單表查詢的絕大部分功能，而且還支持對數據建立索引。Mongo 還可以解決海量數據的查詢效率，根據官方文檔，當數據量達到 50GB 以上數據時，Mongo 數據庫訪問速度是 MySQL10 倍以上。</p>
+
+<h2>BSON</h2>
+
+<p>BSON 是 Binary JSON 的簡稱，是一個 JSON 文檔對象的二進制編碼格式。BSON 同 JSON 一樣支持往其它文檔對象和數組中再插入文檔對象和數組，同時擴展了 JSON 的數據類型。如：BSON 有 Date 類型和 BinDate 類型。</p>
+
+<p>BSON 被比作二進制的交換格式，如同 Protocol Buffers，但 BSON 比它更 「schema-less」，非常好的靈活性但空間佔用稍微大一點。</p>
+
+<p>BSON 有以下三個特點：輕量級、跨平台、效率高</p>
+
+<h2>命名空間</h2>
+
+<p>MongoDB 存儲 BSON 對象到 collections, 這一系列的數據庫名和 collection 名被稱為一個命名空間。如同：java.util.List; 用來管理數據庫中的數據。</p>
+
+<h2>索引</h2>
+
+<p>mongodb 可以對某個字段建立索引，可以建立組合索引、唯一索引，也可以刪除索引，建立索引就意味著增加空間開銷。默認情況下每個表都會有一個唯一索引：<em>id，如果插入數據時沒有指定</em>id，服務會自動生成一個<em>id，為了充分利用已有索引，減少空間開銷，最好是自己指定一個 unique 的 key 為</em>id，通常用對象的 ID 比較合適，比如商品的 ID。</p>
+
+<h2>參考資料</h2>
+
+<p><a href="http://www.ithome.com.tw/news/92506" target="_blank">了解 NoSQL 不可不知的 5 項觀念</a></p>
+
+<p><a href="http://www.neohope.com/2015/09/12/acid%E3%80%81base%E4%B8%8Ecap/" target="_blank">ACID、BASE 與 CAP</a></p>
+
+<p><a href="https://en.wikipedia.org/wiki/List_of_column-oriented_DBMSes" target="_blank">List of column-oriented DBMSes</a></p>
+
+<p><a href="https://zh.wikipedia.org/wiki/%E5%88%97%E5%BC%8F%E6%95%B0%E6%8D%AE%E5%BA%93" target="_blank">Row-oriented DBMS</a></p>
+
+<p><a href="https://en.wikipedia.org/wiki/Column-oriented_DBMS" target="_blank">Column-oriented DBMS</a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Sails練習之八-連結資料庫]]></title>
+    <link href="http://kennytu.github.io/blog/2015/11/26/sails-study08/"/>
+    <updated>2015-11-26T17:56:17+08:00</updated>
+    <id>http://kennytu.github.io/blog/2015/11/26/sails-study08</id>
+    <content type="html"><![CDATA[<p>各位客官, 終於到了要使用到資料庫的時機了</p>
+
+<p>本章節, Irl nathan介紹了Mongo Db的使用, 以及如何新增Mongo Db到我們的sails專案.</p>
+
+<p>不過因為我現在用的sails是0.11.x的版本, 而Irl兄是0.9.x之前的, 所以一些設定上面都有些不同</p>
+
+<p>Irl老兄的影片連結在這:<a href="https://www.youtube.com/watch?v=G4-fm_h8z-0" target="_blank">Building a Sails Application: Ep10 - Changing databases to mongoDB with sails adapters.</a></p>
+
+<p>我在這邊主要以新版的sails為主. 底下介紹安裝方法</p>
+
+<!--more-->
+
+
+<p>首先, 進去sails的專案, 例如在<code>E:\sails_app\activeityOverload&gt;</code> 輸入</p>
+
+<p><code>npm install sails-mongo --save</code></p>
+
+<p>接著<code>npm</code>會下載<code>mongo</code>的程式碼, 若在windows系統, 會預設使用<code>visual studio</code>的C++來compiler,</p>
+
+<p>這邊要注意, sails-mongo在windows系統下, <strong>預設使用visual studio 2013的版本編譯, 若比2013的版本低, 會發生編譯錯誤. 而若版本比2013高, 則需要額外的輸入條件</strong>, 底下舉例</p>
+
+<p>版本是visual studio 2013</p>
+
+<p><code>npm install sails-mongo --save</code></p>
+
+<p>版本若是<strong>大於</strong>visual studio 2013, 則需要輸入</p>
+
+<p><code>npm install sails-mongo --save --msvs_version=2013</code></p>
+
+<p>PS. 大於Visual Studio 2013的版本我還沒試過</p>
+
+<p>若還有任何問題, 請在google輸入<code>node-gyp v8.h syntax error</code>這幾個關鍵字, 應該有些線索你可以嘗試看看</p>
+
+<p>好的, 基本上只要注意到這些, 應該就沒問題, Mongo Db就順利裝上去了</p>
+
+<p>接下來要設定Sails專案的Mongo Db的檔案</p>
+
+<p>修改兩個檔案, 一個是<code>connection.js</code>,</p>
+
+<figure class='code'><figcaption><span>config\connections.js 修改someMongodbServer</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'> <span class="cm">/***************************************************************************</span>
+</span><span class='line'><span class="cm">  *                                                                          *</span>
+</span><span class='line'><span class="cm">  * MongoDB is the leading NoSQL database.                                   *</span>
+</span><span class='line'><span class="cm">  * http://en.wikipedia.org/wiki/MongoDB                                     *</span>
+</span><span class='line'><span class="cm">  *                                                                          *</span>
+</span><span class='line'><span class="cm">  * Run: npm install sails-mongo                                             *</span>
+</span><span class='line'><span class="cm">  *                                                                          *</span>
+</span><span class='line'><span class="cm">  ***************************************************************************/</span>
+</span><span class='line'>  <span class="nx">someMongodbServer</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">adapter</span><span class="o">:</span> <span class="s1">&#39;sails-mongo&#39;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nx">host</span><span class="o">:</span> <span class="s1">&#39;localhost&#39;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nx">port</span><span class="o">:</span> <span class="mi">27017</span><span class="p">,</span>
+</span><span class='line'>    <span class="nx">user</span><span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nx">password</span><span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nx">database</span><span class="o">:</span> <span class="s1">&#39;activityoverlord&#39;</span>
+</span><span class='line'>  <span class="p">},</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>另一個是<code>models.js</code></p>
+
+<figure class='code'><figcaption><span>config\models.js 修改connection</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span><span class="p">.</span><span class="nx">models</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="cm">/***************************************************************************</span>
+</span><span class='line'><span class="cm">  *                                                                          *</span>
+</span><span class='line'><span class="cm">  * Your app&#39;s default connection. i.e. the name of one of your app&#39;s        *</span>
+</span><span class='line'><span class="cm">  * connections (see `config/connections.js`)                                *</span>
+</span><span class='line'><span class="cm">  *                                                                          *</span>
+</span><span class='line'><span class="cm">  ***************************************************************************/</span>
+</span><span class='line'>  <span class="c1">// connection: &#39;localDiskDb&#39;,</span>
+</span><span class='line'>  <span class="nx">connection</span><span class="o">:</span> <span class="s1">&#39;someMongodbServer&#39;</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">autoCreatedAt</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">autoUpdatedAt</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+</span><span class='line'>  <span class="cm">/***************************************************************************</span>
+</span><span class='line'><span class="cm">  *                                                                          *</span>
+</span><span class='line'><span class="cm">  * How and whether Sails will attempt to automatically rebuild the          *</span>
+</span><span class='line'><span class="cm">  * tables/collections/etc. in your schema.                                  *</span>
+</span><span class='line'><span class="cm">  *                                                                          *</span>
+</span><span class='line'><span class="cm">  * See http://sailsjs.org/#!/documentation/concepts/ORM/model-settings.html  *</span>
+</span><span class='line'><span class="cm">  *                                                                          *</span>
+</span><span class='line'><span class="cm">  ***************************************************************************/</span>
+</span><span class='line'>   <span class="nx">migrate</span><span class="o">:</span> <span class="s1">&#39;safe&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>設定好之後, 存檔.</p>
+
+<p>最後我們來安裝Mongo DB, 因為Irl nathan是在Mac OS上面已經裝好, 直接執行就可以了, 我們要在Win7上面裝MongoDB.</p>
+
+<p>開啟<code>cmd</code></p>
+
+<p>輸入 <code>wmic os get caption</code> 確認 作業系統版本</p>
+
+<p>輸入 <code>wmic os get osarchitecture</code> 確認是幾位元的作業系統</p>
+
+<p>確定完之後,到<a href="https://www.mongodb.org/downloads" target="_blank">MongoDb</a>下載相對應的版本.</p>
+
+<p>例如我的作業系統是<code>Win7 64bits</code>, 那就下載<code>Windows 64-bit 2008 R2+</code>.</p>
+
+<p>下載完成, 安裝, 請選Custom, 將安裝路徑裝到<code>C:\MongoDB</code>底下,我是裝到<code>D:\MongoDB</code>,</p>
+
+<p>因為MongoDB預設會裝到C:\Program Files&hellip;巴拉巴拉, 太長了, 往後輸入指令不方便, 所以就縮短裝到比較方便找的目錄.</p>
+
+<p>裝完之後, 在MongoDB安裝的那個磁碟區, 例如我裝在D槽, 打開cmd, 輸入<code>md \data\db</code>, 這會在<code>D:\</code>產生<code>data\db</code>的資料夾, 而這個資料夾是<strong>MongoDB預設會存取的資料夾</strong>.</p>
+
+<p>OK, 接下來使用<code>cmd</code>切換到<code>MongoDB</code>的安裝路徑底下的<code>bin</code>目錄,輸入<code>mongod.exe</code>, <code>MongoDb</code>就啟動啦!</p>
+
+<p>PS: 若你沒有Create \data\db, 那麼你執行<code>mongod.exe</code>就會發生錯誤</p>
+
+<p>若你想要指定其他的資料庫存取目錄, 請在輸入<code>mongod.exe</code>的同時, 加入<code>--dbpath</code>, 例如</p>
+
+<p><code>D:\MongoDB\bin&gt;mongod.exe --dbpath=D:\MongoDB\data</code></p>
+
+<p>這樣就可以了!</p>
+
+<p>以上安裝MongoDb的教學, 可參考以下網站</p>
+
+<p><a href="http://blog.gtwang.org/windows/windows-install-mongodb-database/" target="_blank">在 Windows 中安裝 MongoDB 資料庫</a></p>
+
+<p><a href="http://fecbob.pixnet.net/blog/post/38494357-mongodb%E5%9C%A8windows%E4%B8%8B%E5%AE%89%E8%A3%9D%E9%85%8D%E7%BD%AE" target="_blank">MongoDB 在 Windows 下安裝配置</a></p>
+
+<p><a href="http://www.runoob.com/mongodb/mongodb-window-install.html" target="_blank">window 平台安装 MongoDB</a></p>
+
+<p>好, 啟動MongoDb之後, 我們就可以切回來Sails專案了</p>
+
+<p>我們重啟Sails, 指令<code>sails lift</code></p>
+
+<p>接下來我們在瀏覽器輸入<code>http://localhost:1337</code>, 新增使用者</p>
+
+<p>成功之後, 你會發現使用者已經被新增到MongoDb裡面去了, 試一下其他功能如修改, 應該都能正常運作!</p>
+
+<p>今天就上到這邊啦! 下課~~~</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Sails練習之七]]></title>

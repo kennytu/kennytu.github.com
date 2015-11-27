@@ -1,0 +1,405 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Sails練習之八-連結資料庫 - 江湖險惡，我從來都不輕易留下我的姓名。</title>
+  <meta name="author" content="Kenny Tu">
+
+  
+  <meta name="description" content="各位客官, 終於到了要使用到資料庫的時機了 本章節, Irl nathan介紹了Mongo Db的使用, 以及如何新增Mongo Db到我們的sails專案. 不過因為我現在用的sails是0.11.x的版本, 而Irl兄是0.9.x之前的, 所以一些設定上面都有些不同 Irl老兄的影片連結在這: &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://kennytu.github.io/blog/2015/11/26/sails-study08/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="江湖險惡，我從來都不輕易留下我的姓名。" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">江湖險惡，我從來都不輕易留下我的姓名。</a></h1>
+  
+    <h2>憑你的智慧，我唬得了你嗎？</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="kennytu.github.io">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Sails練習之八-連結資料庫</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-11-26T17:56:17+08:00'><span class='date'>2015 年11 月26 日</span> <span class='time'>5:56 pm</span></time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://kennytu.github.io">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>各位客官, 終於到了要使用到資料庫的時機了</p>
+
+<p>本章節, Irl nathan介紹了Mongo Db的使用, 以及如何新增Mongo Db到我們的sails專案.</p>
+
+<p>不過因為我現在用的sails是0.11.x的版本, 而Irl兄是0.9.x之前的, 所以一些設定上面都有些不同</p>
+
+<p>Irl老兄的影片連結在這:<a href="https://www.youtube.com/watch?v=G4-fm_h8z-0" target="_blank">Building a Sails Application: Ep10 - Changing databases to mongoDB with sails adapters.</a></p>
+
+<p>我在這邊主要以新版的sails為主. 底下介紹安裝方法</p>
+
+<!--more-->
+
+
+<p>首先, 進去sails的專案, 例如在<code>E:\sails_app\activeityOverload&gt;</code> 輸入</p>
+
+<p><code>npm install sails-mongo --save</code></p>
+
+<p>接著<code>npm</code>會下載<code>mongo</code>的程式碼, 若在windows系統, 會預設使用<code>visual studio</code>的C++來compiler,</p>
+
+<p>這邊要注意, sails-mongo在windows系統下, <strong>預設使用visual studio 2013的版本編譯, 若比2013的版本低, 會發生編譯錯誤. 而若版本比2013高, 則需要額外的輸入條件</strong>, 底下舉例</p>
+
+<p>版本是visual studio 2013</p>
+
+<p><code>npm install sails-mongo --save</code></p>
+
+<p>版本若是<strong>大於</strong>visual studio 2013, 則需要輸入</p>
+
+<p><code>npm install sails-mongo --save --msvs_version=2013</code></p>
+
+<p>PS. 大於Visual Studio 2013的版本我還沒試過</p>
+
+<p>若還有任何問題, 請在google輸入<code>node-gyp v8.h syntax error</code>這幾個關鍵字, 應該有些線索你可以嘗試看看</p>
+
+<p>好的, 基本上只要注意到這些, 應該就沒問題, Mongo Db就順利裝上去了</p>
+
+<p>接下來要設定Sails專案的Mongo Db的檔案</p>
+
+<p>修改兩個檔案, 一個是<code>connection.js</code>,</p>
+
+<figure class='code'><figcaption><span>config\connections.js 修改someMongodbServer</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'> <span class="cm">/***************************************************************************</span>
+</span><span class='line'><span class="cm">  *                                                                          *</span>
+</span><span class='line'><span class="cm">  * MongoDB is the leading NoSQL database.                                   *</span>
+</span><span class='line'><span class="cm">  * http://en.wikipedia.org/wiki/MongoDB                                     *</span>
+</span><span class='line'><span class="cm">  *                                                                          *</span>
+</span><span class='line'><span class="cm">  * Run: npm install sails-mongo                                             *</span>
+</span><span class='line'><span class="cm">  *                                                                          *</span>
+</span><span class='line'><span class="cm">  ***************************************************************************/</span>
+</span><span class='line'>  <span class="nx">someMongodbServer</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">adapter</span><span class="o">:</span> <span class="s1">&#39;sails-mongo&#39;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nx">host</span><span class="o">:</span> <span class="s1">&#39;localhost&#39;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nx">port</span><span class="o">:</span> <span class="mi">27017</span><span class="p">,</span>
+</span><span class='line'>    <span class="nx">user</span><span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nx">password</span><span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nx">database</span><span class="o">:</span> <span class="s1">&#39;activityoverlord&#39;</span>
+</span><span class='line'>  <span class="p">},</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>另一個是<code>models.js</code></p>
+
+<figure class='code'><figcaption><span>config\models.js 修改connection</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span><span class="p">.</span><span class="nx">models</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="cm">/***************************************************************************</span>
+</span><span class='line'><span class="cm">  *                                                                          *</span>
+</span><span class='line'><span class="cm">  * Your app&#39;s default connection. i.e. the name of one of your app&#39;s        *</span>
+</span><span class='line'><span class="cm">  * connections (see `config/connections.js`)                                *</span>
+</span><span class='line'><span class="cm">  *                                                                          *</span>
+</span><span class='line'><span class="cm">  ***************************************************************************/</span>
+</span><span class='line'>  <span class="c1">// connection: &#39;localDiskDb&#39;,</span>
+</span><span class='line'>  <span class="nx">connection</span><span class="o">:</span> <span class="s1">&#39;someMongodbServer&#39;</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">autoCreatedAt</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">autoUpdatedAt</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+</span><span class='line'>  <span class="cm">/***************************************************************************</span>
+</span><span class='line'><span class="cm">  *                                                                          *</span>
+</span><span class='line'><span class="cm">  * How and whether Sails will attempt to automatically rebuild the          *</span>
+</span><span class='line'><span class="cm">  * tables/collections/etc. in your schema.                                  *</span>
+</span><span class='line'><span class="cm">  *                                                                          *</span>
+</span><span class='line'><span class="cm">  * See http://sailsjs.org/#!/documentation/concepts/ORM/model-settings.html  *</span>
+</span><span class='line'><span class="cm">  *                                                                          *</span>
+</span><span class='line'><span class="cm">  ***************************************************************************/</span>
+</span><span class='line'>   <span class="nx">migrate</span><span class="o">:</span> <span class="s1">&#39;safe&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>設定好之後, 存檔.</p>
+
+<p>最後我們來安裝Mongo DB, 因為Irl nathan是在Mac OS上面已經裝好, 直接執行就可以了, 我們要在Win7上面裝MongoDB.</p>
+
+<p>開啟<code>cmd</code></p>
+
+<p>輸入 <code>wmic os get caption</code> 確認 作業系統版本</p>
+
+<p>輸入 <code>wmic os get osarchitecture</code> 確認是幾位元的作業系統</p>
+
+<p>確定完之後,到<a href="https://www.mongodb.org/downloads" target="_blank">MongoDb</a>下載相對應的版本.</p>
+
+<p>例如我的作業系統是<code>Win7 64bits</code>, 那就下載<code>Windows 64-bit 2008 R2+</code>.</p>
+
+<p>下載完成, 安裝, 請選Custom, 將安裝路徑裝到<code>C:\MongoDB</code>底下,我是裝到<code>D:\MongoDB</code>,</p>
+
+<p>因為MongoDB預設會裝到C:\Program Files&hellip;巴拉巴拉, 太長了, 往後輸入指令不方便, 所以就縮短裝到比較方便找的目錄.</p>
+
+<p>裝完之後, 在MongoDB安裝的那個磁碟區, 例如我裝在D槽, 打開cmd, 輸入<code>md \data\db</code>, 這會在<code>D:\</code>產生<code>data\db</code>的資料夾, 而這個資料夾是<strong>MongoDB預設會存取的資料夾</strong>.</p>
+
+<p>OK, 接下來使用<code>cmd</code>切換到<code>MongoDB</code>的安裝路徑底下的<code>bin</code>目錄,輸入<code>mongod.exe</code>, <code>MongoDb</code>就啟動啦!</p>
+
+<p>PS: 若你沒有Create \data\db, 那麼你執行<code>mongod.exe</code>就會發生錯誤</p>
+
+<p>若你想要指定其他的資料庫存取目錄, 請在輸入<code>mongod.exe</code>的同時, 加入<code>--dbpath</code>, 例如</p>
+
+<p><code>D:\MongoDB\bin&gt;mongod.exe --dbpath=D:\MongoDB\data</code></p>
+
+<p>這樣就可以了!</p>
+
+<p>以上安裝MongoDb的教學, 可參考以下網站</p>
+
+<p><a href="http://blog.gtwang.org/windows/windows-install-mongodb-database/" target="_blank">在 Windows 中安裝 MongoDB 資料庫</a></p>
+
+<p><a href="http://fecbob.pixnet.net/blog/post/38494357-mongodb%E5%9C%A8windows%E4%B8%8B%E5%AE%89%E8%A3%9D%E9%85%8D%E7%BD%AE" target="_blank">MongoDB 在 Windows 下安裝配置</a></p>
+
+<p><a href="http://www.runoob.com/mongodb/mongodb-window-install.html" target="_blank">window 平台安装 MongoDB</a></p>
+
+<p>好, 啟動MongoDb之後, 我們就可以切回來Sails專案了</p>
+
+<p>我們重啟Sails, 指令<code>sails lift</code></p>
+
+<p>接下來我們在瀏覽器輸入<code>http://localhost:1337</code>, 新增使用者</p>
+
+<p>成功之後, 你會發現使用者已經被新增到MongoDb裡面去了, 試一下其他功能如修改, 應該都能正常運作!</p>
+
+<p>今天就上到這邊啦! 下課~~~</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Kenny Tu</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2015-11-26T17:56:17+08:00'><span class='date'>2015 年11 月26 日</span> <span class='time'>5:56 pm</span></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/sails/'>sails</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://kennytu.github.io/blog/2015/11/26/sails-study08/" data-via="" data-counturl="http://kennytu.github.io/blog/2015/11/26/sails-study08/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/11/26/sails-study07/" title="Previous Post: Sails練習之七">&laquo; Sails練習之七</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2015/11/27/mongodb-setting/" title="Next Post: Mongo Database 簡介以及GUI介面使用">Mongo Database 簡介以及GUI介面使用 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Categories</h1>
+    <ul id="category-list"><li><a href='/blog/categories/mongodb/'>mongodb (1)</a></li><li><a href='/blog/categories/octopress/'>octopress (2)</a></li><li><a href='/blog/categories/sails/'>sails (8)</a></li></ul>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/11/27/mongodb-setting/">Mongo Database 簡介以及GUI介面使用</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/26/sails-study08/">Sails練習之八-連結資料庫</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/26/sails-study07/">Sails練習之七</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/24/sails-study06/">Sails練習之六</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/23/sails-study05/">Sails練習之五</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Kenny Tu -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'kennytu';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://kennytu.github.io/blog/2015/11/26/sails-study08/';
+        var disqus_url = 'http://kennytu.github.io/blog/2015/11/26/sails-study08/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
