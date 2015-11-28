@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Mongodb | 江湖險惡，我從來都不輕易留下我的姓名。]]></title>
   <link href="http://kennytu.github.io/blog/categories/mongodb/atom.xml" rel="self"/>
   <link href="http://kennytu.github.io/"/>
-  <updated>2015-11-27T21:31:34+08:00</updated>
+  <updated>2015-11-28T12:52:52+08:00</updated>
   <id>http://kennytu.github.io/</id>
   <author>
     <name><![CDATA[Kenny Tu]]></name>
@@ -193,6 +193,8 @@ Admin Database connected
 <p><a href="https://zh.wikipedia.org/wiki/%E5%88%97%E5%BC%8F%E6%95%B0%E6%8D%AE%E5%BA%93" target="_blank">Row-oriented DBMS</a></p>
 
 <p><a href="https://en.wikipedia.org/wiki/Column-oriented_DBMS" target="_blank">Column-oriented DBMS</a></p>
+
+<p><a href="http://cryto.net/~joepie91/blog/2015/07/19/why-you-should-never-ever-ever-use-mongodb/" target="_blank">Why you should never, ever, ever use MongoDB</a></p>
 ]]></content>
   </entry>
   
