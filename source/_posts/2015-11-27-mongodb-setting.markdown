@@ -181,3 +181,5 @@ mongodb 可以對某個字段建立索引，可以建立組合索引、唯一索
 <a href="https://zh.wikipedia.org/wiki/%E5%88%97%E5%BC%8F%E6%95%B0%E6%8D%AE%E5%BA%93" target="_blank">Row-oriented DBMS</a>
 
 <a href="https://en.wikipedia.org/wiki/Column-oriented_DBMS" target="_blank">Column-oriented DBMS</a>
+
+<a href="http://cryto.net/~joepie91/blog/2015/07/19/why-you-should-never-ever-ever-use-mongodb/" target="_blank">Why you should never, ever, ever use MongoDB</a>
