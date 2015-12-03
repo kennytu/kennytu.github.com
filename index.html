@@ -9,7 +9,7 @@
   <meta name="author" content="Kenny Tu">
 
   
-  <meta name="description" content="在進行sails練習的下一章之前, 有需要對Mongo Database做一些簡單的練習. 由於我看到Irl nathan是使用Genghis來作為Mongo DB的Web GUI介面, 但是是在MAC OS上安裝的, 我想在Win7上面也來裝一下, 以方便連接Mongo DB, &hellip;">
+  <meta name="description" content="在更新node.js以及npm之後 (npm現在被包在node.js裡面一起安裝) 我執行npm -g update, global有更新的node.js的module都update到最新的 接著我切換到我這一陣子再用的sails的專案, 執行sails lift的時候 發生了Cannot &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,217 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/12/03/nodejs-update/">Node.js更新問題</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-12-03T19:31:51+08:00'><span class='date'>2015 年12 月3 日</span> <span class='time'>7:31 pm</span></time>
+        
+           | <a href="/blog/2015/12/03/nodejs-update/#disqus_thread"
+             data-disqus-identifier="http://kennytu.github.io/blog/2015/12/03/nodejs-update/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>在更新<code>node.js</code>以及<code>npm</code>之後 (npm現在被包在node.js裡面一起安裝)</p>
+
+<p>我執行npm -g update, global有更新的node.js的module都update到最新的</p>
+
+<p>接著我切換到我這一陣子再用的sails的專案, 執行sails lift的時候</p>
+
+<p>發生了<code>Cannot find module 'lru-cache'</code> 這個事件</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2015/12/03/nodejs-update/">點擊這裡繼續閱讀 &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/12/03/sails-study11/">Sails練習之十一 - 使用者認證以及嚴格存取</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-12-03T18:16:13+08:00'><span class='date'>2015 年12 月3 日</span> <span class='time'>6:16 pm</span></time>
+        
+           | <a href="/blog/2015/12/03/sails-study11/#disqus_thread"
+             data-disqus-identifier="http://kennytu.github.io/blog/2015/12/03/sails-study11/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>本章的Video為 <a href="https://www.youtube.com/watch?v=AooPVuYGnuU" target="_blank">Ep14 - User authentication and restricting access through policies.</a></p>
+
+<p>首先,我們要先將前一章的Session的練習的程式碼先拿掉,</p>
+
+<p>接著修改<code>SessionController.js</code>, 新增<code>create action</code></p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2015/12/03/sails-study11/">點擊這裡繼續閱讀 &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/12/02/sails-study10/">Sails練習之十 - Session</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-12-02T17:07:35+08:00'><span class='date'>2015 年12 月2 日</span> <span class='time'>5:07 pm</span></time>
+        
+           | <a href="/blog/2015/12/02/sails-study10/#disqus_thread"
+             data-disqus-identifier="http://kennytu.github.io/blog/2015/12/02/sails-study10/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>本篇進展到這邊, 主要是提到Session的使用, 影片是<a href="https://www.youtube.com/watch?v=SY2AcAHxIiU" target="_blank">Building a Sails Application: Ep13 - Sign-in page, session controller, new action, and sessions.</a></p>
+
+<p>首先, 在<code>views/</code>新增一個目錄名叫<code>session</code>, 在<code>session</code>裡面新增一個ejs檔案名為<code>new.ejs</code></p>
+
+<figure class='code'><figcaption><span>activeityOverload\views\session\new.ejs</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="o">&lt;</span><span class="nx">form</span> <span class="nx">action</span><span class="o">=</span><span class="s2">&quot;/session/create&quot;</span> <span class="nx">method</span><span class="o">=</span><span class="s2">&quot;POST&quot;</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;form-signin&quot;</span><span class="o">&gt;</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="nx">h2</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;form-signin-heading&quot;</span><span class="o">&gt;</span><span class="nx">Please</span> <span class="nx">sign</span> <span class="k">in</span><span class="p">...</span><span class="o">&lt;</span><span class="err">/h2&gt;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">&lt;%</span> <span class="k">if</span><span class="p">(</span><span class="nx">flash</span> <span class="o">&amp;&amp;</span> <span class="nx">flash</span><span class="p">.</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span> <span class="o">%&gt;</span>
+</span><span class='line'>      <span class="o">&lt;</span><span class="nx">ul</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;alert alert-success&quot;</span><span class="o">&gt;</span>
+</span><span class='line'>  <span class="o">&lt;%</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">flash</span><span class="p">.</span><span class="nx">err</span><span class="p">).</span><span class="nx">forEach</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">error</span><span class="p">)</span> <span class="p">{</span> <span class="o">%&gt;</span>
+</span><span class='line'>      <span class="o">&lt;</span><span class="nx">li</span><span class="o">&gt;&lt;%-</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">flash</span><span class="p">.</span><span class="nx">err</span><span class="p">[</span><span class="nx">error</span><span class="p">])</span> <span class="o">%&gt;&lt;</span><span class="err">/li&gt;</span>
+</span><span class='line'>  <span class="o">&lt;%</span> <span class="p">})</span> <span class="o">%&gt;</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="err">/ul&gt;</span>
+</span><span class='line'>  <span class="o">&lt;%</span> <span class="p">}</span> <span class="o">%&gt;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">&lt;</span><span class="nx">input</span> <span class="nx">type</span><span class="o">=</span><span class="s2">&quot;text&quot;</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;form-control&quot;</span> <span class="nx">placeholder</span><span class="o">=</span><span class="s2">&quot;Email address&quot;</span> <span class="nx">name</span><span class="o">=</span><span class="s2">&quot;email&quot;</span><span class="o">&gt;</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="nx">input</span> <span class="nx">type</span><span class="o">=</span><span class="s2">&quot;password&quot;</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;form-control&quot;</span> <span class="nx">placeholder</span><span class="o">=</span><span class="s2">&quot;Password&quot;</span> <span class="nx">name</span><span class="o">=</span><span class="s2">&quot;password&quot;</span><span class="o">&gt;</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="nx">input</span> <span class="nx">type</span><span class="o">=</span><span class="s2">&quot;submit&quot;</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;btn btn-lg btn-primary btn-block&quot;</span> <span class="nx">value</span><span class="o">=</span><span class="s2">&quot;Sign-in&quot;</span><span class="o">/&gt;</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="nx">input</span> <span class="nx">type</span><span class="o">=</span><span class="s2">&quot;hidden&quot;</span> <span class="nx">name</span><span class="o">=</span><span class="s2">&quot;_csrf&quot;</span> <span class="nx">value</span><span class="o">=</span><span class="s2">&quot;&lt;%= _csrf %&gt;&quot;</span> <span class="o">/&gt;</span>
+</span><span class='line'>  
+</span><span class='line'><span class="o">&lt;</span><span class="err">/form&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2015/12/02/sails-study10/">點擊這裡繼續閱讀 &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/12/01/sails-study09/">Sails練習之九-加密</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-12-01T17:39:08+08:00'><span class='date'>2015 年12 月1 日</span> <span class='time'>5:39 pm</span></time>
+        
+           | <a href="/blog/2015/12/01/sails-study09/#disqus_thread"
+             data-disqus-identifier="http://kennytu.github.io/blog/2015/12/01/sails-study09/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>OK, 上課的影片是: <a href="https://www.youtube.com/watch?v=1wziI6l0NyE" target="_blank">Building a Sails Application: Ep11 - Encrypting passwords with bcrypt.</a></p>
+
+<p>到<a href="https://www.npmjs.com/package/bcrypt" target="_blank">Bcrypt</a>看一下相關的資訊</p>
+
+<p>安裝的步驟如下</p>
+
+<p>到專案目錄, 執行<code>npm install bcrypt --save</code></p>
+
+<p>加上<code>--save</code>的意思是除了install bcrypt到專案底下之外, 也把相依性設定寫入package.json, 這樣以後如果有人想要直接使用這個專案, 在目錄底下輸入npm install, 就可以將此專案需要用到的packages一次設定完成!</p>
+
+<p>另外安裝<code>bcrypt</code>需要Visual Studio 2013的支援, 若你的Visual Studio版本大於2013, 請在安裝的時候再加入<code>--msvs_version=2013</code></p>
+
+<p>也就是<code>npm install bcrypt --save --msvs_version=2013</code></p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2015/12/01/sails-study09/">點擊這裡繼續閱讀 &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -359,187 +570,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/11/18/sails-study03/">Sails練習之三</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-11-18T12:05:14+08:00'><span class='date'>2015 年11 月18 日</span> <span class='time'>12:05 pm</span></time>
-        
-           | <a href="/blog/2015/11/18/sails-study03/#disqus_thread"
-             data-disqus-identifier="http://kennytu.github.io/blog/2015/11/18/sails-study03/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>前面兩個練習都做完之後, 我們終於有了一個還滿順眼的登入畫面</p>
-
-<p>接下來我們按照Irl nathan的課程繼續我們的練習</p>
-
-<p>課程連結在此 <a href="https://www.youtube.com/watch?v=WKtmKha6Ehw&index=6&list=PLWsZeJCry-F4K4iRImeB3-i0S5mw9Ak-W" target="_blank">Building a Sails Application: Ep4 - Creating a user account.</a></p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2015/11/18/sails-study03/">點擊這裡繼續閱讀 &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/11/17/sails-study02/">Sails練習之二</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-11-17T10:54:23+08:00'><span class='date'>2015 年11 月17 日</span> <span class='time'>10:54 am</span></time>
-        
-           | <a href="/blog/2015/11/17/sails-study02/#disqus_thread"
-             data-disqus-identifier="http://kennytu.github.io/blog/2015/11/17/sails-study02/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>本篇是接著Irl nathan的這篇</p>
-
-<p><a href="https://www.youtube.com/watch?v=qUAzpyThAB0&index=5&list=PLWsZeJCry-F4K4iRImeB3-i0S5mw9Ak-W" target="_blank">Building a Sails Application: Ep3[UPDATED] - A user model/controller, signup page, sails blueprints</a></p>
-
-<p>底下為練習內容</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2015/11/17/sails-study02/">點擊這裡繼續閱讀 &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/11/16/sails-study01/">Sails練習之一</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-11-16T11:29:18+08:00'><span class='date'>2015 年11 月16 日</span> <span class='time'>11:29 am</span></time>
-        
-           | <a href="/blog/2015/11/16/sails-study01/#disqus_thread"
-             data-disqus-identifier="http://kennytu.github.io/blog/2015/11/16/sails-study01/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>這一系列的文章, 出自於youtube上的Building a Sails Application教學.</p>
-
-<p>這位仁兄的一系列教學文章都寫得非常好</p>
-
-<p>他的網址在<a href="https://www.youtube.com/watch?v=ep6EQ5f82Ts&index=2&list=PLWsZeJCry-F4K4iRImeB3-i0S5mw9Ak-W" target="_blank">這邊</a></p>
-
-<p>然後作者的github在<a href="https://github.com/irlnathan" target="_blank">這邊</a></p>
-
-<p>這個版本是<code>activityoverlord 1.0</code>版本</p>
-
-<p>在2015年, Irl nathan又出了<code>activityoverlord 2.0</code>版本, 主要是用新的Sails.js來實作</p>
-
-<p>但我在練習<code>Sails</code>的時候, 我也是用<code>新版0.11.2</code>的版本, 所以在舊版到新版的改動我也會一併在練習中說明.</p>
-
-<p>底下分別是他的各個教學章節, 我只是用文字來記錄我的學習過程</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2015/11/16/sails-study01/">點擊這裡繼續閱讀 &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/11/12/octopress-advance/">Octopress的進階技巧</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-11-12T20:06:58+08:00'><span class='date'>2015 年11 月12 日</span> <span class='time'>8:06 pm</span></time>
-        
-           | <a href="/blog/2015/11/12/octopress-advance/#disqus_thread"
-             data-disqus-identifier="http://kennytu.github.io/blog/2015/11/12/octopress-advance/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>這篇Blog我記錄了一些我在網路上找到的資料, 很多分享, 也滿受用的</p>
-
-<p>我整理在底下, 內容有</p>
-
-<ol>
-<li>進階的安裝文章分享</li>
-<li>多台電腦上寫作同步</li>
-<li>加上分類雲</li>
-<li>程式碼高亮</li>
-<li>imgcap的使用</li>
-</ol>
-
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2015/11/12/octopress-advance/">點擊這裡繼續閱讀 &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/2">&larr; Older</a>
@@ -552,30 +582,30 @@
   
     <section>
   <h1>Categories</h1>
-    <ul id="category-list"><li><a href='/blog/categories/mongodb/'>mongodb (1)</a></li><li><a href='/blog/categories/octopress/'>octopress (2)</a></li><li><a href='/blog/categories/sails/'>sails (8)</a></li></ul>
+    <ul id="category-list"><li><a href='/blog/categories/mongodb/'>mongodb (1)</a></li><li><a href='/blog/categories/node-dot-js/'>node.js (1)</a></li><li><a href='/blog/categories/npm-sails/'>npm sails (1)</a></li><li><a href='/blog/categories/octopress/'>octopress (2)</a></li><li><a href='/blog/categories/sails/'>sails (11)</a></li></ul>
 </section>
 <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/12/03/nodejs-update/">Node.js更新問題</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/12/03/sails-study11/">Sails練習之十一 - 使用者認證以及嚴格存取</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/12/02/sails-study10/">Sails練習之十 - Session</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/12/01/sails-study09/">Sails練習之九-加密</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/11/27/mongodb-setting/">Mongo Database 簡介以及GUI介面使用</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/11/26/sails-study08/">Sails練習之八-連結資料庫</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/11/26/sails-study07/">Sails練習之七</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/11/24/sails-study06/">Sails練習之六</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/11/23/sails-study05/">Sails練習之五</a>
       </li>
     
   </ul>

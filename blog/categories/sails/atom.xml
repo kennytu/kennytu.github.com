@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Sails | 江湖險惡，我從來都不輕易留下我的姓名。]]></title>
   <link href="http://kennytu.github.io/blog/categories/sails/atom.xml" rel="self"/>
   <link href="http://kennytu.github.io/"/>
-  <updated>2015-11-28T12:52:52+08:00</updated>
+  <updated>2015-12-03T19:44:04+08:00</updated>
   <id>http://kennytu.github.io/</id>
   <author>
     <name><![CDATA[Kenny Tu]]></name>
@@ -12,6 +12,337 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Sails練習之十一 - 使用者認證以及嚴格存取]]></title>
+    <link href="http://kennytu.github.io/blog/2015/12/03/sails-study11/"/>
+    <updated>2015-12-03T18:16:13+08:00</updated>
+    <id>http://kennytu.github.io/blog/2015/12/03/sails-study11</id>
+    <content type="html"><![CDATA[<p>本章的Video為 <a href="https://www.youtube.com/watch?v=AooPVuYGnuU" target="_blank">Ep14 - User authentication and restricting access through policies.</a></p>
+
+<p>首先,我們要先將前一章的Session的練習的程式碼先拿掉,</p>
+
+<p>接著修改<code>SessionController.js</code>, 新增<code>create action</code></p>
+
+<!--more-->
+
+
+<pre><code class="js SessionController.js 新增Create action">
+var bcrypt = require('bcrypt');
+
+module.exports = {
+    'new': function(req, res) {
+        res.view('session/new');
+    },
+    create: function(req, res, next) {
+
+        // Check for email and password in params sent via the form, if none
+        // redirect the browser back to the sign-in form.
+        if (!req.param('email') || !req.param('password')) {
+            // return next({err: ["Password doesn't match password confirmation."]});
+
+            var usernamePasswordRequiredError = [{
+                name: 'usernamePasswordRequired',
+                message: 'You must enter both a username and password.'
+            }]
+
+            // Remember that err is the object being passed down (a.k.a. flash.err), whose value is another object with
+            // the key of usernamePasswordRequiredError
+            req.session.flash = {
+                err: usernamePasswordRequiredError
+            }
+
+            res.redirect('/session/new');
+            return;
+        }
+
+        // Try to find the user by there email address.
+        // findOneByEmail() is a dynamic finder in that it searches the model by a particular attribute.
+        // User.findOneByEmail(req.param('email')).done(function(err, user) {
+        User.findOneByEmail(req.param('email'), function foundUser(err, user) {
+            if (err) return next(err);
+
+            // If no user is found...
+            if (!user) {
+                var noAccountError = [{
+                    name: 'noAccount',
+                    message: 'The email address ' + req.param('email') + ' not found.'
+                }]
+                req.session.flash = {
+                    err: noAccountError
+                }
+                res.redirect('/session/new');
+                return;
+            }
+
+            // Compare password from the form params to the encrypted password of the user found.
+            bcrypt.compare(req.param('password'), user.encryptedPassword, function(err, valid) {
+                if (err) return next(err);
+
+                // If the password from the form doesn't match the password from the database...
+                if (!valid) {
+                    var usernamePasswordMismatchError = [{
+                        name: 'usernamePasswordMismatch',
+                        message: 'Invalid username and password combination.'
+                    }]
+                    req.session.flash = {
+                        err: usernamePasswordMismatchError
+                    }
+                    res.redirect('/session/new');
+                    return;
+                }
+
+                // Log user in
+                req.session.authenticated = true;
+                req.session.User = user;
+
+                // Change status to online
+                user.online = true;
+                user.save(function(err, user) {
+                    if (err) return next(err);
+
+                    // Inform other sockets (e.g. connected sockets that are subscribed) that this user is now logged in
+                    User.publishUpdate(user.id, {
+                        loggedIn: true,
+                        id: user.id,
+                        name: user.name,
+                        action: ' has logged in.'
+                    });
+
+                    // If the user is also an admin redirect to the user list (e.g. /views/user/index.ejs)
+                    // This is used in conjunction with config/policies.js file
+                    if (req.session.User.admin) {
+                        res.redirect('/user');
+                        return;
+                    }
+
+                    //Redirect to their profile page (e.g. /views/user/show.ejs)
+                    res.redirect('/user/show/' + user.id);
+                });
+            });
+        });
+    }
+
+};
+</code></pre>
+
+<p>新增完成之後, 重新啟動sails, (<strong>記得啟動sails之前要先啟動Mongo DB</strong>), 然後試試看功能</p>
+
+<p>到瀏覽器輸入<code>http://localhost:1337/session/new</code></p>
+
+<p>然後輸入不正確的帳號密碼以及正確的帳號密碼試試看, 應該就沒問題嚕</p>
+
+<p>另外, 關於Create的每一個判斷式, 就請參考Irl nathan本人的講解嚕</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Sails練習之十 - Session]]></title>
+    <link href="http://kennytu.github.io/blog/2015/12/02/sails-study10/"/>
+    <updated>2015-12-02T17:07:35+08:00</updated>
+    <id>http://kennytu.github.io/blog/2015/12/02/sails-study10</id>
+    <content type="html"><![CDATA[<p>本篇進展到這邊, 主要是提到Session的使用, 影片是<a href="https://www.youtube.com/watch?v=SY2AcAHxIiU" target="_blank">Building a Sails Application: Ep13 - Sign-in page, session controller, new action, and sessions.</a></p>
+
+<p>首先, 在<code>views/</code>新增一個目錄名叫<code>session</code>, 在<code>session</code>裡面新增一個ejs檔案名為<code>new.ejs</code></p>
+
+<pre><code class="js activeityOverload\views\session\new.ejs">
+&lt;form action="/session/create" method="POST" class="form-signin"&gt;
+    &lt;h2 class="form-signin-heading"&gt;Please sign in...&lt;/h2&gt;
+
+    &lt;% if(flash &amp;&amp; flash.err) { %&gt;
+        &lt;ul class="alert alert-success"&gt;
+    &lt;% Object.keys(flash.err).forEach(function(error) { %&gt;
+        &lt;li&gt;&lt;%- JSON.stringify(flash.err[error]) %&gt;&lt;/li&gt;
+    &lt;% }) %&gt;
+    &lt;/ul&gt;
+    &lt;% } %&gt;
+
+    &lt;input type="text" class="form-control" placeholder="Email address" name="email"&gt;
+    &lt;input type="password" class="form-control" placeholder="Password" name="password"&gt;
+    &lt;input type="submit" class="btn btn-lg btn-primary btn-block" value="Sign-in"/&gt;
+    &lt;input type="hidden" name="_csrf" value="&lt;%= _csrf %&gt;" /&gt;
+
+&lt;/form&gt;
+</code></pre>
+
+<!--more-->
+
+
+<p>存檔之後, 到專案目錄底下開啟command line tool, 然後輸入<code>sails generate controller session</code></p>
+
+<p>接著sails就會產生<code>activeityOverload\api\controllers\SessionController.js</code>這個檔案</p>
+
+<p>我們到<code>SessionController.js</code>新增程式碼</p>
+
+<pre><code class="js SessionController.js">
+module.exports = {
+    'new': function(req, res) {
+        var oldDataObj = new Date();
+        var newDateObj = new Date(oldDataObj.getTime() + 60000);
+        req.session.cookie.expires = newDateObj;
+        req.session.authenticated = true;
+        console.log(req.session);
+        res.view('session/new');
+    }
+
+};
+</code></pre>
+
+<p>然後到<code>activeityOverload\api\controllers\UserController.js</code></p>
+
+<p>在<code>index</code>的<code>action</code>新增兩行Debug message, 如下</p>
+
+<pre><code class="js UserController.js">
+index: function (req, res, next) {
+        console.log(new Date());
+        console.log(req.session.authenticated);
+
+        //Get an array of all users in the User collection(e.g. table)
+        User.find(function foundUsers(err, users) {
+            if (err) return (err);
+            //pass the array down to the /views/index.ejs page
+            res.view({
+                users: users
+            });
+        });
+    },
+</code></pre>
+
+<p>新增完成之後, 我們重新啟動sails,</p>
+
+<p>先在瀏覽器中輸入<code>http://localhost:1337/session/new</code></p>
+
+<p>然後在sails的console畫面中可以看到以下畫面</p>
+
+<pre><code class="js">
+Session {
+  cookie:
+   { path: '/',
+     _expires: Wed Dec 02 2015 17:31:50 GMT+0800 (台北標準時間),
+     originalMaxAge: 60000,
+     httpOnly: true },
+  csrfSecret: 'paEKhxeTpDC5hQqu_ns64Ufi',
+  authenticated: true }
+</code></pre>
+
+<p>我們觀察到authenticated還是為true</p>
+
+<p>接著, 我們要來觀察<code>req.session.cookie.expires</code>設定之後的結果, 我們是設定成60秒,</p>
+
+<p>開啟瀏覽器, 輸入<code>http://localhost:1337/user</code>,然後觀察後台的輸出</p>
+
+<p>會像是這樣</p>
+
+<pre><code class="batch">
+Wed Dec 02 2015 17:31:04 GMT+0800 (台北標準時間)
+true
+Wed Dec 02 2015 17:31:34 GMT+0800 (台北標準時間)
+true
+Wed Dec 02 2015 17:31:39 GMT+0800 (台北標準時間)
+true
+Wed Dec 02 2015 17:31:59 GMT+0800 (台北標準時間)
+undefined  &lt;- 60秒之後, authenticated會變為undefined!
+</code></pre>
+
+<p>以上就是session的實驗囉!</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Sails練習之九-加密]]></title>
+    <link href="http://kennytu.github.io/blog/2015/12/01/sails-study09/"/>
+    <updated>2015-12-01T17:39:08+08:00</updated>
+    <id>http://kennytu.github.io/blog/2015/12/01/sails-study09</id>
+    <content type="html"><![CDATA[<p>OK, 上課的影片是: <a href="https://www.youtube.com/watch?v=1wziI6l0NyE" target="_blank">Building a Sails Application: Ep11 - Encrypting passwords with bcrypt.</a></p>
+
+<p>到<a href="https://www.npmjs.com/package/bcrypt" target="_blank">Bcrypt</a>看一下相關的資訊</p>
+
+<p>安裝的步驟如下</p>
+
+<p>到專案目錄, 執行<code>npm install bcrypt --save</code></p>
+
+<p>加上<code>--save</code>的意思是除了install bcrypt到專案底下之外, 也把相依性設定寫入package.json, 這樣以後如果有人想要直接使用這個專案, 在目錄底下輸入npm install, 就可以將此專案需要用到的packages一次設定完成!</p>
+
+<p>另外安裝<code>bcrypt</code>需要Visual Studio 2013的支援, 若你的Visual Studio版本大於2013, 請在安裝的時候再加入<code>--msvs_version=2013</code></p>
+
+<p>也就是<code>npm install bcrypt --save --msvs_version=2013</code></p>
+
+<!--more-->
+
+
+<p>OK, 安裝順利的話, 會出現如下的訊息</p>
+
+<pre><code class="batch">
+E:\sails_app\activeityOverload&gt;npm install bcrypt --save
+-
+&gt; bcrypt@0.8.5 install E:\sails_app\activeityOverload\node_modules\bcrypt
+&gt; node-gyp rebuild
+
+
+E:\sails_app\activeityOverload\node_modules\bcrypt&gt;if not defined npm_config_node_gyp (node "C:\Program Files\nodejs\node_modules\npm\bin\node-gyp-bin\\..\..\node_modules\node-gyp\bin\node-gyp.js" rebuild )  else (node  rebuild )
+
+在這個方案中一次建置一個專案。若要啟用平行組建，請加入 "/m" 參數。 (Visual Studio 2013 C++ Support)
+  blowfish.cc
+  bcrypt.cc
+..\src\bcrypt.cc(232): warning C4267: '=' : conversion from 'size_t' to 'unsigned char', possible loss of data 
+[E:\sails_app\activeityOverload\node_modules\bcrypt\build\bcrypt_lib.vcxproj]  bcrypt_node.cc ..\src\bcrypt_node.cc(76): warning C4244: 'argument' : conversion from 'ssize_t' to 'unsigned char', possible loss  of data 
+
+[E:\sails_app\activeityOverload\node_modules\bcrypt\build\bcrypt_lib.vcxproj]
+..\src\bcrypt_node.cc(135): warning C4244: 'argument' : conversion from 'const ssize_t' to 'unsigned char', possible loss of data 
+
+[E:\sails_app\activeityOverload\node_modules\bcrypt\build\bcrypt_lib.vcxproj]
+..\src\bcrypt_node.cc(229): warning C4267: 'initializing' : conversion from 'size_t' to 'int', possible loss of data 
+
+[E:\sails_app\activeityOverload\node_modules\bcrypt\build\bcrypt_lib.vcxproj]
+..\src\bcrypt_node.cc(230): warning C4267: 'initializing' : conversion from 'size_t' to 'int', possible loss of data 
+
+[E:\sails_app\activeityOverload\node_modules\bcrypt\build\bcrypt_lib.vcxproj]
+win_delay_load_hook.c
+
+Creating library E:\sails_app\activeityOverload\node_modules\bcrypt\build\Release\bcrypt_lib.lib and 
+object E:\sails_app\activeityOverload\node_modules\bcrypt\build\Release\bcrypt_lib.exp
+  Generating code
+  Finished generating code
+  bcrypt_lib.vcxproj -&gt; E:\sails_app\activeityOverload\node_modules\bcrypt\build\Release\\bcrypt_lib.node
+
+bcrypt@0.8.5 node_modules\bcrypt
+├── bindings@1.2.1
+└── nan@2.0.5
+</code></pre>
+
+<p>裝完之後, 接著我們修改<code>activeityOverload\api\models\</code>底下的<code>User.js</code></p>
+
+<pre><code class="js User.js 新增beforeCreate Function">
+module.exports = {
+
+  schema: true,
+
+  attributes: {...},
+
+  beforeCreate: function (values, next) {
+
+    // This checks to make sure the password and password confirmation match before creating record
+    if (!values.password || values.password != values.confirmation) {
+      return next({err: ["Password doesn't match password confirmation."]});
+    }
+
+    require('bcrypt').hash(values.password, 10, function passwordEncrypted(err, encryptedPassword) {
+      if (err) return next(err);
+      values.encryptedPassword = encryptedPassword;
+      // values.online= true;
+      next();
+    });
+  }
+};
+</code></pre>
+
+<p>新增完成之後, 重啟sails, (啟動sails之前記得要先啟動mongo db)</p>
+
+<p>接著新增一名使用者看看, 新增完成之後, 使用<code>mongo-express</code>登入進去mongo db的後台去看, 我們的新的使用者是不是有已經加密過的密碼了!</p>
+
+<p>好的, 大致上是這樣嚕</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Sails練習之八-連結資料庫]]></title>
@@ -255,510 +586,6 @@ edit: function(req, res, next){
 <p>瀏覽器輸入<code>http://localhost:1337/user</code></p>
 
 <p>就可以玩玩看delete的功能了!</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Sails練習之六]]></title>
-    <link href="http://kennytu.github.io/blog/2015/11/24/sails-study06/"/>
-    <updated>2015-11-24T22:12:51+08:00</updated>
-    <id>http://kennytu.github.io/blog/2015/11/24/sails-study06</id>
-    <content type="html"><![CDATA[<p>本章接著<a href="https://www.youtube.com/watch?v=GHp1g7Z0Yo4" target=_blank>Building a Sails Application: Ep8 - Adding a user list, index, edit, and update action.</a></p>
-
-<p>影片一開始, Irl nathan介紹了ejs中, <code>&lt;%- %&gt;</code>以及<code>&lt;%= %&gt;</code>有什麼不同</p>
-
-<p>簡單來說</p>
-
-<p> <code>&lt;%- %&gt;</code>有 <code>-</code> 這個記號的, 若被此tag包含起來的程式碼有java script, 那麼ejs就會去執行它, 這個是一個很常會讓人侵入的地方,</p>
-
-<p>而<code>&lt;%= %&gt;</code>就不會對java script做解讀,ejs會直接跳過js, 直接輸出到頁面上</p>
-
-<p>還有一個是<code>&lt;% %&gt;</code>, 沒有加任何符號的, 這個就是單純的ejs嵌入javascript程式碼用的.</p>
-
-<!--more-->
-
-
-<p>Irl nathan示範了如何在新增使用者的欄位, 注入java script程式碼, 讓其可以執行的例子</p>
-
-<p>我們在新增使用者的頁面, 在第二個欄位, 輸入user title的這個,</p>
-
-<p>輸入<code>&lt;script&gt; alert("I am a bad guy");&lt;/script&gt;</code></p>
-
-<p>將其他輸入項輸入完成之後, 按下Enter, 跳轉到User Info頁面的時候</p>
-
-<p>會跳出一個<code>I am a bad guy</code>的alert,</p>
-
-<p>這很不好, 所以我們要來改寫程式碼</p>
-
-<p>將所有<code>&lt;%-</code>都換成<code>&lt;%=</code></p>
-
-<p>```js show.ejs</p>
-
-<div class="container">
-  <h1><%= user.name %></h1>
-  <h3><%= user.title %></h3>
-  <hr>
-  <h3>contact: <%= user.email %></h3>
-
-  <a class="btn btn-medium btn-primary" href="http://kennytu.github.io/user/edit/<%= user.id %>%>">Edit</a>
-
-</div>
-
-
-<pre><code>
-好的, 基礎原理介紹了一下之後, 我們要進入正題
-
-我們要修改當我們在瀏覽器輸入`http://localhost:1337/user`的時候,
-
-後端會回傳一個user model的json格式回來, 我們要來將這個json做成精美的網頁
-
-先到`UserController.js`
-
-加入底下程式碼
-</code></pre>
-
-<p>//render the profile view (e.g. /views/show.ejs)
-    show: function(req, res, next){
-      User.findOne(req.param(&lsquo;id&rsquo;), function foundUser(err, user){
-        if(err) return next(err);
-        if(!user) return next();
-        res.view({
-          user: user
-        });
-      });
-    },</p>
-
-<pre><code>index: function(req, res, next){
-  console.log("hi! there!");
-  //Get an array of all users in the User collection(e.g. table)
-  User.find(function foundUsers(err, users){
-    if(err) return (err);
-    //pass the array down to the /views/index.ejs page
-    res.view({
-      users: users
-    });
-  });
-}
-</code></pre>
-
-<pre><code>
-接著在`views\user\` 新增 `index.ejs`
-</code></pre>
-
-<div class="container">
-  <h3>Users</h3>
-  <table class="table">
-    <tr>
-      <th>ID</th>
-      <th>Name</th>
-      <th>Title</th>
-      <th>Email</th>
-      <th></th>
-      <th></th>
-      <th></th>
-    </tr>
-
-    <% _.each(users, function(user){ %>
-    <tr data-id="<%= user.id %>" data-model="user">
-      <td><%= user.id %></td>
-      <td><%= user.name %></td>
-      <td><%= user.title%></td>
-      <td><%= user.email%></td>
-      <td><a href="http://kennytu.github.io/user/show/<%= user.id %>" class="btn btn-sm btn-primary">Show</a></td>
-      <td><a href="http://kennytu.github.io/user/edit/<%= user.id %>" class="btn btn-sm btn-warning">Edit</a></td>
-      <td><a href="http://kennytu.github.io/user/destroy/<%= user.id %>" class="btn btn-sm btn-danger">Delete</a></td>
-    </tr>
-
-    <%}) %>
-  </table>
-</div>
-
-
-<pre><code>
-新增完成之後, 剩下的就是Saisl框架會幫我們處理的事情
-
-存檔之後, 重啟sails
-
-輸入 `http://localhost:1337/user`
-
-就可以看到精美的User List列表啦!
-
-接下來我們來處理`edit`以及`update`這兩個action
-
-回到`UserController.js`,新增`edit`以及`update`
-</code></pre>
-
-<p>//render the edit view (e.g. /views/edit.ejs)
-  edit: function(req, res, next){</p>
-
-<pre><code>//Find the user from the id passed in via params
-User.findOne(req.param('id'), function foundUser(err, user){
-  if(err) return next(err);
-  if(!user) return next();
-
-  res.view({
-    user: user
-  });
-});
-</code></pre>
-
-<p>  },</p>
-
-<p>  // process the info from edit view
-  update: function(req, res, next){
-    User.update(req.param(&lsquo;id&rsquo;), req.params.all(), function userUpdated(err){
-      if (err){
-        return res.redirect(&lsquo;/user/edit/&rsquo; + req.param(&lsquo;id&rsquo;));
-      }</p>
-
-<pre><code>  res.redirect('/user/show/' + req.param('id'));
-});
-</code></pre>
-
-<p>  }</p>
-
-<pre><code>
-接著在`views\user\`新增`edit.ejs`
-</code></pre>
-
-<p><form action="/user/update/<%= user.id %>&ldquo; method="POST&rdquo; class=&ldquo;form-signin&rdquo;></p>
-
-<p>  <h2> Hey, you&rsquo;re editing a user&hellip;</h2></p>
-
-<p>  <input value="<%= user.name%>&ldquo; name="name&rdquo; type=&ldquo;text&rdquo; class=&ldquo;form-control&rdquo;/>
-  <input value="<%= user.title%>&ldquo; name="title&rdquo; type=&ldquo;text&rdquo; class=&ldquo;form-control&rdquo;/>
-  <input value="<%= user.email%>&ldquo; name="email&rdquo; type=&ldquo;text&rdquo; class=&ldquo;form-control&rdquo;/>
-  <input type="submit" value="Proceed" class="btn btn-lg btn-primary btn-block"/>
-  <input type="hidden" name="_csrf" value="<%= _csrf %>&ldquo;/>
-</form></p>
-
-<pre><code>
-重啟sails, 我們試試看Edit, 應該有畫面出來了
-
-接下來嘗試輸入一下資料, 發現居然有jQuery的Validation出來作怪!!!
-
-作者在這邊大叫了一聲!!!~~~ 阿!~~~ 
-
-隨即馬上說這個超簡單可以解決, 讓我們繼續看下去
-
-我們先到`assets\js\dependencies\customVaildate.js`
-
-將這行 `$('.form-signin').validate({` 修改成 `$('#sign-up-form').validate({`
-
-注意我們將`.form-signin`改成`#sign-up-form`, 一個點變成一個井號
-
-這邊要提到`CSS`以及`Javascript`的Class以及ID的用法
-
-對於CSS來說, 使用`.`定義的都是Class, 而使用`#`的則是ID命名
-
-關於Class以及ID的觀念和用法, 請參考底下網站
-
-&lt;a href="http://www.minwt.com/webdesign-dev/css/30.html" target="_blank"&gt;[CSS]id 與 class 別再傻傻分不清楚&lt;/a&gt;
-
-&lt;a href="http://www.1keydata.com/css-tutorial/tw/class-id.php" target="_blank"&gt; CSS Class 與 CSS ID&lt;/a&gt;
-
-&lt;a href="http://www.1keydata.com/css-tutorial/tw/syntax.php" target="_blank"&gt;CSS 教學 &gt; 語法&lt;/a&gt;
-
-所以呢, 我們作者就把jQuery這一段改成`id`之後, 就可以唯一指定登錄頁面是使用這個邏輯了
-
-接著, 我們要去改views\user\new.ejs
-</code></pre>
-
-<p><form action="/user/create" method="POST" id="sign-up-form" class="form-signin"></p>
-
-<p>```</p>
-
-<p>存檔之後, 重啟sails, 就可以在測試看看, JQuery的Vaildation就不會出現在Edit的頁面上了</p>
-
-<blockquote><p>更新-> 我剛剛把edit.js裡面的action打成actoin,結果debug半天阿~ 拎老師咧</p></blockquote>
-
-<p>好的, Edit功能做完之後, 測試完若沒有問題&hellip; 我們接下來就來處理Delete了</p>
-
-<p>由於Delete會學習到POST的概念, 所以作者把它放在下一個課程</p>
-
-<p>今天就先到這邊啦!</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Sails練習之五]]></title>
-    <link href="http://kennytu.github.io/blog/2015/11/23/sails-study05/"/>
-    <updated>2015-11-23T16:56:55+08:00</updated>
-    <id>http://kennytu.github.io/blog/2015/11/23/sails-study05</id>
-    <content type="html"><![CDATA[<p>終於來到練習的第五集了, 這一集的影片連結是<a href="https://www.youtube.com/watch?v=_wL2cS0GmJQ&index=8&list=PLWsZeJCry-F4K4iRImeB3-i0S5mw9Ak-W" target=_blank>Building a Sails Application: Ep6 - Creating a policy and adding client-side validation</a></p>
-
-<p>上一個單元, Irl nathan展示了如何在UserController中, 實現Handling validation errors with a flash message.</p>
-
-<p>想當然, sails有更優雅的做法, 那就是本章要介紹的policy機制.</p>
-
-<!--more-->
-
-
-<p>先來寫程式碼</p>
-
-<p>在<code>api\policies\</code> 創建 <code>flash.js</code>, 內如如下</p>
-
-<pre><code class="js flash.js">
-module.exports = function(req, res, next) {
-
-  res.locals.flash = {};
-
-  if(!req.session.flash) return next();
-
-  res.locals.flash = _.clone(req.session.flash);
-
-  // clear flash
-  req.session.flash = {};
-
-  next();
-};
-</code></pre>
-
-<p>然後在 <code>config\policies.js</code> 找到</p>
-
-<pre><code class="js policies.js ">
- //'*': true,
-   '*': 'flash'
-</code></pre>
-
-<p>這樣就設定完成了, 接著, 重新啟動sails</p>
-
-<p>然後驗證一下註冊資訊若輸入錯誤, 是不是有相同的提示效果</p>
-
-<p>基本上應該都要很順利.</p>
-
-<p>接下來, 作者用JQuery來美化頁面上的錯誤訊息</p>
-
-<p>首先, 我們去下載<a href="http://jqueryvalidation.org/" target=_blank>jQuery Validation Plugin</a></p>
-
-<p>壓縮檔解壓縮之後, 在<code>dist</code>的目錄下找到<code>additional-methods.min.js</code></p>
-
-<p>把這個檔案copy到sails專案底下的<code>assets\js\dependencies</code></p>
-
-<p>接著修改<code>tasks\pipeline.js</code></p>
-
-<pre><code class="js pipeline.js">
-// Client-side javascript files to inject in order
-// (uses Grunt-style wildcard/glob/splat expressions)
-var jsFilesToInject = [
-
-  // Load sails.io before everything else
-  'js/dependencies/sails.io.js',
-
-  // Dependencies like jQuery, or Angular are brought in here
-  'js/dependencies/jquery.js',
-  'js/dependencies/jquery.validate.min.js',
-  'js/dependencies/**/*.js',
-
-  // All of the rest of your client-side js files
-  // will be injected here in no particular order.
-
-  'js/**/*.js',
-
-  // Use the "exclude" operator to ignore files
-  // '!js/ignore/these/files/*.js'
-
-];
-</code></pre>
-
-<p>注意以上的程式碼, 有先後順序, jquery.js在前面, 接下來才是<code>jquery.validate.min.js</code></p>
-
-<p>接著, 在新增<code>assets\js\dependencies\</code> 底下新增<code>customVaildate.js</code></p>
-
-<pre><code class="js customVaildate.js">
-$(document).ready(function () {
-
-  $('.form-signin').validate({
-    rules: {
-      name:{
-        required: true
-      },
-      email: {
-        type: 'email',
-        required: true
-      },
-      password: {
-        minlength:6,
-        required: true
-      },
-      confirmation: {
-        minlength:6,
-        equalTo: "#password"
-      }
-    },
-    success: function(element){
-      element.text('OK!').addClass('valid');
-    }
-  });
-
-});
-</code></pre>
-
-<p>這個檔案會被sails自動讀取, 是因為我們在<code>pipeline.js</code>裡面有一行敘述是<code>'js/**/*.js'</code> sails會自動讀取js目錄底下所有的java script檔案</p>
-
-<p>新增完成之後, 重新啟動sails</p>
-
-<p>就可以看到我們的註冊畫面有Jquery的Validate的檢查樣式了</p>
-
-<p>接著我們上下一課: <a href="https://www.youtube.com/watch?v=HozWtywQNMo&list=PLWsZeJCry-F4K4iRImeB3-i0S5mw9Ak-W&index=9" target="_blank">Building a Sails Application: Ep7 - Adding the show action.</a></p>
-
-<p>我們要來新增<code>show</code>每一個user的基本資料的action</p>
-
-<p>先修改UserController.js</p>
-
-<pre><code class="js UserController.js ">
-module.exports = {
-    'new': function(req, res){
-        //res.locals.flash = _.clone(req.session.flash);
-        res.view();
-        //req.session.flash = {};
-    },
-
-    create: function (req, res, next) {
-      User.create(req.params.all(), function userCreated(err,user){
-          //if(err) return next(err);
-
-          if(err){
-            console.log(err);
-            req.session.flash = {
-              err: err
-            }
-            //if error redirect back to sign-up page
-            return res.redirect('/user/new');
-          }
-        //res.json(user);
-        //req.session.flash = {};
-        res.redirect('/user/show/'+user.id);
-      });
-    },
-    //render the profile view (e.g. /views/show.ejs)
-    show: function(req, res, next){
-      User.findOne(req.param('id'), function foundUser(err, user){
-        if(err) return next(err);
-        if(!user) return next();
-        res.view({
-          user: user
-        });
-      });
-    }
-};
-</code></pre>
-
-<p>主要修改有<code>create</code>有一個<code>res.redirect</code>, 以及新增了一個<code>show</code>的function</p>
-
-<p>接著在<code>views\user\</code>底下新增<code>show.ejs</code></p>
-
-<p>```js show.ejs</p>
-
-<div class="container">
-  <h1><%- user.name %></h1>
-  <h3><%- user.title %></h3>
-  <hr>
-  <h3>contact: <%- user.email %></h3>
-
-  <a class="btn btn-medium btn-primary" href="http://kennytu.github.io/user/edit/<%= user.id %>%>">Edit</a>
-
-</div>
-
-
-<p>```</p>
-
-<p>這樣,每一次在create使用者的時候, 就會導入show.ejs的頁面</p>
-
-<p>或者可以直接輸入 <code>http://localhost:1337/user/show/2</code> 這樣的url直接查詢</p>
-
-<p>好的, 今天的練習就到這邊</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Sails練習之四]]></title>
-    <link href="http://kennytu.github.io/blog/2015/11/18/sails-study04/"/>
-    <updated>2015-11-18T18:38:20+08:00</updated>
-    <id>http://kennytu.github.io/blog/2015/11/18/sails-study04</id>
-    <content type="html"><![CDATA[<p>OK, 接下來這篇<a href="https://www.youtube.com/watch?v=4Gbc9ZA2-YY&list=PLWsZeJCry-F4K4iRImeB3-i0S5mw9Ak-W&index=7" target="_blank">Building a Sails Application: Ep5 - Handling validation errors with a flash message</a></p>
-
-<p>作者要示範如何handle error</p>
-
-<p>當我們登入註冊頁面, 然後沒有輸入任何資料, 或者資料輸入錯誤, 就按下Create Account. Sails會回傳錯誤資訊. 我們現在要handle這個錯誤, 請看以下練習</p>
-
-<!--more-->
-
-
-<p>到<code>UserController.js</code>, 修改create function</p>
-
-<pre><code class="js">
-module.exports = {
-    'new': function(req, res){
-        res.locals.flash = _.clone(req.session.flash);
-        res.view();
-        req.session.flash = {};
-    },
-
-    create: function (req, res, next) {
-      User.create(req.params.all(), function userCreated(err,user){
-          //if(err) return next(err);
-
-          if(err){
-            console.log(err);
-            req.session.flash = {
-              err: err
-            }
-            //if error redirect back to sign-up page
-            return res.redirect('/user/new');
-          }
-
-          res.json(user);
-        req.session.flash = {};
-      });
-    }
-};
-</code></pre>
-
-<p>OK.</p>
-
-<p>然後到new.ejs,參考底下程式碼</p>
-
-<pre><code class="js new.ejs ">
-&lt;form action="/user/create" method="POST" class="form-signin"&gt;
-  &lt;h2 class="form-signin-heading"&gt; Create an account&lt;/h2&gt;
-
-
-  &lt;% if(flash &amp;&amp; flash.err){ %&gt;
-  &lt;ul class="alert alert-success"&gt;
-    &lt;% Object.keys(flash.err).forEach(function(error){ %&gt;
-    &lt;li&gt;&lt;%- JSON.stringify(flash.err[error]) %&gt;&lt;/li&gt;
-    &lt;% })%&gt;
-  &lt;/ul&gt;
-  &lt;%}%&gt;
-
-
-  &lt;div class="form-group"&gt;
-  &lt;input type="text" class="form-control" placeholder="your name" name="name"&gt;
-  &lt;/div&gt;
-
-  &lt;input type="text" class="form-control" placeholder="your title" name="title"&gt;
-
-  &lt;input type="text" class="form-control" placeholder="email address" name="email"&gt;
-
-  &lt;input type="password" class="form-control" placeholder="password" name="password"&gt;
-
-  &lt;input type="password" class="form-control" placeholder="password confirmation" name="confirmation"&gt;
-
-  &lt;input type="submit" class="btn btn-lg btn-primary btn-block" value="Create Account"/&gt;
-
-  &lt;input type="hidden" name="_csrf" value="&lt;%= _csrf %&gt;"/&gt;
-
-&lt;/form&gt;
-</code></pre>
-
-<p>重新啟動, 測試看看, 應該就沒問題了</p>
-
-<p>這篇主要在講後端處理的技術, 以及在前端如何使用ejs的一些巧技巧</p>
-
-<p>精華的部分就是在<code>res.locals.flash</code>和<code>req.session.flash</code>這兩個上面, 以及前端頁面, 像是 <code>&lt;%</code> <code>%&gt;</code>這樣嵌入式的ejs用法..</p>
-
-<p>說實話, 我現階段還對ejs語法不是很熟, 到時候再來補齊相關資訊嚕</p>
 ]]></content>
   </entry>
   

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Npm Sails | 江湖險惡，我從來都不輕易留下我的姓名。]]></title>
+  <link href="http://kennytu.github.io/blog/categories/npm-sails/atom.xml" rel="self"/>
+  <link href="http://kennytu.github.io/"/>
+  <updated>2015-12-03T19:44:04+08:00</updated>
+  <id>http://kennytu.github.io/</id>
+  <author>
+    <name><![CDATA[Kenny Tu]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Node.js更新問題]]></title>
+    <link href="http://kennytu.github.io/blog/2015/12/03/nodejs-update/"/>
+    <updated>2015-12-03T19:31:51+08:00</updated>
+    <id>http://kennytu.github.io/blog/2015/12/03/nodejs-update</id>
+    <content type="html"><![CDATA[<p>在更新<code>node.js</code>以及<code>npm</code>之後 (npm現在被包在node.js裡面一起安裝)</p>
+
+<p>我執行npm -g update, global有更新的node.js的module都update到最新的</p>
+
+<p>接著我切換到我這一陣子再用的sails的專案, 執行sails lift的時候</p>
+
+<p>發生了<code>Cannot find module 'lru-cache'</code> 這個事件</p>
+
+<!--more-->
+
+
+<p>解決的方法是, 執行以下的指令</p>
+
+<pre><code>rm -rf node_modules
+npm cache clean
+npm install
+</code></pre>
+
+<p>先將sails專案裡面的node_modules刪除, 然後清空Cache, 接著重新安裝一次, 這樣Sails就可以正常運行了</p>
+
+<p>另外, 在執行sails lift的時候, 若sails的資料庫有綁定mongo db, 但你還沒有啟動mondo db時, 會出現以下訊息</p>
+
+<pre><code class="batch">
+error: A hook (`orm`) failed to load!
+E:\sails_app\activeityOverload\node_modules\mongodb\lib\server.js:235
+        process.nextTick(function() { throw err; })
+                                      ^
+
+TypeError: Cannot read property 'close' of undefined
+    at E:\sails_app\activeityOverload\node_modules\sails-mongo\lib\adapter.js:138:13
+    at E:\sails_app\activeityOverload\node_modules\sails-mongo\node_modules\async\lib\async.js:187:20
+    at E:\sails_app\activeityOverload\node_modules\sails-mongo\node_modules\async\lib\async.js:239:13
+    at _arrayEach (E:\sails_app\activeityOverload\node_modules\sails-mongo\node_modules\async\lib\async.js:91:13)
+    at _each (E:\sails_app\activeityOverload\node_modules\sails-mongo\node_modules\async\lib\async.js:82:13)
+</code></pre>
+
+<p>這就表示sails 掛不到 mongo db, 只要先啟動mongo db, 然後再啟動sails lift就沒問題了!</p>
+]]></content>
+  </entry>
+  
+</feed>
