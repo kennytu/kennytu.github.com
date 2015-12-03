@@ -1,0 +1,121 @@
+---
+layout: post
+title: "Sails練習之十 - Session"
+date: 2015-12-02 17:07:35 +0800
+comments: true
+categories: sails
+---
+
+本篇進展到這邊, 主要是提到Session的使用, 影片是<a href="https://www.youtube.com/watch?v=SY2AcAHxIiU" target="_blank">Building a Sails Application: Ep13 - Sign-in page, session controller, new action, and sessions.</a>
+
+首先, 在`views/`新增一個目錄名叫`session`, 在`session`裡面新增一個ejs檔案名為`new.ejs`
+
+```js activeityOverload\views\session\new.ejs
+
+<form action="/session/create" method="POST" class="form-signin">
+	<h2 class="form-signin-heading">Please sign in...</h2>
+
+	<% if(flash && flash.err) { %>
+		<ul class="alert alert-success">
+	<% Object.keys(flash.err).forEach(function(error) { %>
+		<li><%- JSON.stringify(flash.err[error]) %></li>
+	<% }) %>
+	</ul>
+	<% } %>
+
+	<input type="text" class="form-control" placeholder="Email address" name="email">
+	<input type="password" class="form-control" placeholder="Password" name="password">
+	<input type="submit" class="btn btn-lg btn-primary btn-block" value="Sign-in"/>
+	<input type="hidden" name="_csrf" value="<%= _csrf %>" />
+	
+</form>
+
+```
+
+<!--more-->
+
+存檔之後, 到專案目錄底下開啟command line tool, 然後輸入`sails generate controller session`
+
+接著sails就會產生`activeityOverload\api\controllers\SessionController.js`這個檔案
+
+我們到`SessionController.js`新增程式碼
+
+```js SessionController.js
+
+module.exports = {
+    'new': function(req, res) {
+        var oldDataObj = new Date();
+        var newDateObj = new Date(oldDataObj.getTime() + 60000);
+        req.session.cookie.expires = newDateObj;
+        req.session.authenticated = true;
+        console.log(req.session);
+        res.view('session/new');
+    }
+
+};
+
+```
+
+然後到`activeityOverload\api\controllers\UserController.js`
+
+在`index`的`action`新增兩行Debug message, 如下
+
+```js UserController.js
+
+index: function (req, res, next) {
+        console.log(new Date());
+        console.log(req.session.authenticated);
+
+        //Get an array of all users in the User collection(e.g. table)
+        User.find(function foundUsers(err, users) {
+            if (err) return (err);
+            //pass the array down to the /views/index.ejs page
+            res.view({
+                users: users
+            });
+        });
+    },
+
+```
+
+新增完成之後, 我們重新啟動sails, 
+
+先在瀏覽器中輸入`http://localhost:1337/session/new`
+
+然後在sails的console畫面中可以看到以下畫面
+
+```js
+
+Session {
+  cookie:
+   { path: '/',
+     _expires: Wed Dec 02 2015 17:31:50 GMT+0800 (台北標準時間),
+     originalMaxAge: 60000,
+     httpOnly: true },
+  csrfSecret: 'paEKhxeTpDC5hQqu_ns64Ufi',
+  authenticated: true }
+
+```
+
+我們觀察到authenticated還是為true
+
+接著, 我們要來觀察`req.session.cookie.expires`設定之後的結果, 我們是設定成60秒,
+
+開啟瀏覽器, 輸入`http://localhost:1337/user`,然後觀察後台的輸出
+
+會像是這樣
+
+```batch
+
+Wed Dec 02 2015 17:31:04 GMT+0800 (台北標準時間)
+true
+Wed Dec 02 2015 17:31:34 GMT+0800 (台北標準時間)
+true
+Wed Dec 02 2015 17:31:39 GMT+0800 (台北標準時間)
+true
+Wed Dec 02 2015 17:31:59 GMT+0800 (台北標準時間)
+undefined  <- 60秒之後, authenticated會變為undefined!
+
+```
+
+以上就是session的實驗囉! 
