@@ -3,7 +3,7 @@ layout: post
 title: "Node.js更新問題"
 date: 2015-12-03 19:31:51 +0800
 comments: true
-categories: [node.js, npm sails]
+categories: [node.js, npm, sails]
 ---
 
 在更新`node.js`以及`npm`之後 (npm現在被包在node.js裡面一起安裝)
