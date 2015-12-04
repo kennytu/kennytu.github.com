@@ -14,7 +14,7 @@ categories: sails
 
 <!--more-->
 
-```js SessionController.js 新增Create action
+```js SessionController.js新增Create action
 
 var bcrypt = require('bcrypt');
 
@@ -113,15 +113,131 @@ module.exports = {
 
 };
 
-
 ```
 
 新增完成之後, 重新啟動sails, (**記得啟動sails之前要先啟動Mongo DB**), 然後試試看功能
 
 到瀏覽器輸入`http://localhost:1337/session/new`
 
-然後輸入不正確的帳號密碼以及正確的帳號密碼試試看, 應該就沒問題嚕
+然後輸入不正確的帳號密碼以及正確的帳號密碼試試看, 應該就沒問題了
 
 另外, 關於Create的每一個判斷式, 就請參考Irl nathan本人的講解嚕
 
+接著我們要在SessionController.js中加入destroy, 也就是Sign Out的Action
 
+```js SessionController.js 新增Destroy action
+
+destroy: function(req, res, next) {
+
+    // Wipe out the session (log out)
+    req.session.destroy();
+
+    // Redirect the browser to the sign-in screen
+    res.redirect('/session/new');
+}
+
+```
+
+把上面的程式碼加到Create Action之後, 然後重啟sails,
+
+再登入之後, 直接輸入`http://localhost:1337/session/destroy` 就會跳回到登入頁面
+
+不過我們可以發現, 就算登出了, 使用者還是可以直接輸入網址, 去瀏覽使用者,
+
+例如在瀏覽器中輸入`http://localhost:1337/user` 一樣可以看到管理介面
+
+所以我們要修改一些權限, 來達成管控的要求
+
+
+先到`activeityOverload\api\policies\`底下新增`authenticated.js`, 程式碼如下
+
+```js authenticated.js
+
+module.exports = function (req, res, ok) {
+
+    // User is allowed, proceed to controller
+    if (req.session.User) {
+        return ok();
+    }
+    else {  // User is not allowed
+        var requireLoginError = [{name: 'requireLogin', message: 'You must be signed in.'}]
+        req.session.flash = {
+            err: requireLoginError
+        }
+        res.redirect('/session/new');
+        return;
+        //res.send(403);
+    }
+};
+
+```
+
+然後到`activeityOverload\config\`底下的`policies.js`
+
+新增以下的規則
+
+```js policies.js
+
+ '*': 'flash',
+ user:{
+        'new': "flash",
+        '*': "authenticated"
+    }
+
+```
+
+解釋一下上面的Policies, 第一列的 * 表示 不管哪一個Controller都要經過flash規則
+
+而第二列的是說, 針對user controller, 底下的new action我們套用flash, 而其他的action則套用authenticated這個規則.
+
+所以只要是user底下的非new的action, 都要經過authenticated這個關卡. 大致上是這樣
+
+新增完成之後. 重新啟動sails, 看看若我們直接輸入localcost:1337/user/, 若我們之前沒有登入, 則在authenticated.js中, req.session.User就會是空的, 因為是空, 所以是 null, 那麼邏輯就會走到else, 有就是User is not allowd的這判斷式中.
+
+以上, 就是我們這一堂課的概要嚕, 但還沒結束, 作者在這一集<a href="https://www.youtube.com/watch?v=-wF07sqGmW0" target="_blank">Building a Sails Application: Ep16 - Fixing an issue with policies in episode 14</a>
+
+找到了一個要在本章修正的錯誤, 當我們在`config\policies.js`新增了filter rule之後, 會發現新增使用者之後, 到了create action, 也會套用到authenticated rule, 導致錯誤發生, 所以我們修正如下
+
+
+```js config\policies.js
+	
+	'*': 'flash',
+    user:{
+        'new': "flash",
+        'create': "flash",
+        '*': "authenticated"
+    }
+
+```
+
+在user controller新增一個create action套用flash的rule即可
+
+另外到`UserController.js`, 在`create`的action中新加入兩段codes
+
+```js UserController.js
+
+ create: function (req, res, next) {
+        User.create(req.params.all(), function userCreated(err, user) {
+            //if(err) return next(err);
+
+            if (err) {
+                console.log(err);
+                req.session.flash = {
+                    err: err
+                }
+                //if error redirect back to sign-up page
+                return res.redirect('/user/new');
+            }
+
+            //res.json(user);
+            //req.session.flash = {};
+			//新增底下這兩段code
+            req.session.authenticated = true;
+            req.session.User = user;
+            res.redirect('/user/show/' + user.id);
+        });
+    },
+
+```
+
+OK. 這樣應該就沒問題了

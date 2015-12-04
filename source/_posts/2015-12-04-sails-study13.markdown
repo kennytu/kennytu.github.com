@@ -1,0 +1,380 @@
+---
+layout: post
+title: "Sails練習之十三 - 區分管理者和一般使用者"
+date: 2015-12-04 19:57:17 +0800
+comments: true
+categories: sails
+---
+
+本篇的Video在<a href="https://www.youtube.com/watch?v=DI85AWW_TEk" target="_blank">Building a Sails Application: Ep17 - Creating a distinction between admin and regular users.</a>
+
+這一章我在實作的時候遇到了很多問題, 尤其是前端使用者的Edit頁面, 將Admin打勾傳送到後端, 卻發生admin始終都是false的狀況.
+
+看了網路上不少文章, 我把我自己的解法以及網路上的解法還有參考網站都列在本篇文章中
+
+OK, 讓我們開始.
+
+在`activeityOverload\api\models\User.js`新增`admin`的`attribute`
+
+<!--more-->
+
+```js User.js
+
+attributes: {
+        name: {
+            type: 'string',
+            required: true
+        },
+
+        title: {
+            type: 'string'
+        },
+
+        email: {
+            type: 'email',
+            required: true,
+            unique: true
+        },
+
+        admin: {
+            type: 'boolean',
+            defaultsTo: false
+        },
+
+        encryptedPassword: {
+            type: 'string'
+        },
+
+        toJSON: function () {
+            var obj = this.toObject();
+            delete obj.password;
+            delete obj.confirmation;
+            delete obj.encryptedPassword;
+            delete obj._csrf;
+            return obj;
+        }
+    },
+
+```
+
+注意到admin的defaultsTo是false, 你可以先設定為True, 然後執行sails先新增一個使用者, 讓他預設有admin的權限, 之後再改回來false.
+
+接著到`SessionController.js`, 在`create`action中加入底下幾行
+
+
+```js SessionController.js
+
+// If the user is also an admin redirect to the user list (e.g. /views/user/index.ejs)
+// This is used in conjunction with config/policies.js file
+if (req.session.User.admin) {
+	res.redirect('/user');
+    return;
+}
+
+//Redirect to their profile page (e.g. /views/user/show.ejs)
+res.redirect('/user/show/' + user.id);
+
+``` 
+
+然後, 在`activeityOverload\api\policies\`目錄下新增一個`admin.js`的policies, 內容如下
+
+
+```js admin.js
+
+/**
+ * Allow any authenticated user.
+ */
+module.exports = function (req, res, ok) {
+
+    // User is allowed, proceed to controller
+    if (req.session.User && req.session.User.admin) {
+        return ok();
+    }
+
+    // User is not allowed
+    else {
+        var requireAdminError = [{name: 'requireAdminError', message: 'You must be an admin.'}]
+        req.session.flash = {
+            err: requireAdminError
+        }
+        res.redirect('/session/new');
+        return;
+    }
+};
+
+```
+
+接著, 開啟`activeityOverload\config\policies.js`, 新增底下
+
+
+```js config\policies.js
+
+'*': 'flash',
+    user:{
+        'new': "flash",
+        'create': "flash",
+        '*': "admin"
+    }
+
+```
+
+OK, 存檔, 從新啟動sails, 看看登入畫面. 登入的時候出現你需要是admin的權限才能進入, 這不是我們想要的
+
+所以我們回頭再修改policy, 
+
+我們要在`activeityOverload\api\policies\`再新增一個`userCanSeeProfile.js`的Policy, 內容如下
+
+```js userCanSeeProfile.js
+
+/**
+ * Allow a logged-in user to see, edit and update her own profile
+ * Allow admins to see everyone
+ */
+
+module.exports = function (req, res, ok) {
+
+    var sessionUserMatchesId = req.session.User.id === req.param('id');
+    var isAdmin = req.session.User.admin;
+
+    // The requested id does not match the user's id,
+    // and this is not an admin
+    if (!(sessionUserMatchesId || isAdmin)) {
+        var noRightsError = [{name: 'noRights', message: 'You must be an admin.'}]
+        req.session.flash = {
+            err: noRightsError
+        }
+        res.redirect('/session/new');
+        return;
+    }
+
+    ok();
+
+};
+
+```
+
+回頭修改`activeityOverload\config\policies.js`
+
+```js config\policies.js
+
+  '*': 'flash',
+    user:{
+        'new': "flash",
+        'create': "flash",
+        'show': "userCanSeeProfile",
+        edit:   "userCanSeeProfile",
+        update: "userCanSeeProfile",
+        '*': "admin"
+    }
+
+```
+
+存檔, 從新啟動sails, 應該就可以正常登入了
+
+
+正常登陸之後, 我們會發現就算不是Admin的使用者也是可以看到頭導航欄的`User Administration`的按鈕, 我們想要修改一下
+
+到layout.ejs, 
+
+
+```js layout.ejs
+
+</head>
+
+  <body>
+
+  <div class="navbar navbar-inverse navbar-fixed-top">
+	  <div class="container">
+		  <div class="navbar-header">
+			  <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+				  <span class="icon-bar"></span>
+				  <span class="icon-bar"></span>
+				  <span class="icon-bar"></span>
+			  </button>
+			  <a class="navbar-brand" href="/"> activityOverlord</a>
+		  </div>
+		  <div class="navbar-collapse collapse">
+			  <ul class="nav navbar-nav">
+				  <% if (session.authenticated) { %>
+				  <li class="active"><a href="/user/show/<%= session.User.id %>"><%= session.User.name %> </a> </li>
+				  <% } %>
+				  <% if (session.authenticated && session.User.admin) { %>
+				  <li><a href="/user">User Administration</a></li>
+				  <li><a href="#">Placeholder2</a></li>
+				  <% } %>
+			  </ul>
+			  <div class="navbar-right">
+				  <% if (session.authenticated) { %>
+				  <a class="btn btn-default navbar-btn navbar-right" href="/session/destroy">sign-out</a>
+				  <% } %>
+			  </div>
+			  <% if (!session.authenticated) { %>
+			  <form class="navbar-form navbar-right" action="/session/create">
+				  <div class="form-group">
+					  <input type="text" placeholder="Email" name="email" class="form-control">
+				  </div>
+				  <div class="form-group">
+					  <input type="password" placeholder="Password" name="password" class="form-control">
+				  </div>
+				  <button type="submit" class="btn btn-success">Sign in</button>
+				  <input type="hidden" name="_csrf" value="<%= _csrf %>" />
+			  </form>
+			  <% } %>
+		  </div>
+	  </div>
+  </div>
+
+  <%- body %>
+
+ ...
+
+```
+
+OK, 存檔, 從新啟動Sails, 就可以了.
+
+好, 接下來, 我們要讓`http://localhost:1337/user`顯示的頁面有可愛的圖示來區分使用者是Admin還是Regular.
+
+開啟`activeityOverload\views\user\index.ejs`, 新增以下程式碼
+
+
+```js views\user\index.ejs
+	
+	...
+
+	<td><%= user.title %></td>
+	<td><%= user.email %></td>
+	<% if(user.admin) { % >
+		<td><img src="/images/admin.png"></td>
+	<%} else  { % >
+		<td><img src="/images/pawn.png"></td>
+	<%}%>
+	<td><a href="/user/show/<%= user.id %>" class="btn btn-sm btn-primary">Show</a></td>
+
+	...
+
+```
+
+
+另外我們在`activeityOverload\views\user\show.ejs`也加入可愛的圖示
+
+```js show.ejs
+
+<div class="container">
+	<h1><%= user.name %></h1>
+	<% if(user.admin) { %>
+	<img src="/images/admin.png"> admin
+	<% } else { %>
+	<img src="/images/pawn.png"> pawm
+	<% } %>
+	<h3><%= user.title %></h3>
+	<hr>
+	<h3>contact: <%= user.email %></h3>
+
+	<a class="btn btn-medium btn-primary" href="/user/edit/<%= user.id %>">Edit</a>
+
+</div>
+
+```
+
+OK, 接下來要進入本章需要修改的部分, 和本Video的程式碼不同
+
+我們要修改edit.ejs, 讓edit的頁面有admin的check box可供使用者勾選
+
+```js activeityOverload\views\user\edit.ejs
+
+<form action="/user/update/<%= user.id %>" method="POST" class="form-signin">
+
+	<h2> Hey, you're editing a user...</h2>
+
+	<input value="<%= user.name %>" name="name" type="text" class="form-control"/>
+	<input value="<%= user.title %>" name="title" type="text" class="form-control"/>
+	<input value="<%= user.email %>" name="email" type="text" class="form-control"/>
+
+	<% if (session.authenticated && session.User.admin) { %>
+		<% if (user.admin) { %>
+			<input type="hidden" name="admin" value="checkAdmin">
+			<label class="checkbox">
+				<input type="checkbox" name="admin" checked> Admin
+			</label>
+		<% } else { %>
+			<input type="hidden" name="admin" value="checkAdmin">
+			<label class="checkbox"><input type="checkbox" name="admin"> Admin</label>
+		<% } %>
+	<% } %>
+
+	<input type="submit" value="Proceed" class="btn btn-lg btn-primary btn-block"/>
+	<input type="hidden" name="_csrf" value="<%= _csrf %>"/>
+</form>
+
+```
+
+在這邊, 作者把 input type=hidden的name取名為admin, 而input type=checkbox的name也叫做admin
+
+這會有個效果出現, 若使用者**沒有勾選**`checkbox`的話, 則這個form所丟出的update action, `admin`會是一個**只有名叫`checkAdmin`的字串物件**.
+
+但若使用者**有勾選checkbox**的話, 則這個`admin`會是一個`Array`, 第一個是admin的value名稱(也就是checkAdmin), 第二個是checkbox的狀態**'on'**的字串.
+
+##User.js的beforeValidation 改變
+
+接著作者回來修改User.js, 他在程式碼中加入了beforeValidation的function,
+這個是sails在對action動作的其中一個life cycle.
+
+在新版本的Sails (我目前的Version為0.11.2), 已經沒有beforeValidation的function了. 名稱修改為`beforeValidate`, 其他的life cycle, 請參考官方網頁 <a href="http://sailsjs.org/documentation/concepts/models-and-orm/lifecycle-callbacks" target="_blank">Lifecycle callbacks</a>
+
+在這邊, 作者在程式碼中加入了`beforeValidation`的function,先對`values.admin`做判斷, 理當`values.admin`所帶的值要不是**checkAdmin**的字串物件, 要不就是一個**陣列**(如前所述), 但我在這邊測試的結果, **新版的sails, 在beforeValidate中, values.admin永遠都會是false**!!
+
+也就是說, 若我們要處理values.admin的這個值,若要確保是從網頁那邊過來的第一手原始資料的話, 我們必須從`activeityOverload\api\controllers\UserController.js`的`update`這個action就要開始處倆, 所以我將`User.js`的`beforeValidate`的判斷邏輯移到這邊(也就是將beforeValidate刪除), 底下是程式碼
+
+```js api\controllers\UserController.js
+
+ update: function (req, res, next) {
+        console.log(req.params.all());
+        var values = req.allParams();
+        console.log(values.admin);
+
+        if(values.admin.constructor === Array){
+            if(values.admin[1] === 'on'){
+                values.admin = true;
+            }
+        }
+
+...
+
+```
+
+OK, 修改到這邊, 功能大概都完成了, 存檔, 重新啟動sails
+
+就可以玩玩看admin user以及一般regular user的功能了!
+
+
+##補充:關於Create第一個Admin User
+除了上面講的, 在設定User.js的admin attribute的時候, 將defaultsTo: 設定為true, 新增一個admin使用者再改回false之外
+
+還可以使用mongo-express, 進入資料庫, 然後修改user的檔案, 將admin: false 設定為true就可以了. 相當簡單
+
+若沒有admin這個attribute, 就直接在資料庫當中新增一個admin: true, 就可以了!
+
+
+##補充:關於beforeValidate的更正與修改
+
+一些相關的討論請參考<a href="http://irlnathan.github.io/sailscasts/blog/2013/09/05/building-a-sails-application-ep17-creating-a-distinction-between-admin-and-regular-users/" target="_blank">Building a Sails Application: Ep17 </a>
+
+其中有個網友他將解法寫在edit.js, 不用到後端去判斷, 方法如下
+
+1. emove the 'beforeValidation' method from /api/models/User.js
+2. add in /views/user/edit.ejs 以下的程式碼
+
+```js edit.ejs
+
+<% if(session.authenticated && session.User.admin) { %>
+    <input type="hidden" id="admin" name="admin" value="&lt;% user.admin ? 'true' : 'false' %&gt;">
+    <label><input type="checkbox" <%="" user.admin="" ?="" 'checked':''="" %=""> onClick="document.getElementById('admin').value = this.checked;"> Admin</label>
+<% } %>
+
+```
+大致上就是說, 在前端的ejs就先將admin判斷好, 並且把admin設成true or false, 這樣就可以了.
+
+
+##參考資料
+
+<a href="http://stackoverflow.com/questions/767486/how-do-you-check-if-a-variable-is-an-array-in-javascript" target="_blank">How do you check if a variable is an array in JavaScript?</a>

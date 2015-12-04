@@ -1,0 +1,79 @@
+---
+layout: post
+title: "Sails練習之十二 - 改善User登入認證的導航介面"
+date: 2015-12-04 14:34:16 +0800
+comments: true
+categories: sails
+---
+
+本章主要是調整登入的外觀
+
+課程連結是 <a href="https://www.youtube.com/watch?v=P0K36-c5G4A" target="_blank">Building a Sails Application: Ep15 - Improving user authenticated navigation.</a>
+
+主要是修改`activeityOverload\views\layout.ejs`
+
+在原本`<%- body %>`的上方, 有個簡單的頭導航介面, 把它換成如下的程式碼
+
+<!--more-->
+
+```html layout.ejs
+	
+...
+
+<body>
+
+  <div class="navbar navbar-inverse navbar-fixed-top">
+	  <div class="container">
+		  <div class="navbar-header">
+			  <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+				  <span class="icon-bar"></span>
+				  <span class="icon-bar"></span>
+				  <span class="icon-bar"></span>
+			  </button>
+			  <a class="navbar-brand" href="/"> activityOverlord</a>
+		  </div>
+		  <div class="navbar-collapse collapse">
+			  <ul class="nav navbar-nav">
+				  <% if (session.authenticated) { %>
+				  <li class="active"><a href="/user/show/<%= session.User.id %>"><%= session.User.name %> </a> </li>
+				  <% } %>
+				  <% if (session.authenticated && session.User.admin) { %>
+				  <li><a href="/user">User Administration</a></li>
+				  <li><a href="#">Placeholder2</a></li>
+				  <% } %>
+			  </ul>
+			  <div class="navbar-right">
+				  <% if (session.authenticated) { %>
+				  <a class="btn btn-default navbar-btn navbar-right" href="/session/destroy">sign-out</a>
+				  <% } %>
+			  </div>
+			  <% if (!session.authenticated) { %>
+			  <form class="navbar-form navbar-right" action="/session/create">
+				  <div class="form-group">
+					  <input type="text" placeholder="Email" name="email" class="form-control">
+				  </div>
+				  <div class="form-group">
+					  <input type="password" placeholder="Password" name="password" class="form-control">
+				  </div>
+				  <button type="submit" class="btn btn-success">Sign in</button>
+				  <input type="hidden" name="_csrf" value="<%= _csrf %>" />
+			  </form>
+			  <% } %>
+		  </div>
+	  </div>
+  </div>
+
+  <%- body %>
+	...
+
+```
+
+
+也可以參考作者的<a href="https://github.com/irlnathan/activityoverlord/blob/master/views/layout.ejs" target="_blank">GitHub</a>, 直接把程式碼copy過來貼到你現在的專案就可以了
+
+
+存檔之後, 重新啟動sails, 就可以看到修改過精美的導航介面了
+
+至於解說的部分, 請看作者在影片中的講解嚕!
+
+
