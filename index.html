@@ -9,7 +9,7 @@
   <meta name="author" content="Kenny Tu">
 
   
-  <meta name="description" content="在更新node.js以及npm之後 (npm現在被包在node.js裡面一起安裝) 我執行npm -g update, global有更新的node.js的module都update到最新的 接著我切換到我這一陣子再用的sails的專案, 執行sails lift的時候 發生了Cannot &hellip;">
+  <meta name="description" content="本篇的Video在Building a Sails Application: Ep17 - Creating a distinction between admin and regular users. 這一章我在實作的時候遇到了很多問題, 尤其是前端使用者的Edit頁面, &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,94 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/12/04/sails-study13/">Sails練習之十三 - 區分管理者和一般使用者</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-12-04T19:57:17+08:00'><span class='date'>2015 年12 月4 日</span> <span class='time'>7:57 pm</span></time>
+        
+           | <a href="/blog/2015/12/04/sails-study13/#disqus_thread"
+             data-disqus-identifier="http://kennytu.github.io/blog/2015/12/04/sails-study13/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>本篇的Video在<a href="https://www.youtube.com/watch?v=DI85AWW_TEk" target="_blank">Building a Sails Application: Ep17 - Creating a distinction between admin and regular users.</a></p>
+
+<p>這一章我在實作的時候遇到了很多問題, 尤其是前端使用者的Edit頁面, 將Admin打勾傳送到後端, 卻發生admin始終都是false的狀況.</p>
+
+<p>看了網路上不少文章, 我把我自己的解法以及網路上的解法還有參考網站都列在本篇文章中</p>
+
+<p>OK, 讓我們開始.</p>
+
+<p>在<code>activeityOverload\api\models\User.js</code>新增<code>admin</code>的<code>attribute</code></p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2015/12/04/sails-study13/">點擊這裡繼續閱讀 &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/12/04/sails-study12/">Sails練習之十二 - 改善User登入認證的導航介面</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-12-04T14:34:16+08:00'><span class='date'>2015 年12 月4 日</span> <span class='time'>2:34 pm</span></time>
+        
+           | <a href="/blog/2015/12/04/sails-study12/#disqus_thread"
+             data-disqus-identifier="http://kennytu.github.io/blog/2015/12/04/sails-study12/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>本章主要是調整登入的外觀</p>
+
+<p>課程連結是 <a href="https://www.youtube.com/watch?v=P0K36-c5G4A" target="_blank">Building a Sails Application: Ep15 - Improving user authenticated navigation.</a></p>
+
+<p>主要是修改<code>activeityOverload\views\layout.ejs</code></p>
+
+<p>在原本<code>&lt;%- body %&gt;</code>的上方, 有個簡單的頭導航介面, 把它換成如下的程式碼</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2015/12/04/sails-study12/">點擊這裡繼續閱讀 &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -488,88 +576,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/11/23/sails-study05/">Sails練習之五</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-11-23T16:56:55+08:00'><span class='date'>2015 年11 月23 日</span> <span class='time'>4:56 pm</span></time>
-        
-           | <a href="/blog/2015/11/23/sails-study05/#disqus_thread"
-             data-disqus-identifier="http://kennytu.github.io/blog/2015/11/23/sails-study05/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>終於來到練習的第五集了, 這一集的影片連結是<a href="https://www.youtube.com/watch?v=_wL2cS0GmJQ&index=8&list=PLWsZeJCry-F4K4iRImeB3-i0S5mw9Ak-W" target=_blank>Building a Sails Application: Ep6 - Creating a policy and adding client-side validation</a></p>
-
-<p>上一個單元, Irl nathan展示了如何在UserController中, 實現Handling validation errors with a flash message.</p>
-
-<p>想當然, sails有更優雅的做法, 那就是本章要介紹的policy機制.</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2015/11/23/sails-study05/">點擊這裡繼續閱讀 &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/11/18/sails-study04/">Sails練習之四</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-11-18T18:38:20+08:00'><span class='date'>2015 年11 月18 日</span> <span class='time'>6:38 pm</span></time>
-        
-           | <a href="/blog/2015/11/18/sails-study04/#disqus_thread"
-             data-disqus-identifier="http://kennytu.github.io/blog/2015/11/18/sails-study04/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>OK, 接下來這篇<a href="https://www.youtube.com/watch?v=4Gbc9ZA2-YY&list=PLWsZeJCry-F4K4iRImeB3-i0S5mw9Ak-W&index=7" target="_blank">Building a Sails Application: Ep5 - Handling validation errors with a flash message</a></p>
-
-<p>作者要示範如何handle error</p>
-
-<p>當我們登入註冊頁面, 然後沒有輸入任何資料, 或者資料輸入錯誤, 就按下Create Account. Sails會回傳錯誤資訊. 我們現在要handle這個錯誤, 請看以下練習</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2015/11/18/sails-study04/">點擊這裡繼續閱讀 &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/2">&larr; Older</a>
@@ -582,11 +588,19 @@
   
     <section>
   <h1>Categories</h1>
-    <ul id="category-list"><li><a href='/blog/categories/mongodb/'>mongodb (1)</a></li><li><a href='/blog/categories/node-dot-js/'>node.js (1)</a></li><li><a href='/blog/categories/npm/'>npm (1)</a></li><li><a href='/blog/categories/octopress/'>octopress (2)</a></li><li><a href='/blog/categories/sails/'>sails (12)</a></li></ul>
+    <ul id="category-list"><li><a href='/blog/categories/mongodb/'>mongodb (1)</a></li><li><a href='/blog/categories/node-dot-js/'>node.js (1)</a></li><li><a href='/blog/categories/npm/'>npm (1)</a></li><li><a href='/blog/categories/octopress/'>octopress (2)</a></li><li><a href='/blog/categories/sails/'>sails (14)</a></li></ul>
 </section>
 <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/12/04/sails-study13/">Sails練習之十三 - 區分管理者和一般使用者</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/12/04/sails-study12/">Sails練習之十二 - 改善User登入認證的導航介面</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2015/12/03/nodejs-update/">Node.js更新問題</a>
@@ -598,14 +612,6 @@
     
       <li class="post">
         <a href="/blog/2015/12/02/sails-study10/">Sails練習之十 - Session</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/12/01/sails-study09/">Sails練習之九-加密</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/11/27/mongodb-setting/">Mongo Database 簡介以及GUI介面使用</a>
       </li>
     
   </ul>

@@ -1,0 +1,348 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Sails練習之十二 - 改善User登入認證的導航介面 - 江湖險惡，我從來都不輕易留下我的姓名。</title>
+  <meta name="author" content="Kenny Tu">
+
+  
+  <meta name="description" content="本章主要是調整登入的外觀 課程連結是 Building a Sails Application: Ep15 - Improving user authenticated navigation. 主要是修改activeityOverload\views\layout.ejs 在原本&lt;%- &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://kennytu.github.io/blog/2015/12/04/sails-study12/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="江湖險惡，我從來都不輕易留下我的姓名。" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">江湖險惡，我從來都不輕易留下我的姓名。</a></h1>
+  
+    <h2>憑你的智慧，我唬得了你嗎？</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="kennytu.github.io">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Sails練習之十二 - 改善User登入認證的導航介面</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-12-04T14:34:16+08:00'><span class='date'>2015 年12 月4 日</span> <span class='time'>2:34 pm</span></time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://kennytu.github.io">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>本章主要是調整登入的外觀</p>
+
+<p>課程連結是 <a href="https://www.youtube.com/watch?v=P0K36-c5G4A" target="_blank">Building a Sails Application: Ep15 - Improving user authenticated navigation.</a></p>
+
+<p>主要是修改<code>activeityOverload\views\layout.ejs</code></p>
+
+<p>在原本<code>&lt;%- body %&gt;</code>的上方, 有個簡單的頭導航介面, 把它換成如下的程式碼</p>
+
+<!--more-->
+
+
+
+
+<figure class='code'><figcaption><span>layout.ejs</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'>...
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;body&gt;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;navbar navbar-inverse navbar-fixed-top&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;container&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;navbar-header&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;button</span> <span class="na">type=</span><span class="s">&quot;button&quot;</span> <span class="na">class=</span><span class="s">&quot;navbar-toggle&quot;</span> <span class="na">data-toggle=</span><span class="s">&quot;collapse&quot;</span> <span class="na">data-target=</span><span class="s">&quot;.navbar-collapse&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;span</span> <span class="na">class=</span><span class="s">&quot;icon-bar&quot;</span><span class="nt">&gt;&lt;/span&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;span</span> <span class="na">class=</span><span class="s">&quot;icon-bar&quot;</span><span class="nt">&gt;&lt;/span&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;span</span> <span class="na">class=</span><span class="s">&quot;icon-bar&quot;</span><span class="nt">&gt;&lt;/span&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/button&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;a</span> <span class="na">class=</span><span class="s">&quot;navbar-brand&quot;</span> <span class="na">href=</span><span class="s">&quot;/&quot;</span><span class="nt">&gt;</span> activityOverlord<span class="nt">&lt;/a&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/div&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;navbar-collapse collapse&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;ul</span> <span class="na">class=</span><span class="s">&quot;nav navbar-nav&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="err">&lt;</span>% if (session.authenticated) { %&gt;
+</span><span class='line'>            <span class="nt">&lt;li</span> <span class="na">class=</span><span class="s">&quot;active&quot;</span><span class="nt">&gt;&lt;a</span> <span class="na">href=</span><span class="s">&quot;/user/show/&lt;%= session.User.id %&gt;&quot;</span><span class="nt">&gt;</span><span class="err">&lt;</span>%= session.User.name %&gt; <span class="nt">&lt;/a&gt;</span> <span class="nt">&lt;/li&gt;</span>
+</span><span class='line'>            <span class="err">&lt;</span>% } %&gt;
+</span><span class='line'>            <span class="err">&lt;</span>% if (session.authenticated <span class="err">&amp;&amp;</span> session.User.admin) { %&gt;
+</span><span class='line'>            <span class="nt">&lt;li&gt;&lt;a</span> <span class="na">href=</span><span class="s">&quot;/user&quot;</span><span class="nt">&gt;</span>User Administration<span class="nt">&lt;/a&gt;&lt;/li&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;li&gt;&lt;a</span> <span class="na">href=</span><span class="s">&quot;#&quot;</span><span class="nt">&gt;</span>Placeholder2<span class="nt">&lt;/a&gt;&lt;/li&gt;</span>
+</span><span class='line'>            <span class="err">&lt;</span>% } %&gt;
+</span><span class='line'>        <span class="nt">&lt;/ul&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;navbar-right&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="err">&lt;</span>% if (session.authenticated) { %&gt;
+</span><span class='line'>            <span class="nt">&lt;a</span> <span class="na">class=</span><span class="s">&quot;btn btn-default navbar-btn navbar-right&quot;</span> <span class="na">href=</span><span class="s">&quot;/session/destroy&quot;</span><span class="nt">&gt;</span>sign-out<span class="nt">&lt;/a&gt;</span>
+</span><span class='line'>            <span class="err">&lt;</span>% } %&gt;
+</span><span class='line'>        <span class="nt">&lt;/div&gt;</span>
+</span><span class='line'>        <span class="err">&lt;</span>% if (!session.authenticated) { %&gt;
+</span><span class='line'>        <span class="nt">&lt;form</span> <span class="na">class=</span><span class="s">&quot;navbar-form navbar-right&quot;</span> <span class="na">action=</span><span class="s">&quot;/session/create&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;form-group&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;text&quot;</span> <span class="na">placeholder=</span><span class="s">&quot;Email&quot;</span> <span class="na">name=</span><span class="s">&quot;email&quot;</span> <span class="na">class=</span><span class="s">&quot;form-control&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/div&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;form-group&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;password&quot;</span> <span class="na">placeholder=</span><span class="s">&quot;Password&quot;</span> <span class="na">name=</span><span class="s">&quot;password&quot;</span> <span class="na">class=</span><span class="s">&quot;form-control&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/div&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;button</span> <span class="na">type=</span><span class="s">&quot;submit&quot;</span> <span class="na">class=</span><span class="s">&quot;btn btn-success&quot;</span><span class="nt">&gt;</span>Sign in<span class="nt">&lt;/button&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;hidden&quot;</span> <span class="na">name=</span><span class="s">&quot;_csrf&quot;</span> <span class="na">value=</span><span class="s">&quot;&lt;%= _csrf %&gt;&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/form&gt;</span>
+</span><span class='line'>        <span class="err">&lt;</span>% } %&gt;
+</span><span class='line'>    <span class="nt">&lt;/div&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;/div&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;/div&gt;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="err">&lt;</span>%- body %&gt;
+</span><span class='line'>...
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>也可以參考作者的<a href="https://github.com/irlnathan/activityoverlord/blob/master/views/layout.ejs" target="_blank">GitHub</a>, 直接把程式碼copy過來貼到你現在的專案就可以了</p>
+
+<p>存檔之後, 重新啟動sails, 就可以看到修改過精美的導航介面了</p>
+
+<p>至於解說的部分, 請看作者在影片中的講解嚕!</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Kenny Tu</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2015-12-04T14:34:16+08:00'><span class='date'>2015 年12 月4 日</span> <span class='time'>2:34 pm</span></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/sails/'>sails</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://kennytu.github.io/blog/2015/12/04/sails-study12/" data-via="" data-counturl="http://kennytu.github.io/blog/2015/12/04/sails-study12/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/12/03/nodejs-update/" title="Previous Post: Node.js更新問題">&laquo; Node.js更新問題</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2015/12/04/sails-study13/" title="Next Post: Sails練習之十三 - 區分管理者和一般使用者">Sails練習之十三 - 區分管理者和一般使用者 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Categories</h1>
+    <ul id="category-list"><li><a href='/blog/categories/mongodb/'>mongodb (1)</a></li><li><a href='/blog/categories/node-dot-js/'>node.js (1)</a></li><li><a href='/blog/categories/npm/'>npm (1)</a></li><li><a href='/blog/categories/octopress/'>octopress (2)</a></li><li><a href='/blog/categories/sails/'>sails (14)</a></li></ul>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/12/04/sails-study13/">Sails練習之十三 - 區分管理者和一般使用者</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/12/04/sails-study12/">Sails練習之十二 - 改善User登入認證的導航介面</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/12/03/nodejs-update/">Node.js更新問題</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/12/03/sails-study11/">Sails練習之十一 - 使用者認證以及嚴格存取</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/12/02/sails-study10/">Sails練習之十 - Session</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Kenny Tu -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'kennytu';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://kennytu.github.io/blog/2015/12/04/sails-study12/';
+        var disqus_url = 'http://kennytu.github.io/blog/2015/12/04/sails-study12/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

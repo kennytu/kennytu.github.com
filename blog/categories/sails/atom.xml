@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Sails | 江湖險惡，我從來都不輕易留下我的姓名。]]></title>
   <link href="http://kennytu.github.io/blog/categories/sails/atom.xml" rel="self"/>
   <link href="http://kennytu.github.io/"/>
-  <updated>2015-12-03T19:49:44+08:00</updated>
+  <updated>2015-12-04T21:37:00+08:00</updated>
   <id>http://kennytu.github.io/</id>
   <author>
     <name><![CDATA[Kenny Tu]]></name>
@@ -12,6 +12,435 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Sails練習之十三 - 區分管理者和一般使用者]]></title>
+    <link href="http://kennytu.github.io/blog/2015/12/04/sails-study13/"/>
+    <updated>2015-12-04T19:57:17+08:00</updated>
+    <id>http://kennytu.github.io/blog/2015/12/04/sails-study13</id>
+    <content type="html"><![CDATA[<p>本篇的Video在<a href="https://www.youtube.com/watch?v=DI85AWW_TEk" target="_blank">Building a Sails Application: Ep17 - Creating a distinction between admin and regular users.</a></p>
+
+<p>這一章我在實作的時候遇到了很多問題, 尤其是前端使用者的Edit頁面, 將Admin打勾傳送到後端, 卻發生admin始終都是false的狀況.</p>
+
+<p>看了網路上不少文章, 我把我自己的解法以及網路上的解法還有參考網站都列在本篇文章中</p>
+
+<p>OK, 讓我們開始.</p>
+
+<p>在<code>activeityOverload\api\models\User.js</code>新增<code>admin</code>的<code>attribute</code></p>
+
+<!--more-->
+
+
+<pre><code class="js User.js">
+attributes: {
+        name: {
+            type: 'string',
+            required: true
+        },
+
+        title: {
+            type: 'string'
+        },
+
+        email: {
+            type: 'email',
+            required: true,
+            unique: true
+        },
+
+        admin: {
+            type: 'boolean',
+            defaultsTo: false
+        },
+
+        encryptedPassword: {
+            type: 'string'
+        },
+
+        toJSON: function () {
+            var obj = this.toObject();
+            delete obj.password;
+            delete obj.confirmation;
+            delete obj.encryptedPassword;
+            delete obj._csrf;
+            return obj;
+        }
+    },
+</code></pre>
+
+<p>注意到admin的defaultsTo是false, 你可以先設定為True, 然後執行sails先新增一個使用者, 讓他預設有admin的權限, 之後再改回來false.</p>
+
+<p>接著到<code>SessionController.js</code>, 在<code>create</code>action中加入底下幾行</p>
+
+<pre><code class="js SessionController.js">
+// If the user is also an admin redirect to the user list (e.g. /views/user/index.ejs)
+// This is used in conjunction with config/policies.js file
+if (req.session.User.admin) {
+    res.redirect('/user');
+    return;
+}
+
+//Redirect to their profile page (e.g. /views/user/show.ejs)
+res.redirect('/user/show/' + user.id);
+</code></pre>
+
+<p>然後, 在<code>activeityOverload\api\policies\</code>目錄下新增一個<code>admin.js</code>的policies, 內容如下</p>
+
+<pre><code class="js admin.js">
+/**
+ * Allow any authenticated user.
+ */
+module.exports = function (req, res, ok) {
+
+    // User is allowed, proceed to controller
+    if (req.session.User &amp;&amp; req.session.User.admin) {
+        return ok();
+    }
+
+    // User is not allowed
+    else {
+        var requireAdminError = [{name: 'requireAdminError', message: 'You must be an admin.'}]
+        req.session.flash = {
+            err: requireAdminError
+        }
+        res.redirect('/session/new');
+        return;
+    }
+};
+</code></pre>
+
+<p>接著, 開啟<code>activeityOverload\config\policies.js</code>, 新增底下</p>
+
+<pre><code class="js config\policies.js">
+'*': 'flash',
+    user:{
+        'new': "flash",
+        'create': "flash",
+        '*': "admin"
+    }
+</code></pre>
+
+<p>OK, 存檔, 從新啟動sails, 看看登入畫面. 登入的時候出現你需要是admin的權限才能進入, 這不是我們想要的</p>
+
+<p>所以我們回頭再修改policy,</p>
+
+<p>我們要在<code>activeityOverload\api\policies\</code>再新增一個<code>userCanSeeProfile.js</code>的Policy, 內容如下</p>
+
+<pre><code class="js userCanSeeProfile.js">
+/**
+ * Allow a logged-in user to see, edit and update her own profile
+ * Allow admins to see everyone
+ */
+
+module.exports = function (req, res, ok) {
+
+    var sessionUserMatchesId = req.session.User.id === req.param('id');
+    var isAdmin = req.session.User.admin;
+
+    // The requested id does not match the user's id,
+    // and this is not an admin
+    if (!(sessionUserMatchesId || isAdmin)) {
+        var noRightsError = [{name: 'noRights', message: 'You must be an admin.'}]
+        req.session.flash = {
+            err: noRightsError
+        }
+        res.redirect('/session/new');
+        return;
+    }
+
+    ok();
+
+};
+</code></pre>
+
+<p>回頭修改<code>activeityOverload\config\policies.js</code></p>
+
+<pre><code class="js config\policies.js">
+  '*': 'flash',
+    user:{
+        'new': "flash",
+        'create': "flash",
+        'show': "userCanSeeProfile",
+        edit:   "userCanSeeProfile",
+        update: "userCanSeeProfile",
+        '*': "admin"
+    }
+</code></pre>
+
+<p>存檔, 從新啟動sails, 應該就可以正常登入了</p>
+
+<p>正常登陸之後, 我們會發現就算不是Admin的使用者也是可以看到頭導航欄的<code>User Administration</code>的按鈕, 我們想要修改一下</p>
+
+<p>到layout.ejs,</p>
+
+<pre><code class="js layout.ejs">
+&lt;/head&gt;
+
+  &lt;body&gt;
+
+  &lt;div class="navbar navbar-inverse navbar-fixed-top"&gt;
+      &lt;div class="container"&gt;
+          &lt;div class="navbar-header"&gt;
+              &lt;button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse"&gt;
+                  &lt;span class="icon-bar"&gt;&lt;/span&gt;
+                  &lt;span class="icon-bar"&gt;&lt;/span&gt;
+                  &lt;span class="icon-bar"&gt;&lt;/span&gt;
+              &lt;/button&gt;
+              &lt;a class="navbar-brand" href="http://kennytu.github.io/"&gt; activityOverlord&lt;/a&gt;
+          &lt;/div&gt;
+          &lt;div class="navbar-collapse collapse"&gt;
+              &lt;ul class="nav navbar-nav"&gt;
+                  &lt;% if (session.authenticated) { %&gt;
+                  &lt;li class="active"&gt;&lt;a href="http://kennytu.github.io/user/show/&lt;%= session.User.id %&gt;"&gt;&lt;%= session.User.name %&gt; &lt;/a&gt; &lt;/li&gt;
+                  &lt;% } %&gt;
+                  &lt;% if (session.authenticated &amp;&amp; session.User.admin) { %&gt;
+                  &lt;li&gt;&lt;a href="http://kennytu.github.io/user"&gt;User Administration&lt;/a&gt;&lt;/li&gt;
+                  &lt;li&gt;&lt;a href="#"&gt;Placeholder2&lt;/a&gt;&lt;/li&gt;
+                  &lt;% } %&gt;
+              &lt;/ul&gt;
+              &lt;div class="navbar-right"&gt;
+                  &lt;% if (session.authenticated) { %&gt;
+                  &lt;a class="btn btn-default navbar-btn navbar-right" href="http://kennytu.github.io/session/destroy"&gt;sign-out&lt;/a&gt;
+                  &lt;% } %&gt;
+              &lt;/div&gt;
+              &lt;% if (!session.authenticated) { %&gt;
+              &lt;form class="navbar-form navbar-right" action="/session/create"&gt;
+                  &lt;div class="form-group"&gt;
+                      &lt;input type="text" placeholder="Email" name="email" class="form-control"&gt;
+                  &lt;/div&gt;
+                  &lt;div class="form-group"&gt;
+                      &lt;input type="password" placeholder="Password" name="password" class="form-control"&gt;
+                  &lt;/div&gt;
+                  &lt;button type="submit" class="btn btn-success"&gt;Sign in&lt;/button&gt;
+                  &lt;input type="hidden" name="_csrf" value="&lt;%= _csrf %&gt;" /&gt;
+              &lt;/form&gt;
+              &lt;% } %&gt;
+          &lt;/div&gt;
+      &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;%- body %&gt;
+
+ ...
+</code></pre>
+
+<p>OK, 存檔, 從新啟動Sails, 就可以了.</p>
+
+<p>好, 接下來, 我們要讓<code>http://localhost:1337/user</code>顯示的頁面有可愛的圖示來區分使用者是Admin還是Regular.</p>
+
+<p>開啟<code>activeityOverload\views\user\index.ejs</code>, 新增以下程式碼</p>
+
+<pre><code class="js views\user\index.ejs">
+    ...
+
+    &lt;td&gt;&lt;%= user.title %&gt;&lt;/td&gt;
+    &lt;td&gt;&lt;%= user.email %&gt;&lt;/td&gt;
+    &lt;% if(user.admin) { % &gt;
+        &lt;td&gt;&lt;img src="http://kennytu.github.io/images/admin.png"&gt;&lt;/td&gt;
+    &lt;%} else  { % &gt;
+        &lt;td&gt;&lt;img src="http://kennytu.github.io/images/pawn.png"&gt;&lt;/td&gt;
+    &lt;%}%&gt;
+    &lt;td&gt;&lt;a href="http://kennytu.github.io/user/show/&lt;%= user.id %&gt;" class="btn btn-sm btn-primary"&gt;Show&lt;/a&gt;&lt;/td&gt;
+
+    ...
+</code></pre>
+
+<p>另外我們在<code>activeityOverload\views\user\show.ejs</code>也加入可愛的圖示</p>
+
+<p>```js show.ejs</p>
+
+<div class="container">
+    <h1><%= user.name %></h1>
+    <% if(user.admin) { %>
+    <img src="http://kennytu.github.io/images/admin.png"> admin
+    <% } else { %>
+    <img src="http://kennytu.github.io/images/pawn.png"> pawm
+    <% } %>
+    <h3><%= user.title %></h3>
+    <hr>
+    <h3>contact: <%= user.email %></h3>
+
+    <a class="btn btn-medium btn-primary" href="http://kennytu.github.io/user/edit/<%= user.id %>">Edit</a>
+
+</div>
+
+
+<pre><code>
+OK, 接下來要進入本章需要修改的部分, 和本Video的程式碼不同
+
+我們要修改edit.ejs, 讓edit的頁面有admin的check box可供使用者勾選
+</code></pre>
+
+<p><form action="/user/update/<%= user.id %>&ldquo; method="POST&rdquo; class=&ldquo;form-signin&rdquo;></p>
+
+<pre><code>&lt;h2&gt; Hey, you're editing a user...&lt;/h2&gt;
+
+&lt;input value="&lt;%= user.name %&gt;" name="name" type="text" class="form-control"/&gt;
+&lt;input value="&lt;%= user.title %&gt;" name="title" type="text" class="form-control"/&gt;
+&lt;input value="&lt;%= user.email %&gt;" name="email" type="text" class="form-control"/&gt;
+
+&lt;% if (session.authenticated &amp;&amp; session.User.admin) { %&gt;
+    &lt;% if (user.admin) { %&gt;
+        &lt;input type="hidden" name="admin" value="checkAdmin"&gt;
+        &lt;label class="checkbox"&gt;
+            &lt;input type="checkbox" name="admin" checked&gt; Admin
+        &lt;/label&gt;
+    &lt;% } else { %&gt;
+        &lt;input type="hidden" name="admin" value="checkAdmin"&gt;
+        &lt;label class="checkbox"&gt;&lt;input type="checkbox" name="admin"&gt; Admin&lt;/label&gt;
+    &lt;% } %&gt;
+&lt;% } %&gt;
+
+&lt;input type="submit" value="Proceed" class="btn btn-lg btn-primary btn-block"/&gt;
+&lt;input type="hidden" name="_csrf" value="&lt;%= _csrf %&gt;"/&gt;
+</code></pre>
+
+<p></form></p>
+
+<pre><code>
+在這邊, 作者把 input type=hidden的name取名為admin, 而input type=checkbox的name也叫做admin
+
+這會有個效果出現, 若使用者**沒有勾選**`checkbox`的話, 則這個form所丟出的update action, `admin`會是一個**只有名叫`checkAdmin`的字串物件**.
+
+但若使用者**有勾選checkbox**的話, 則這個`admin`會是一個`Array`, 第一個是admin的value名稱(也就是checkAdmin), 第二個是checkbox的狀態**'on'**的字串.
+
+##User.js的beforeValidation 改變
+
+接著作者回來修改User.js, 他在程式碼中加入了beforeValidation的function,
+這個是sails在對action動作的其中一個life cycle.
+
+在新版本的Sails (我目前的Version為0.11.2), 已經沒有beforeValidation的function了. 名稱修改為`beforeValidate`, 其他的life cycle, 請參考官方網頁 &lt;a href="http://sailsjs.org/documentation/concepts/models-and-orm/lifecycle-callbacks" target="_blank"&gt;Lifecycle callbacks&lt;/a&gt;
+
+在這邊, 作者在程式碼中加入了`beforeValidation`的function,先對`values.admin`做判斷, 理當`values.admin`所帶的值要不是**checkAdmin**的字串物件, 要不就是一個**陣列**(如前所述), 但我在這邊測試的結果, **新版的sails, 在beforeValidate中, values.admin永遠都會是false**!!
+
+也就是說, 若我們要處理values.admin的這個值,若要確保是從網頁那邊過來的第一手原始資料的話, 我們必須從`activeityOverload\api\controllers\UserController.js`的`update`這個action就要開始處倆, 所以我將`User.js`的`beforeValidate`的判斷邏輯移到這邊(也就是將beforeValidate刪除), 底下是程式碼
+</code></pre>
+
+<p> update: function (req, res, next) {
+        console.log(req.params.all());
+        var values = req.allParams();
+        console.log(values.admin);</p>
+
+<pre><code>    if(values.admin.constructor === Array){
+        if(values.admin[1] === 'on'){
+            values.admin = true;
+        }
+    }
+</code></pre>
+
+<p>&hellip;</p>
+
+<pre><code>
+OK, 修改到這邊, 功能大概都完成了, 存檔, 重新啟動sails
+
+就可以玩玩看admin user以及一般regular user的功能了!
+
+
+##補充:關於Create第一個Admin User
+除了上面講的, 在設定User.js的admin attribute的時候, 將defaultsTo: 設定為true, 新增一個admin使用者再改回false之外
+
+還可以使用mongo-express, 進入資料庫, 然後修改user的檔案, 將admin: false 設定為true就可以了. 相當簡單
+
+若沒有admin這個attribute, 就直接在資料庫當中新增一個admin: true, 就可以了!
+
+
+##補充:關於beforeValidate的更正與修改
+
+一些相關的討論請參考&lt;a href="http://irlnathan.github.io/sailscasts/blog/2013/09/05/building-a-sails-application-ep17-creating-a-distinction-between-admin-and-regular-users/" target="_blank"&gt;Building a Sails Application: Ep17 &lt;/a&gt;
+
+其中有個網友他將解法寫在edit.js, 不用到後端去判斷, 方法如下
+
+1. emove the 'beforeValidation' method from /api/models/User.js
+2. add in /views/user/edit.ejs 以下的程式碼
+</code></pre>
+
+<p>&lt;% if(session.authenticated &amp;&amp; session.User.admin) { %>
+    <input type="hidden" id="admin" name="admin" value="&lt;% user.admin ? 'true' : 'false' %&gt;">
+    <label><input type="checkbox" <%="" user.admin="" ?="" 'checked':''="" %=""> onClick=&ldquo;document.getElementById(&lsquo;admin&rsquo;).value = this.checked;&rdquo;> Admin</label>
+&lt;% } %></p>
+
+<p>```
+大致上就是說, 在前端的ejs就先將admin判斷好, 並且把admin設成true or false, 這樣就可以了.</p>
+
+<h2>參考資料</h2>
+
+<p><a href="http://stackoverflow.com/questions/767486/how-do-you-check-if-a-variable-is-an-array-in-javascript" target="_blank">How do you check if a variable is an array in JavaScript?</a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Sails練習之十二 - 改善User登入認證的導航介面]]></title>
+    <link href="http://kennytu.github.io/blog/2015/12/04/sails-study12/"/>
+    <updated>2015-12-04T14:34:16+08:00</updated>
+    <id>http://kennytu.github.io/blog/2015/12/04/sails-study12</id>
+    <content type="html"><![CDATA[<p>本章主要是調整登入的外觀</p>
+
+<p>課程連結是 <a href="https://www.youtube.com/watch?v=P0K36-c5G4A" target="_blank">Building a Sails Application: Ep15 - Improving user authenticated navigation.</a></p>
+
+<p>主要是修改<code>activeityOverload\views\layout.ejs</code></p>
+
+<p>在原本<code>&lt;%- body %&gt;</code>的上方, 有個簡單的頭導航介面, 把它換成如下的程式碼</p>
+
+<!--more-->
+
+
+<pre><code class="html layout.ejs">
+...
+
+&lt;body&gt;
+
+  &lt;div class="navbar navbar-inverse navbar-fixed-top"&gt;
+      &lt;div class="container"&gt;
+          &lt;div class="navbar-header"&gt;
+              &lt;button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse"&gt;
+                  &lt;span class="icon-bar"&gt;&lt;/span&gt;
+                  &lt;span class="icon-bar"&gt;&lt;/span&gt;
+                  &lt;span class="icon-bar"&gt;&lt;/span&gt;
+              &lt;/button&gt;
+              &lt;a class="navbar-brand" href="http://kennytu.github.io/"&gt; activityOverlord&lt;/a&gt;
+          &lt;/div&gt;
+          &lt;div class="navbar-collapse collapse"&gt;
+              &lt;ul class="nav navbar-nav"&gt;
+                  &lt;% if (session.authenticated) { %&gt;
+                  &lt;li class="active"&gt;&lt;a href="http://kennytu.github.io/user/show/&lt;%= session.User.id %&gt;"&gt;&lt;%= session.User.name %&gt; &lt;/a&gt; &lt;/li&gt;
+                  &lt;% } %&gt;
+                  &lt;% if (session.authenticated &amp;&amp; session.User.admin) { %&gt;
+                  &lt;li&gt;&lt;a href="http://kennytu.github.io/user"&gt;User Administration&lt;/a&gt;&lt;/li&gt;
+                  &lt;li&gt;&lt;a href="#"&gt;Placeholder2&lt;/a&gt;&lt;/li&gt;
+                  &lt;% } %&gt;
+              &lt;/ul&gt;
+              &lt;div class="navbar-right"&gt;
+                  &lt;% if (session.authenticated) { %&gt;
+                  &lt;a class="btn btn-default navbar-btn navbar-right" href="http://kennytu.github.io/session/destroy"&gt;sign-out&lt;/a&gt;
+                  &lt;% } %&gt;
+              &lt;/div&gt;
+              &lt;% if (!session.authenticated) { %&gt;
+              &lt;form class="navbar-form navbar-right" action="/session/create"&gt;
+                  &lt;div class="form-group"&gt;
+                      &lt;input type="text" placeholder="Email" name="email" class="form-control"&gt;
+                  &lt;/div&gt;
+                  &lt;div class="form-group"&gt;
+                      &lt;input type="password" placeholder="Password" name="password" class="form-control"&gt;
+                  &lt;/div&gt;
+                  &lt;button type="submit" class="btn btn-success"&gt;Sign in&lt;/button&gt;
+                  &lt;input type="hidden" name="_csrf" value="&lt;%= _csrf %&gt;" /&gt;
+              &lt;/form&gt;
+              &lt;% } %&gt;
+          &lt;/div&gt;
+      &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;%- body %&gt;
+    ...
+</code></pre>
+
+<p>也可以參考作者的<a href="https://github.com/irlnathan/activityoverlord/blob/master/views/layout.ejs" target="_blank">GitHub</a>, 直接把程式碼copy過來貼到你現在的專案就可以了</p>
+
+<p>存檔之後, 重新啟動sails, 就可以看到修改過精美的導航介面了</p>
+
+<p>至於解說的部分, 請看作者在影片中的講解嚕!</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Node.js更新問題]]></title>
@@ -72,7 +501,7 @@ TypeError: Cannot read property 'close' of undefined
 <!--more-->
 
 
-<pre><code class="js SessionController.js 新增Create action">
+<pre><code class="js SessionController.js新增Create action">
 var bcrypt = require('bcrypt');
 
 module.exports = {
@@ -175,9 +604,116 @@ module.exports = {
 
 <p>到瀏覽器輸入<code>http://localhost:1337/session/new</code></p>
 
-<p>然後輸入不正確的帳號密碼以及正確的帳號密碼試試看, 應該就沒問題嚕</p>
+<p>然後輸入不正確的帳號密碼以及正確的帳號密碼試試看, 應該就沒問題了</p>
 
 <p>另外, 關於Create的每一個判斷式, 就請參考Irl nathan本人的講解嚕</p>
+
+<p>接著我們要在SessionController.js中加入destroy, 也就是Sign Out的Action</p>
+
+<pre><code class="js SessionController.js 新增Destroy action">
+destroy: function(req, res, next) {
+
+    // Wipe out the session (log out)
+    req.session.destroy();
+
+    // Redirect the browser to the sign-in screen
+    res.redirect('/session/new');
+}
+</code></pre>
+
+<p>把上面的程式碼加到Create Action之後, 然後重啟sails,</p>
+
+<p>再登入之後, 直接輸入<code>http://localhost:1337/session/destroy</code> 就會跳回到登入頁面</p>
+
+<p>不過我們可以發現, 就算登出了, 使用者還是可以直接輸入網址, 去瀏覽使用者,</p>
+
+<p>例如在瀏覽器中輸入<code>http://localhost:1337/user</code> 一樣可以看到管理介面</p>
+
+<p>所以我們要修改一些權限, 來達成管控的要求</p>
+
+<p>先到<code>activeityOverload\api\policies\</code>底下新增<code>authenticated.js</code>, 程式碼如下</p>
+
+<pre><code class="js authenticated.js">
+module.exports = function (req, res, ok) {
+
+    // User is allowed, proceed to controller
+    if (req.session.User) {
+        return ok();
+    }
+    else {  // User is not allowed
+        var requireLoginError = [{name: 'requireLogin', message: 'You must be signed in.'}]
+        req.session.flash = {
+            err: requireLoginError
+        }
+        res.redirect('/session/new');
+        return;
+        //res.send(403);
+    }
+};
+</code></pre>
+
+<p>然後到<code>activeityOverload\config\</code>底下的<code>policies.js</code></p>
+
+<p>新增以下的規則</p>
+
+<pre><code class="js policies.js">
+ '*': 'flash',
+ user:{
+        'new': "flash",
+        '*': "authenticated"
+    }
+</code></pre>
+
+<p>解釋一下上面的Policies, 第一列的 * 表示 不管哪一個Controller都要經過flash規則</p>
+
+<p>而第二列的是說, 針對user controller, 底下的new action我們套用flash, 而其他的action則套用authenticated這個規則.</p>
+
+<p>所以只要是user底下的非new的action, 都要經過authenticated這個關卡. 大致上是這樣</p>
+
+<p>新增完成之後. 重新啟動sails, 看看若我們直接輸入localcost:1337/user/, 若我們之前沒有登入, 則在authenticated.js中, req.session.User就會是空的, 因為是空, 所以是 null, 那麼邏輯就會走到else, 有就是User is not allowd的這判斷式中.</p>
+
+<p>以上, 就是我們這一堂課的概要嚕, 但還沒結束, 作者在這一集<a href="https://www.youtube.com/watch?v=-wF07sqGmW0" target="_blank">Building a Sails Application: Ep16 - Fixing an issue with policies in episode 14</a></p>
+
+<p>找到了一個要在本章修正的錯誤, 當我們在<code>config\policies.js</code>新增了filter rule之後, 會發現新增使用者之後, 到了create action, 也會套用到authenticated rule, 導致錯誤發生, 所以我們修正如下</p>
+
+<pre><code class="js config\policies.js">
+    '*': 'flash',
+    user:{
+        'new': "flash",
+        'create': "flash",
+        '*': "authenticated"
+    }
+</code></pre>
+
+<p>在user controller新增一個create action套用flash的rule即可</p>
+
+<p>另外到<code>UserController.js</code>, 在<code>create</code>的action中新加入兩段codes</p>
+
+<pre><code class="js UserController.js">
+ create: function (req, res, next) {
+        User.create(req.params.all(), function userCreated(err, user) {
+            //if(err) return next(err);
+
+            if (err) {
+                console.log(err);
+                req.session.flash = {
+                    err: err
+                }
+                //if error redirect back to sign-up page
+                return res.redirect('/user/new');
+            }
+
+            //res.json(user);
+            //req.session.flash = {};
+            //新增底下這兩段code
+            req.session.authenticated = true;
+            req.session.User = user;
+            res.redirect('/user/show/' + user.id);
+        });
+    },
+</code></pre>
+
+<p>OK. 這樣應該就沒問題了</p>
 ]]></content>
   </entry>
   
@@ -290,243 +826,6 @@ undefined  &lt;- 60秒之後, authenticated會變為undefined!
 </code></pre>
 
 <p>以上就是session的實驗囉!</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Sails練習之九-加密]]></title>
-    <link href="http://kennytu.github.io/blog/2015/12/01/sails-study09/"/>
-    <updated>2015-12-01T17:39:08+08:00</updated>
-    <id>http://kennytu.github.io/blog/2015/12/01/sails-study09</id>
-    <content type="html"><![CDATA[<p>OK, 上課的影片是: <a href="https://www.youtube.com/watch?v=1wziI6l0NyE" target="_blank">Building a Sails Application: Ep11 - Encrypting passwords with bcrypt.</a></p>
-
-<p>到<a href="https://www.npmjs.com/package/bcrypt" target="_blank">Bcrypt</a>看一下相關的資訊</p>
-
-<p>安裝的步驟如下</p>
-
-<p>到專案目錄, 執行<code>npm install bcrypt --save</code></p>
-
-<p>加上<code>--save</code>的意思是除了install bcrypt到專案底下之外, 也把相依性設定寫入package.json, 這樣以後如果有人想要直接使用這個專案, 在目錄底下輸入npm install, 就可以將此專案需要用到的packages一次設定完成!</p>
-
-<p>另外安裝<code>bcrypt</code>需要Visual Studio 2013的支援, 若你的Visual Studio版本大於2013, 請在安裝的時候再加入<code>--msvs_version=2013</code></p>
-
-<p>也就是<code>npm install bcrypt --save --msvs_version=2013</code></p>
-
-<!--more-->
-
-
-<p>OK, 安裝順利的話, 會出現如下的訊息</p>
-
-<pre><code class="batch">
-E:\sails_app\activeityOverload&gt;npm install bcrypt --save
--
-&gt; bcrypt@0.8.5 install E:\sails_app\activeityOverload\node_modules\bcrypt
-&gt; node-gyp rebuild
-
-
-E:\sails_app\activeityOverload\node_modules\bcrypt&gt;if not defined npm_config_node_gyp (node "C:\Program Files\nodejs\node_modules\npm\bin\node-gyp-bin\\..\..\node_modules\node-gyp\bin\node-gyp.js" rebuild )  else (node  rebuild )
-
-在這個方案中一次建置一個專案。若要啟用平行組建，請加入 "/m" 參數。 (Visual Studio 2013 C++ Support)
-  blowfish.cc
-  bcrypt.cc
-..\src\bcrypt.cc(232): warning C4267: '=' : conversion from 'size_t' to 'unsigned char', possible loss of data 
-[E:\sails_app\activeityOverload\node_modules\bcrypt\build\bcrypt_lib.vcxproj]  bcrypt_node.cc ..\src\bcrypt_node.cc(76): warning C4244: 'argument' : conversion from 'ssize_t' to 'unsigned char', possible loss  of data 
-
-[E:\sails_app\activeityOverload\node_modules\bcrypt\build\bcrypt_lib.vcxproj]
-..\src\bcrypt_node.cc(135): warning C4244: 'argument' : conversion from 'const ssize_t' to 'unsigned char', possible loss of data 
-
-[E:\sails_app\activeityOverload\node_modules\bcrypt\build\bcrypt_lib.vcxproj]
-..\src\bcrypt_node.cc(229): warning C4267: 'initializing' : conversion from 'size_t' to 'int', possible loss of data 
-
-[E:\sails_app\activeityOverload\node_modules\bcrypt\build\bcrypt_lib.vcxproj]
-..\src\bcrypt_node.cc(230): warning C4267: 'initializing' : conversion from 'size_t' to 'int', possible loss of data 
-
-[E:\sails_app\activeityOverload\node_modules\bcrypt\build\bcrypt_lib.vcxproj]
-win_delay_load_hook.c
-
-Creating library E:\sails_app\activeityOverload\node_modules\bcrypt\build\Release\bcrypt_lib.lib and 
-object E:\sails_app\activeityOverload\node_modules\bcrypt\build\Release\bcrypt_lib.exp
-  Generating code
-  Finished generating code
-  bcrypt_lib.vcxproj -&gt; E:\sails_app\activeityOverload\node_modules\bcrypt\build\Release\\bcrypt_lib.node
-
-bcrypt@0.8.5 node_modules\bcrypt
-├── bindings@1.2.1
-└── nan@2.0.5
-</code></pre>
-
-<p>裝完之後, 接著我們修改<code>activeityOverload\api\models\</code>底下的<code>User.js</code></p>
-
-<pre><code class="js User.js 新增beforeCreate Function">
-module.exports = {
-
-  schema: true,
-
-  attributes: {...},
-
-  beforeCreate: function (values, next) {
-
-    // This checks to make sure the password and password confirmation match before creating record
-    if (!values.password || values.password != values.confirmation) {
-      return next({err: ["Password doesn't match password confirmation."]});
-    }
-
-    require('bcrypt').hash(values.password, 10, function passwordEncrypted(err, encryptedPassword) {
-      if (err) return next(err);
-      values.encryptedPassword = encryptedPassword;
-      // values.online= true;
-      next();
-    });
-  }
-};
-</code></pre>
-
-<p>新增完成之後, 重啟sails, (啟動sails之前記得要先啟動mongo db)</p>
-
-<p>接著新增一名使用者看看, 新增完成之後, 使用<code>mongo-express</code>登入進去mongo db的後台去看, 我們的新的使用者是不是有已經加密過的密碼了!</p>
-
-<p>好的, 大致上是這樣嚕</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Sails練習之八-連結資料庫]]></title>
-    <link href="http://kennytu.github.io/blog/2015/11/26/sails-study08/"/>
-    <updated>2015-11-26T17:56:17+08:00</updated>
-    <id>http://kennytu.github.io/blog/2015/11/26/sails-study08</id>
-    <content type="html"><![CDATA[<p>各位客官, 終於到了要使用到資料庫的時機了</p>
-
-<p>本章節, Irl nathan介紹了Mongo Db的使用, 以及如何新增Mongo Db到我們的sails專案.</p>
-
-<p>不過因為我現在用的sails是0.11.x的版本, 而Irl兄是0.9.x之前的, 所以一些設定上面都有些不同</p>
-
-<p>Irl老兄的影片連結在這:<a href="https://www.youtube.com/watch?v=G4-fm_h8z-0" target="_blank">Building a Sails Application: Ep10 - Changing databases to mongoDB with sails adapters.</a></p>
-
-<p>我在這邊主要以新版的sails為主. 底下介紹安裝方法</p>
-
-<!--more-->
-
-
-<p>首先, 進去sails的專案, 例如在<code>E:\sails_app\activeityOverload&gt;</code> 輸入</p>
-
-<p><code>npm install sails-mongo --save</code></p>
-
-<p>接著<code>npm</code>會下載<code>mongo</code>的程式碼, 若在windows系統, 會預設使用<code>visual studio</code>的C++來compiler,</p>
-
-<p>這邊要注意, sails-mongo在windows系統下, <strong>預設使用visual studio 2013的版本編譯, 若比2013的版本低, 會發生編譯錯誤. 而若版本比2013高, 則需要額外的輸入條件</strong>, 底下舉例</p>
-
-<p>版本是visual studio 2013</p>
-
-<p><code>npm install sails-mongo --save</code></p>
-
-<p>版本若是<strong>大於</strong>visual studio 2013, 則需要輸入</p>
-
-<p><code>npm install sails-mongo --save --msvs_version=2013</code></p>
-
-<p>PS. 大於Visual Studio 2013的版本我還沒試過</p>
-
-<p>若還有任何問題, 請在google輸入<code>node-gyp v8.h syntax error</code>這幾個關鍵字, 應該有些線索你可以嘗試看看</p>
-
-<p>好的, 基本上只要注意到這些, 應該就沒問題, Mongo Db就順利裝上去了</p>
-
-<p>接下來要設定Sails專案的Mongo Db的檔案</p>
-
-<p>修改兩個檔案, 一個是<code>connection.js</code>,</p>
-
-<pre><code class="js config\connections.js 修改someMongodbServer">
- /***************************************************************************
-  *                                                                          *
-  * MongoDB is the leading NoSQL database.                                   *
-  * http://en.wikipedia.org/wiki/MongoDB                                     *
-  *                                                                          *
-  * Run: npm install sails-mongo                                             *
-  *                                                                          *
-  ***************************************************************************/
-  someMongodbServer: {
-    adapter: 'sails-mongo',
-    host: 'localhost',
-    port: 27017,
-    user: '',
-    password: '',
-    database: 'activityoverlord'
-  },
-</code></pre>
-
-<p>另一個是<code>models.js</code></p>
-
-<pre><code class="js config\models.js 修改connection">
-module.exports.models = {
-
-  /***************************************************************************
-  *                                                                          *
-  * Your app's default connection. i.e. the name of one of your app's        *
-  * connections (see `config/connections.js`)                                *
-  *                                                                          *
-  ***************************************************************************/
-  // connection: 'localDiskDb',
-  connection: 'someMongodbServer',
-  autoCreatedAt: true,
-  autoUpdatedAt: true,
-  /***************************************************************************
-  *                                                                          *
-  * How and whether Sails will attempt to automatically rebuild the          *
-  * tables/collections/etc. in your schema.                                  *
-  *                                                                          *
-  * See http://sailsjs.org/#!/documentation/concepts/ORM/model-settings.html  *
-  *                                                                          *
-  ***************************************************************************/
-   migrate: 'safe'
-
-};
-</code></pre>
-
-<p>設定好之後, 存檔.</p>
-
-<p>最後我們來安裝Mongo DB, 因為Irl nathan是在Mac OS上面已經裝好, 直接執行就可以了, 我們要在Win7上面裝MongoDB.</p>
-
-<p>開啟<code>cmd</code></p>
-
-<p>輸入 <code>wmic os get caption</code> 確認 作業系統版本</p>
-
-<p>輸入 <code>wmic os get osarchitecture</code> 確認是幾位元的作業系統</p>
-
-<p>確定完之後,到<a href="https://www.mongodb.org/downloads" target="_blank">MongoDb</a>下載相對應的版本.</p>
-
-<p>例如我的作業系統是<code>Win7 64bits</code>, 那就下載<code>Windows 64-bit 2008 R2+</code>.</p>
-
-<p>下載完成, 安裝, 請選Custom, 將安裝路徑裝到<code>C:\MongoDB</code>底下,我是裝到<code>D:\MongoDB</code>,</p>
-
-<p>因為MongoDB預設會裝到C:\Program Files&hellip;巴拉巴拉, 太長了, 往後輸入指令不方便, 所以就縮短裝到比較方便找的目錄.</p>
-
-<p>裝完之後, 在MongoDB安裝的那個磁碟區, 例如我裝在D槽, 打開cmd, 輸入<code>md \data\db</code>, 這會在<code>D:\</code>產生<code>data\db</code>的資料夾, 而這個資料夾是<strong>MongoDB預設會存取的資料夾</strong>.</p>
-
-<p>OK, 接下來使用<code>cmd</code>切換到<code>MongoDB</code>的安裝路徑底下的<code>bin</code>目錄,輸入<code>mongod.exe</code>, <code>MongoDb</code>就啟動啦!</p>
-
-<p>PS: 若你沒有Create \data\db, 那麼你執行<code>mongod.exe</code>就會發生錯誤</p>
-
-<p>若你想要指定其他的資料庫存取目錄, 請在輸入<code>mongod.exe</code>的同時, 加入<code>--dbpath</code>, 例如</p>
-
-<p><code>D:\MongoDB\bin&gt;mongod.exe --dbpath=D:\MongoDB\data</code></p>
-
-<p>這樣就可以了!</p>
-
-<p>以上安裝MongoDb的教學, 可參考以下網站</p>
-
-<p><a href="http://blog.gtwang.org/windows/windows-install-mongodb-database/" target="_blank">在 Windows 中安裝 MongoDB 資料庫</a></p>
-
-<p><a href="http://fecbob.pixnet.net/blog/post/38494357-mongodb%E5%9C%A8windows%E4%B8%8B%E5%AE%89%E8%A3%9D%E9%85%8D%E7%BD%AE" target="_blank">MongoDB 在 Windows 下安裝配置</a></p>
-
-<p><a href="http://www.runoob.com/mongodb/mongodb-window-install.html" target="_blank">window 平台安装 MongoDB</a></p>
-
-<p>好, 啟動MongoDb之後, 我們就可以切回來Sails專案了</p>
-
-<p>我們重啟Sails, 指令<code>sails lift</code></p>
-
-<p>接下來我們在瀏覽器輸入<code>http://localhost:1337</code>, 新增使用者</p>
-
-<p>成功之後, 你會發現使用者已經被新增到MongoDb裡面去了, 試一下其他功能如修改, 應該都能正常運作!</p>
-
-<p>今天就上到這邊啦! 下課~~~</p>
 ]]></content>
   </entry>
   

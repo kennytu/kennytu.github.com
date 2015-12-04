@@ -4,7 +4,7 @@
   <title><![CDATA[江湖險惡，我從來都不輕易留下我的姓名。]]></title>
   <link href="http://kennytu.github.io/atom.xml" rel="self"/>
   <link href="http://kennytu.github.io/"/>
-  <updated>2015-12-03T19:49:44+08:00</updated>
+  <updated>2015-12-04T21:37:00+08:00</updated>
   <id>http://kennytu.github.io/</id>
   <author>
     <name><![CDATA[Kenny Tu]]></name>
@@ -12,6 +12,700 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Sails練習之十三 - 區分管理者和一般使用者]]></title>
+    <link href="http://kennytu.github.io/blog/2015/12/04/sails-study13/"/>
+    <updated>2015-12-04T19:57:17+08:00</updated>
+    <id>http://kennytu.github.io/blog/2015/12/04/sails-study13</id>
+    <content type="html"><![CDATA[<p>本篇的Video在<a href="https://www.youtube.com/watch?v=DI85AWW_TEk" target="_blank">Building a Sails Application: Ep17 - Creating a distinction between admin and regular users.</a></p>
+
+<p>這一章我在實作的時候遇到了很多問題, 尤其是前端使用者的Edit頁面, 將Admin打勾傳送到後端, 卻發生admin始終都是false的狀況.</p>
+
+<p>看了網路上不少文章, 我把我自己的解法以及網路上的解法還有參考網站都列在本篇文章中</p>
+
+<p>OK, 讓我們開始.</p>
+
+<p>在<code>activeityOverload\api\models\User.js</code>新增<code>admin</code>的<code>attribute</code></p>
+
+<!--more-->
+
+
+
+
+<figure class='code'><figcaption><span>User.js</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">attributes</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nx">name</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>            <span class="nx">type</span><span class="o">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span>
+</span><span class='line'>            <span class="nx">required</span><span class="o">:</span> <span class="kc">true</span>
+</span><span class='line'>        <span class="p">},</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="nx">title</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>            <span class="nx">type</span><span class="o">:</span> <span class="s1">&#39;string&#39;</span>
+</span><span class='line'>        <span class="p">},</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="nx">email</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>            <span class="nx">type</span><span class="o">:</span> <span class="s1">&#39;email&#39;</span><span class="p">,</span>
+</span><span class='line'>            <span class="nx">required</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+</span><span class='line'>            <span class="nx">unique</span><span class="o">:</span> <span class="kc">true</span>
+</span><span class='line'>        <span class="p">},</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="nx">admin</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>            <span class="nx">type</span><span class="o">:</span> <span class="s1">&#39;boolean&#39;</span><span class="p">,</span>
+</span><span class='line'>            <span class="nx">defaultsTo</span><span class="o">:</span> <span class="kc">false</span>
+</span><span class='line'>        <span class="p">},</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="nx">encryptedPassword</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>            <span class="nx">type</span><span class="o">:</span> <span class="s1">&#39;string&#39;</span>
+</span><span class='line'>        <span class="p">},</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="nx">toJSON</span><span class="o">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>            <span class="kd">var</span> <span class="nx">obj</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">toObject</span><span class="p">();</span>
+</span><span class='line'>            <span class="k">delete</span> <span class="nx">obj</span><span class="p">.</span><span class="nx">password</span><span class="p">;</span>
+</span><span class='line'>            <span class="k">delete</span> <span class="nx">obj</span><span class="p">.</span><span class="nx">confirmation</span><span class="p">;</span>
+</span><span class='line'>            <span class="k">delete</span> <span class="nx">obj</span><span class="p">.</span><span class="nx">encryptedPassword</span><span class="p">;</span>
+</span><span class='line'>            <span class="k">delete</span> <span class="nx">obj</span><span class="p">.</span><span class="nx">_csrf</span><span class="p">;</span>
+</span><span class='line'>            <span class="k">return</span> <span class="nx">obj</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">},</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>注意到admin的defaultsTo是false, 你可以先設定為True, 然後執行sails先新增一個使用者, 讓他預設有admin的權限, 之後再改回來false.</p>
+
+<p>接著到<code>SessionController.js</code>, 在<code>create</code>action中加入底下幾行</p>
+
+<figure class='code'><figcaption><span>SessionController.js</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="c1">// If the user is also an admin redirect to the user list (e.g. /views/user/index.ejs)</span>
+</span><span class='line'><span class="c1">// This is used in conjunction with config/policies.js file</span>
+</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">session</span><span class="p">.</span><span class="nx">User</span><span class="p">.</span><span class="nx">admin</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">res</span><span class="p">.</span><span class="nx">redirect</span><span class="p">(</span><span class="s1">&#39;/user&#39;</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">return</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">//Redirect to their profile page (e.g. /views/user/show.ejs)</span>
+</span><span class='line'><span class="nx">res</span><span class="p">.</span><span class="nx">redirect</span><span class="p">(</span><span class="s1">&#39;/user/show/&#39;</span> <span class="o">+</span> <span class="nx">user</span><span class="p">.</span><span class="nx">id</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>然後, 在<code>activeityOverload\api\policies\</code>目錄下新增一個<code>admin.js</code>的policies, 內容如下</p>
+
+<figure class='code'><figcaption><span>admin.js</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="cm">/**</span>
+</span><span class='line'><span class="cm"> * Allow any authenticated user.</span>
+</span><span class='line'><span class="cm"> */</span>
+</span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">ok</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// User is allowed, proceed to controller</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">session</span><span class="p">.</span><span class="nx">User</span> <span class="o">&amp;&amp;</span> <span class="nx">req</span><span class="p">.</span><span class="nx">session</span><span class="p">.</span><span class="nx">User</span><span class="p">.</span><span class="nx">admin</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="nx">ok</span><span class="p">();</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// User is not allowed</span>
+</span><span class='line'>    <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>        <span class="kd">var</span> <span class="nx">requireAdminError</span> <span class="o">=</span> <span class="p">[{</span><span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;requireAdminError&#39;</span><span class="p">,</span> <span class="nx">message</span><span class="o">:</span> <span class="s1">&#39;You must be an admin.&#39;</span><span class="p">}]</span>
+</span><span class='line'>        <span class="nx">req</span><span class="p">.</span><span class="nx">session</span><span class="p">.</span><span class="nx">flash</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>            <span class="nx">err</span><span class="o">:</span> <span class="nx">requireAdminError</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="nx">res</span><span class="p">.</span><span class="nx">redirect</span><span class="p">(</span><span class="s1">&#39;/session/new&#39;</span><span class="p">);</span>
+</span><span class='line'>        <span class="k">return</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>接著, 開啟<code>activeityOverload\config\policies.js</code>, 新增底下</p>
+
+<figure class='code'><figcaption><span>config\policies.js</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="s1">&#39;*&#39;</span><span class="o">:</span> <span class="s1">&#39;flash&#39;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nx">user</span><span class="o">:</span><span class="p">{</span>
+</span><span class='line'>        <span class="s1">&#39;new&#39;</span><span class="o">:</span> <span class="s2">&quot;flash&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="s1">&#39;create&#39;</span><span class="o">:</span> <span class="s2">&quot;flash&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="s1">&#39;*&#39;</span><span class="o">:</span> <span class="s2">&quot;admin&quot;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>OK, 存檔, 從新啟動sails, 看看登入畫面. 登入的時候出現你需要是admin的權限才能進入, 這不是我們想要的</p>
+
+<p>所以我們回頭再修改policy,</p>
+
+<p>我們要在<code>activeityOverload\api\policies\</code>再新增一個<code>userCanSeeProfile.js</code>的Policy, 內容如下</p>
+
+<figure class='code'><figcaption><span>userCanSeeProfile.js</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="cm">/**</span>
+</span><span class='line'><span class="cm"> * Allow a logged-in user to see, edit and update her own profile</span>
+</span><span class='line'><span class="cm"> * Allow admins to see everyone</span>
+</span><span class='line'><span class="cm"> */</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">ok</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">sessionUserMatchesId</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">session</span><span class="p">.</span><span class="nx">User</span><span class="p">.</span><span class="nx">id</span> <span class="o">===</span> <span class="nx">req</span><span class="p">.</span><span class="nx">param</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">);</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">isAdmin</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">session</span><span class="p">.</span><span class="nx">User</span><span class="p">.</span><span class="nx">admin</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// The requested id does not match the user&#39;s id,</span>
+</span><span class='line'>    <span class="c1">// and this is not an admin</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="nx">sessionUserMatchesId</span> <span class="o">||</span> <span class="nx">isAdmin</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>        <span class="kd">var</span> <span class="nx">noRightsError</span> <span class="o">=</span> <span class="p">[{</span><span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;noRights&#39;</span><span class="p">,</span> <span class="nx">message</span><span class="o">:</span> <span class="s1">&#39;You must be an admin.&#39;</span><span class="p">}]</span>
+</span><span class='line'>        <span class="nx">req</span><span class="p">.</span><span class="nx">session</span><span class="p">.</span><span class="nx">flash</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>            <span class="nx">err</span><span class="o">:</span> <span class="nx">noRightsError</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="nx">res</span><span class="p">.</span><span class="nx">redirect</span><span class="p">(</span><span class="s1">&#39;/session/new&#39;</span><span class="p">);</span>
+</span><span class='line'>        <span class="k">return</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">ok</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>回頭修改<code>activeityOverload\config\policies.js</code></p>
+
+<figure class='code'><figcaption><span>config\policies.js</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'>  <span class="s1">&#39;*&#39;</span><span class="o">:</span> <span class="s1">&#39;flash&#39;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nx">user</span><span class="o">:</span><span class="p">{</span>
+</span><span class='line'>        <span class="s1">&#39;new&#39;</span><span class="o">:</span> <span class="s2">&quot;flash&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="s1">&#39;create&#39;</span><span class="o">:</span> <span class="s2">&quot;flash&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="s1">&#39;show&#39;</span><span class="o">:</span> <span class="s2">&quot;userCanSeeProfile&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="nx">edit</span><span class="o">:</span>   <span class="s2">&quot;userCanSeeProfile&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="nx">update</span><span class="o">:</span> <span class="s2">&quot;userCanSeeProfile&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="s1">&#39;*&#39;</span><span class="o">:</span> <span class="s2">&quot;admin&quot;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>存檔, 從新啟動sails, 應該就可以正常登入了</p>
+
+<p>正常登陸之後, 我們會發現就算不是Admin的使用者也是可以看到頭導航欄的<code>User Administration</code>的按鈕, 我們想要修改一下</p>
+
+<p>到layout.ejs,</p>
+
+<figure class='code'><figcaption><span>layout.ejs</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="o">&lt;</span><span class="err">/head&gt;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">&lt;</span><span class="nx">body</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">&lt;</span><span class="nx">div</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;navbar navbar-inverse navbar-fixed-top&quot;</span><span class="o">&gt;</span>
+</span><span class='line'>    <span class="o">&lt;</span><span class="nx">div</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;container&quot;</span><span class="o">&gt;</span>
+</span><span class='line'>        <span class="o">&lt;</span><span class="nx">div</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;navbar-header&quot;</span><span class="o">&gt;</span>
+</span><span class='line'>            <span class="o">&lt;</span><span class="nx">button</span> <span class="nx">type</span><span class="o">=</span><span class="s2">&quot;button&quot;</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;navbar-toggle&quot;</span> <span class="nx">data</span><span class="o">-</span><span class="nx">toggle</span><span class="o">=</span><span class="s2">&quot;collapse&quot;</span> <span class="nx">data</span><span class="o">-</span><span class="nx">target</span><span class="o">=</span><span class="s2">&quot;.navbar-collapse&quot;</span><span class="o">&gt;</span>
+</span><span class='line'>                <span class="o">&lt;</span><span class="nx">span</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;icon-bar&quot;</span><span class="o">&gt;&lt;</span><span class="err">/span&gt;</span>
+</span><span class='line'>                <span class="o">&lt;</span><span class="nx">span</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;icon-bar&quot;</span><span class="o">&gt;&lt;</span><span class="err">/span&gt;</span>
+</span><span class='line'>                <span class="o">&lt;</span><span class="nx">span</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;icon-bar&quot;</span><span class="o">&gt;&lt;</span><span class="err">/span&gt;</span>
+</span><span class='line'>            <span class="o">&lt;</span><span class="err">/button&gt;</span>
+</span><span class='line'>            <span class="o">&lt;</span><span class="nx">a</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;navbar-brand&quot;</span> <span class="nx">href</span><span class="o">=</span><span class="s2">&quot;/&quot;</span><span class="o">&gt;</span> <span class="nx">activityOverlord</span><span class="o">&lt;</span><span class="err">/a&gt;</span>
+</span><span class='line'>        <span class="o">&lt;</span><span class="err">/div&gt;</span>
+</span><span class='line'>        <span class="o">&lt;</span><span class="nx">div</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;navbar-collapse collapse&quot;</span><span class="o">&gt;</span>
+</span><span class='line'>            <span class="o">&lt;</span><span class="nx">ul</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;nav navbar-nav&quot;</span><span class="o">&gt;</span>
+</span><span class='line'>                <span class="o">&lt;%</span> <span class="k">if</span> <span class="p">(</span><span class="nx">session</span><span class="p">.</span><span class="nx">authenticated</span><span class="p">)</span> <span class="p">{</span> <span class="o">%&gt;</span>
+</span><span class='line'>                <span class="o">&lt;</span><span class="nx">li</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;active&quot;</span><span class="o">&gt;&lt;</span><span class="nx">a</span> <span class="nx">href</span><span class="o">=</span><span class="s2">&quot;/user/show/&lt;%= session.User.id %&gt;&quot;</span><span class="o">&gt;&lt;%=</span> <span class="nx">session</span><span class="p">.</span><span class="nx">User</span><span class="p">.</span><span class="nx">name</span> <span class="o">%&gt;</span> <span class="o">&lt;</span><span class="err">/a&gt; &lt;/li&gt;</span>
+</span><span class='line'>                <span class="o">&lt;%</span> <span class="p">}</span> <span class="o">%&gt;</span>
+</span><span class='line'>                <span class="o">&lt;%</span> <span class="k">if</span> <span class="p">(</span><span class="nx">session</span><span class="p">.</span><span class="nx">authenticated</span> <span class="o">&amp;&amp;</span> <span class="nx">session</span><span class="p">.</span><span class="nx">User</span><span class="p">.</span><span class="nx">admin</span><span class="p">)</span> <span class="p">{</span> <span class="o">%&gt;</span>
+</span><span class='line'>                <span class="o">&lt;</span><span class="nx">li</span><span class="o">&gt;&lt;</span><span class="nx">a</span> <span class="nx">href</span><span class="o">=</span><span class="s2">&quot;/user&quot;</span><span class="o">&gt;</span><span class="nx">User</span> <span class="nx">Administration</span><span class="o">&lt;</span><span class="err">/a&gt;&lt;/li&gt;</span>
+</span><span class='line'>                <span class="o">&lt;</span><span class="nx">li</span><span class="o">&gt;&lt;</span><span class="nx">a</span> <span class="nx">href</span><span class="o">=</span><span class="s2">&quot;#&quot;</span><span class="o">&gt;</span><span class="nx">Placeholder2</span><span class="o">&lt;</span><span class="err">/a&gt;&lt;/li&gt;</span>
+</span><span class='line'>                <span class="o">&lt;%</span> <span class="p">}</span> <span class="o">%&gt;</span>
+</span><span class='line'>            <span class="o">&lt;</span><span class="err">/ul&gt;</span>
+</span><span class='line'>            <span class="o">&lt;</span><span class="nx">div</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;navbar-right&quot;</span><span class="o">&gt;</span>
+</span><span class='line'>                <span class="o">&lt;%</span> <span class="k">if</span> <span class="p">(</span><span class="nx">session</span><span class="p">.</span><span class="nx">authenticated</span><span class="p">)</span> <span class="p">{</span> <span class="o">%&gt;</span>
+</span><span class='line'>                <span class="o">&lt;</span><span class="nx">a</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;btn btn-default navbar-btn navbar-right&quot;</span> <span class="nx">href</span><span class="o">=</span><span class="s2">&quot;/session/destroy&quot;</span><span class="o">&gt;</span><span class="nx">sign</span><span class="o">-</span><span class="nx">out</span><span class="o">&lt;</span><span class="err">/a&gt;</span>
+</span><span class='line'>                <span class="o">&lt;%</span> <span class="p">}</span> <span class="o">%&gt;</span>
+</span><span class='line'>            <span class="o">&lt;</span><span class="err">/div&gt;</span>
+</span><span class='line'>            <span class="o">&lt;%</span> <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">session</span><span class="p">.</span><span class="nx">authenticated</span><span class="p">)</span> <span class="p">{</span> <span class="o">%&gt;</span>
+</span><span class='line'>            <span class="o">&lt;</span><span class="nx">form</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;navbar-form navbar-right&quot;</span> <span class="nx">action</span><span class="o">=</span><span class="s2">&quot;/session/create&quot;</span><span class="o">&gt;</span>
+</span><span class='line'>                <span class="o">&lt;</span><span class="nx">div</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;form-group&quot;</span><span class="o">&gt;</span>
+</span><span class='line'>                    <span class="o">&lt;</span><span class="nx">input</span> <span class="nx">type</span><span class="o">=</span><span class="s2">&quot;text&quot;</span> <span class="nx">placeholder</span><span class="o">=</span><span class="s2">&quot;Email&quot;</span> <span class="nx">name</span><span class="o">=</span><span class="s2">&quot;email&quot;</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;form-control&quot;</span><span class="o">&gt;</span>
+</span><span class='line'>                <span class="o">&lt;</span><span class="err">/div&gt;</span>
+</span><span class='line'>                <span class="o">&lt;</span><span class="nx">div</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;form-group&quot;</span><span class="o">&gt;</span>
+</span><span class='line'>                    <span class="o">&lt;</span><span class="nx">input</span> <span class="nx">type</span><span class="o">=</span><span class="s2">&quot;password&quot;</span> <span class="nx">placeholder</span><span class="o">=</span><span class="s2">&quot;Password&quot;</span> <span class="nx">name</span><span class="o">=</span><span class="s2">&quot;password&quot;</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;form-control&quot;</span><span class="o">&gt;</span>
+</span><span class='line'>                <span class="o">&lt;</span><span class="err">/div&gt;</span>
+</span><span class='line'>                <span class="o">&lt;</span><span class="nx">button</span> <span class="nx">type</span><span class="o">=</span><span class="s2">&quot;submit&quot;</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;btn btn-success&quot;</span><span class="o">&gt;</span><span class="nx">Sign</span> <span class="k">in</span><span class="o">&lt;</span><span class="err">/button&gt;</span>
+</span><span class='line'>                <span class="o">&lt;</span><span class="nx">input</span> <span class="nx">type</span><span class="o">=</span><span class="s2">&quot;hidden&quot;</span> <span class="nx">name</span><span class="o">=</span><span class="s2">&quot;_csrf&quot;</span> <span class="nx">value</span><span class="o">=</span><span class="s2">&quot;&lt;%= _csrf %&gt;&quot;</span> <span class="o">/&gt;</span>
+</span><span class='line'>            <span class="o">&lt;</span><span class="err">/form&gt;</span>
+</span><span class='line'>            <span class="o">&lt;%</span> <span class="p">}</span> <span class="o">%&gt;</span>
+</span><span class='line'>        <span class="o">&lt;</span><span class="err">/div&gt;</span>
+</span><span class='line'>    <span class="o">&lt;</span><span class="err">/div&gt;</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="err">/div&gt;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">&lt;%-</span> <span class="nx">body</span> <span class="o">%&gt;</span>
+</span><span class='line'>
+</span><span class='line'> <span class="p">...</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>OK, 存檔, 從新啟動Sails, 就可以了.</p>
+
+<p>好, 接下來, 我們要讓<code>http://localhost:1337/user</code>顯示的頁面有可愛的圖示來區分使用者是Admin還是Regular.</p>
+
+<p>開啟<code>activeityOverload\views\user\index.ejs</code>, 新增以下程式碼</p>
+
+<figure class='code'><figcaption><span>views\user\index.ejs</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="p">...</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">td</span><span class="o">&gt;&lt;%=</span> <span class="nx">user</span><span class="p">.</span><span class="nx">title</span> <span class="o">%&gt;&lt;</span><span class="err">/td&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">td</span><span class="o">&gt;&lt;%=</span> <span class="nx">user</span><span class="p">.</span><span class="nx">email</span> <span class="o">%&gt;&lt;</span><span class="err">/td&gt;</span>
+</span><span class='line'><span class="o">&lt;%</span> <span class="k">if</span><span class="p">(</span><span class="nx">user</span><span class="p">.</span><span class="nx">admin</span><span class="p">)</span> <span class="p">{</span> <span class="o">%</span> <span class="o">&gt;</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="nx">td</span><span class="o">&gt;&lt;</span><span class="nx">img</span> <span class="nx">src</span><span class="o">=</span><span class="s2">&quot;/images/admin.png&quot;</span><span class="o">&gt;&lt;</span><span class="err">/td&gt;</span>
+</span><span class='line'><span class="o">&lt;%</span><span class="p">}</span> <span class="k">else</span>  <span class="p">{</span> <span class="o">%</span> <span class="o">&gt;</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="nx">td</span><span class="o">&gt;&lt;</span><span class="nx">img</span> <span class="nx">src</span><span class="o">=</span><span class="s2">&quot;/images/pawn.png&quot;</span><span class="o">&gt;&lt;</span><span class="err">/td&gt;</span>
+</span><span class='line'><span class="o">&lt;%</span><span class="p">}</span><span class="o">%&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">td</span><span class="o">&gt;&lt;</span><span class="nx">a</span> <span class="nx">href</span><span class="o">=</span><span class="s2">&quot;/user/show/&lt;%= user.id %&gt;&quot;</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;btn btn-sm btn-primary&quot;</span><span class="o">&gt;</span><span class="nx">Show</span><span class="o">&lt;</span><span class="err">/a&gt;&lt;/td&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">...</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>另外我們在<code>activeityOverload\views\user\show.ejs</code>也加入可愛的圖示</p>
+
+<figure class='code'><figcaption><span>show.ejs</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="o">&lt;</span><span class="nx">div</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;container&quot;</span><span class="o">&gt;</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="nx">h1</span><span class="o">&gt;&lt;%=</span> <span class="nx">user</span><span class="p">.</span><span class="nx">name</span> <span class="o">%&gt;&lt;</span><span class="err">/h1&gt;</span>
+</span><span class='line'>  <span class="o">&lt;%</span> <span class="k">if</span><span class="p">(</span><span class="nx">user</span><span class="p">.</span><span class="nx">admin</span><span class="p">)</span> <span class="p">{</span> <span class="o">%&gt;</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="nx">img</span> <span class="nx">src</span><span class="o">=</span><span class="s2">&quot;/images/admin.png&quot;</span><span class="o">&gt;</span> <span class="nx">admin</span>
+</span><span class='line'>  <span class="o">&lt;%</span> <span class="p">}</span> <span class="k">else</span> <span class="p">{</span> <span class="o">%&gt;</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="nx">img</span> <span class="nx">src</span><span class="o">=</span><span class="s2">&quot;/images/pawn.png&quot;</span><span class="o">&gt;</span> <span class="nx">pawm</span>
+</span><span class='line'>  <span class="o">&lt;%</span> <span class="p">}</span> <span class="o">%&gt;</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="nx">h3</span><span class="o">&gt;&lt;%=</span> <span class="nx">user</span><span class="p">.</span><span class="nx">title</span> <span class="o">%&gt;&lt;</span><span class="err">/h3&gt;</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="nx">hr</span><span class="o">&gt;</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="nx">h3</span><span class="o">&gt;</span><span class="nx">contact</span><span class="o">:</span> <span class="o">&lt;%=</span> <span class="nx">user</span><span class="p">.</span><span class="nx">email</span> <span class="o">%&gt;&lt;</span><span class="err">/h3&gt;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">&lt;</span><span class="nx">a</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;btn btn-medium btn-primary&quot;</span> <span class="nx">href</span><span class="o">=</span><span class="s2">&quot;/user/edit/&lt;%= user.id %&gt;&quot;</span><span class="o">&gt;</span><span class="nx">Edit</span><span class="o">&lt;</span><span class="err">/a&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="err">/div&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>OK, 接下來要進入本章需要修改的部分, 和本Video的程式碼不同</p>
+
+<p>我們要修改edit.ejs, 讓edit的頁面有admin的check box可供使用者勾選</p>
+
+<figure class='code'><figcaption><span>activeityOverload\views\user\edit.ejs</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="o">&lt;</span><span class="nx">form</span> <span class="nx">action</span><span class="o">=</span><span class="s2">&quot;/user/update/&lt;%= user.id %&gt;&quot;</span> <span class="nx">method</span><span class="o">=</span><span class="s2">&quot;POST&quot;</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;form-signin&quot;</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">&lt;</span><span class="nx">h2</span><span class="o">&gt;</span> <span class="nx">Hey</span><span class="p">,</span> <span class="nx">you</span><span class="err">&#39;</span><span class="nx">re</span> <span class="nx">editing</span> <span class="nx">a</span> <span class="nx">user</span><span class="p">...</span><span class="o">&lt;</span><span class="err">/h2&gt;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">&lt;</span><span class="nx">input</span> <span class="nx">value</span><span class="o">=</span><span class="s2">&quot;&lt;%= user.name %&gt;&quot;</span> <span class="nx">name</span><span class="o">=</span><span class="s2">&quot;name&quot;</span> <span class="nx">type</span><span class="o">=</span><span class="s2">&quot;text&quot;</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;form-control&quot;</span><span class="o">/&gt;</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="nx">input</span> <span class="nx">value</span><span class="o">=</span><span class="s2">&quot;&lt;%= user.title %&gt;&quot;</span> <span class="nx">name</span><span class="o">=</span><span class="s2">&quot;title&quot;</span> <span class="nx">type</span><span class="o">=</span><span class="s2">&quot;text&quot;</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;form-control&quot;</span><span class="o">/&gt;</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="nx">input</span> <span class="nx">value</span><span class="o">=</span><span class="s2">&quot;&lt;%= user.email %&gt;&quot;</span> <span class="nx">name</span><span class="o">=</span><span class="s2">&quot;email&quot;</span> <span class="nx">type</span><span class="o">=</span><span class="s2">&quot;text&quot;</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;form-control&quot;</span><span class="o">/&gt;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">&lt;%</span> <span class="k">if</span> <span class="p">(</span><span class="nx">session</span><span class="p">.</span><span class="nx">authenticated</span> <span class="o">&amp;&amp;</span> <span class="nx">session</span><span class="p">.</span><span class="nx">User</span><span class="p">.</span><span class="nx">admin</span><span class="p">)</span> <span class="p">{</span> <span class="o">%&gt;</span>
+</span><span class='line'>      <span class="o">&lt;%</span> <span class="k">if</span> <span class="p">(</span><span class="nx">user</span><span class="p">.</span><span class="nx">admin</span><span class="p">)</span> <span class="p">{</span> <span class="o">%&gt;</span>
+</span><span class='line'>          <span class="o">&lt;</span><span class="nx">input</span> <span class="nx">type</span><span class="o">=</span><span class="s2">&quot;hidden&quot;</span> <span class="nx">name</span><span class="o">=</span><span class="s2">&quot;admin&quot;</span> <span class="nx">value</span><span class="o">=</span><span class="s2">&quot;checkAdmin&quot;</span><span class="o">&gt;</span>
+</span><span class='line'>          <span class="o">&lt;</span><span class="nx">label</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;checkbox&quot;</span><span class="o">&gt;</span>
+</span><span class='line'>              <span class="o">&lt;</span><span class="nx">input</span> <span class="nx">type</span><span class="o">=</span><span class="s2">&quot;checkbox&quot;</span> <span class="nx">name</span><span class="o">=</span><span class="s2">&quot;admin&quot;</span> <span class="nx">checked</span><span class="o">&gt;</span> <span class="nx">Admin</span>
+</span><span class='line'>          <span class="o">&lt;</span><span class="err">/label&gt;</span>
+</span><span class='line'>      <span class="o">&lt;%</span> <span class="p">}</span> <span class="k">else</span> <span class="p">{</span> <span class="o">%&gt;</span>
+</span><span class='line'>          <span class="o">&lt;</span><span class="nx">input</span> <span class="nx">type</span><span class="o">=</span><span class="s2">&quot;hidden&quot;</span> <span class="nx">name</span><span class="o">=</span><span class="s2">&quot;admin&quot;</span> <span class="nx">value</span><span class="o">=</span><span class="s2">&quot;checkAdmin&quot;</span><span class="o">&gt;</span>
+</span><span class='line'>          <span class="o">&lt;</span><span class="nx">label</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;checkbox&quot;</span><span class="o">&gt;&lt;</span><span class="nx">input</span> <span class="nx">type</span><span class="o">=</span><span class="s2">&quot;checkbox&quot;</span> <span class="nx">name</span><span class="o">=</span><span class="s2">&quot;admin&quot;</span><span class="o">&gt;</span> <span class="nx">Admin</span><span class="o">&lt;</span><span class="err">/label&gt;</span>
+</span><span class='line'>      <span class="o">&lt;%</span> <span class="p">}</span> <span class="o">%&gt;</span>
+</span><span class='line'>  <span class="o">&lt;%</span> <span class="p">}</span> <span class="o">%&gt;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">&lt;</span><span class="nx">input</span> <span class="nx">type</span><span class="o">=</span><span class="s2">&quot;submit&quot;</span> <span class="nx">value</span><span class="o">=</span><span class="s2">&quot;Proceed&quot;</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;btn btn-lg btn-primary btn-block&quot;</span><span class="o">/&gt;</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="nx">input</span> <span class="nx">type</span><span class="o">=</span><span class="s2">&quot;hidden&quot;</span> <span class="nx">name</span><span class="o">=</span><span class="s2">&quot;_csrf&quot;</span> <span class="nx">value</span><span class="o">=</span><span class="s2">&quot;&lt;%= _csrf %&gt;&quot;</span><span class="o">/&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="err">/form&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>在這邊, 作者把 input type=hidden的name取名為admin, 而input type=checkbox的name也叫做admin</p>
+
+<p>這會有個效果出現, 若使用者<strong>沒有勾選</strong><code>checkbox</code>的話, 則這個form所丟出的update action, <code>admin</code>會是一個<strong>只有名叫<code>checkAdmin</code>的字串物件</strong>.</p>
+
+<p>但若使用者<strong>有勾選checkbox</strong>的話, 則這個<code>admin</code>會是一個<code>Array</code>, 第一個是admin的value名稱(也就是checkAdmin), 第二個是checkbox的狀態<strong>&lsquo;on&rsquo;</strong>的字串.</p>
+
+<h2>User.js的beforeValidation 改變</h2>
+
+<p>接著作者回來修改User.js, 他在程式碼中加入了beforeValidation的function,
+這個是sails在對action動作的其中一個life cycle.</p>
+
+<p>在新版本的Sails (我目前的Version為0.11.2), 已經沒有beforeValidation的function了. 名稱修改為<code>beforeValidate</code>, 其他的life cycle, 請參考官方網頁 <a href="http://sailsjs.org/documentation/concepts/models-and-orm/lifecycle-callbacks" target="_blank">Lifecycle callbacks</a></p>
+
+<p>在這邊, 作者在程式碼中加入了<code>beforeValidation</code>的function,先對<code>values.admin</code>做判斷, 理當<code>values.admin</code>所帶的值要不是<strong>checkAdmin</strong>的字串物件, 要不就是一個<strong>陣列</strong>(如前所述), 但我在這邊測試的結果, <strong>新版的sails, 在beforeValidate中, values.admin永遠都會是false</strong>!!</p>
+
+<p>也就是說, 若我們要處理values.admin的這個值,若要確保是從網頁那邊過來的第一手原始資料的話, 我們必須從<code>activeityOverload\api\controllers\UserController.js</code>的<code>update</code>這個action就要開始處倆, 所以我將<code>User.js</code>的<code>beforeValidate</code>的判斷邏輯移到這邊(也就是將beforeValidate刪除), 底下是程式碼</p>
+
+<figure class='code'><figcaption><span>api\controllers\UserController.js</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'> <span class="nx">update</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">params</span><span class="p">.</span><span class="nx">all</span><span class="p">());</span>
+</span><span class='line'>        <span class="kd">var</span> <span class="nx">values</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">allParams</span><span class="p">();</span>
+</span><span class='line'>        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">values</span><span class="p">.</span><span class="nx">admin</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">if</span><span class="p">(</span><span class="nx">values</span><span class="p">.</span><span class="nx">admin</span><span class="p">.</span><span class="nx">constructor</span> <span class="o">===</span> <span class="nb">Array</span><span class="p">){</span>
+</span><span class='line'>            <span class="k">if</span><span class="p">(</span><span class="nx">values</span><span class="p">.</span><span class="nx">admin</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">===</span> <span class="s1">&#39;on&#39;</span><span class="p">){</span>
+</span><span class='line'>                <span class="nx">values</span><span class="p">.</span><span class="nx">admin</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">...</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>OK, 修改到這邊, 功能大概都完成了, 存檔, 重新啟動sails</p>
+
+<p>就可以玩玩看admin user以及一般regular user的功能了!</p>
+
+<h2>補充:關於Create第一個Admin User</h2>
+
+<p>除了上面講的, 在設定User.js的admin attribute的時候, 將defaultsTo: 設定為true, 新增一個admin使用者再改回false之外</p>
+
+<p>還可以使用mongo-express, 進入資料庫, 然後修改user的檔案, 將admin: false 設定為true就可以了. 相當簡單</p>
+
+<p>若沒有admin這個attribute, 就直接在資料庫當中新增一個admin: true, 就可以了!</p>
+
+<h2>補充:關於beforeValidate的更正與修改</h2>
+
+<p>一些相關的討論請參考<a href="http://irlnathan.github.io/sailscasts/blog/2013/09/05/building-a-sails-application-ep17-creating-a-distinction-between-admin-and-regular-users/" target="_blank">Building a Sails Application: Ep17 </a></p>
+
+<p>其中有個網友他將解法寫在edit.js, 不用到後端去判斷, 方法如下</p>
+
+<ol>
+<li>emove the &lsquo;beforeValidation&rsquo; method from /api/models/User.js</li>
+<li>add in /views/user/edit.ejs 以下的程式碼</li>
+</ol>
+
+
+<figure class='code'><figcaption><span>edit.ejs</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="o">&lt;%</span> <span class="k">if</span><span class="p">(</span><span class="nx">session</span><span class="p">.</span><span class="nx">authenticated</span> <span class="o">&amp;&amp;</span> <span class="nx">session</span><span class="p">.</span><span class="nx">User</span><span class="p">.</span><span class="nx">admin</span><span class="p">)</span> <span class="p">{</span> <span class="o">%&gt;</span>
+</span><span class='line'>    <span class="o">&lt;</span><span class="nx">input</span> <span class="nx">type</span><span class="o">=</span><span class="s2">&quot;hidden&quot;</span> <span class="nx">id</span><span class="o">=</span><span class="s2">&quot;admin&quot;</span> <span class="nx">name</span><span class="o">=</span><span class="s2">&quot;admin&quot;</span> <span class="nx">value</span><span class="o">=</span><span class="s2">&quot;&amp;lt;% user.admin ? &#39;true&#39; : &#39;false&#39; %&amp;gt;&quot;</span><span class="o">&gt;</span>
+</span><span class='line'>    <span class="o">&lt;</span><span class="nx">label</span><span class="o">&gt;&lt;</span><span class="nx">input</span> <span class="nx">type</span><span class="o">=</span><span class="s2">&quot;checkbox&quot;</span> <span class="o">&lt;%=</span><span class="s2">&quot;&quot;</span> <span class="nx">user</span><span class="p">.</span><span class="nx">admin</span><span class="o">=</span><span class="s2">&quot;&quot;</span> <span class="o">?=</span><span class="s2">&quot;&quot;</span> <span class="s1">&#39;checked&#39;</span><span class="o">:</span><span class="s1">&#39;&#39;</span><span class="o">=</span><span class="s2">&quot;&quot;</span> <span class="o">%=</span><span class="s2">&quot;&quot;</span><span class="o">&gt;</span> <span class="nx">onClick</span><span class="o">=</span><span class="s2">&quot;document.getElementById(&#39;admin&#39;).value = this.checked;&quot;</span><span class="o">&gt;</span> <span class="nx">Admin</span><span class="o">&lt;</span><span class="err">/label&gt;</span>
+</span><span class='line'><span class="o">&lt;%</span> <span class="p">}</span> <span class="o">%&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>大致上就是說, 在前端的ejs就先將admin判斷好, 並且把admin設成true or false, 這樣就可以了.</p>
+
+<h2>參考資料</h2>
+
+<p><a href="http://stackoverflow.com/questions/767486/how-do-you-check-if-a-variable-is-an-array-in-javascript" target="_blank">How do you check if a variable is an array in JavaScript?</a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Sails練習之十二 - 改善User登入認證的導航介面]]></title>
+    <link href="http://kennytu.github.io/blog/2015/12/04/sails-study12/"/>
+    <updated>2015-12-04T14:34:16+08:00</updated>
+    <id>http://kennytu.github.io/blog/2015/12/04/sails-study12</id>
+    <content type="html"><![CDATA[<p>本章主要是調整登入的外觀</p>
+
+<p>課程連結是 <a href="https://www.youtube.com/watch?v=P0K36-c5G4A" target="_blank">Building a Sails Application: Ep15 - Improving user authenticated navigation.</a></p>
+
+<p>主要是修改<code>activeityOverload\views\layout.ejs</code></p>
+
+<p>在原本<code>&lt;%- body %&gt;</code>的上方, 有個簡單的頭導航介面, 把它換成如下的程式碼</p>
+
+<!--more-->
+
+
+
+
+<figure class='code'><figcaption><span>layout.ejs</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'>...
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;body&gt;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;navbar navbar-inverse navbar-fixed-top&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;container&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;navbar-header&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;button</span> <span class="na">type=</span><span class="s">&quot;button&quot;</span> <span class="na">class=</span><span class="s">&quot;navbar-toggle&quot;</span> <span class="na">data-toggle=</span><span class="s">&quot;collapse&quot;</span> <span class="na">data-target=</span><span class="s">&quot;.navbar-collapse&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;span</span> <span class="na">class=</span><span class="s">&quot;icon-bar&quot;</span><span class="nt">&gt;&lt;/span&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;span</span> <span class="na">class=</span><span class="s">&quot;icon-bar&quot;</span><span class="nt">&gt;&lt;/span&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;span</span> <span class="na">class=</span><span class="s">&quot;icon-bar&quot;</span><span class="nt">&gt;&lt;/span&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/button&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;a</span> <span class="na">class=</span><span class="s">&quot;navbar-brand&quot;</span> <span class="na">href=</span><span class="s">&quot;/&quot;</span><span class="nt">&gt;</span> activityOverlord<span class="nt">&lt;/a&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/div&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;navbar-collapse collapse&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;ul</span> <span class="na">class=</span><span class="s">&quot;nav navbar-nav&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="err">&lt;</span>% if (session.authenticated) { %&gt;
+</span><span class='line'>            <span class="nt">&lt;li</span> <span class="na">class=</span><span class="s">&quot;active&quot;</span><span class="nt">&gt;&lt;a</span> <span class="na">href=</span><span class="s">&quot;/user/show/&lt;%= session.User.id %&gt;&quot;</span><span class="nt">&gt;</span><span class="err">&lt;</span>%= session.User.name %&gt; <span class="nt">&lt;/a&gt;</span> <span class="nt">&lt;/li&gt;</span>
+</span><span class='line'>            <span class="err">&lt;</span>% } %&gt;
+</span><span class='line'>            <span class="err">&lt;</span>% if (session.authenticated <span class="err">&amp;&amp;</span> session.User.admin) { %&gt;
+</span><span class='line'>            <span class="nt">&lt;li&gt;&lt;a</span> <span class="na">href=</span><span class="s">&quot;/user&quot;</span><span class="nt">&gt;</span>User Administration<span class="nt">&lt;/a&gt;&lt;/li&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;li&gt;&lt;a</span> <span class="na">href=</span><span class="s">&quot;#&quot;</span><span class="nt">&gt;</span>Placeholder2<span class="nt">&lt;/a&gt;&lt;/li&gt;</span>
+</span><span class='line'>            <span class="err">&lt;</span>% } %&gt;
+</span><span class='line'>        <span class="nt">&lt;/ul&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;navbar-right&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="err">&lt;</span>% if (session.authenticated) { %&gt;
+</span><span class='line'>            <span class="nt">&lt;a</span> <span class="na">class=</span><span class="s">&quot;btn btn-default navbar-btn navbar-right&quot;</span> <span class="na">href=</span><span class="s">&quot;/session/destroy&quot;</span><span class="nt">&gt;</span>sign-out<span class="nt">&lt;/a&gt;</span>
+</span><span class='line'>            <span class="err">&lt;</span>% } %&gt;
+</span><span class='line'>        <span class="nt">&lt;/div&gt;</span>
+</span><span class='line'>        <span class="err">&lt;</span>% if (!session.authenticated) { %&gt;
+</span><span class='line'>        <span class="nt">&lt;form</span> <span class="na">class=</span><span class="s">&quot;navbar-form navbar-right&quot;</span> <span class="na">action=</span><span class="s">&quot;/session/create&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;form-group&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;text&quot;</span> <span class="na">placeholder=</span><span class="s">&quot;Email&quot;</span> <span class="na">name=</span><span class="s">&quot;email&quot;</span> <span class="na">class=</span><span class="s">&quot;form-control&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/div&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;form-group&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;password&quot;</span> <span class="na">placeholder=</span><span class="s">&quot;Password&quot;</span> <span class="na">name=</span><span class="s">&quot;password&quot;</span> <span class="na">class=</span><span class="s">&quot;form-control&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/div&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;button</span> <span class="na">type=</span><span class="s">&quot;submit&quot;</span> <span class="na">class=</span><span class="s">&quot;btn btn-success&quot;</span><span class="nt">&gt;</span>Sign in<span class="nt">&lt;/button&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;hidden&quot;</span> <span class="na">name=</span><span class="s">&quot;_csrf&quot;</span> <span class="na">value=</span><span class="s">&quot;&lt;%= _csrf %&gt;&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/form&gt;</span>
+</span><span class='line'>        <span class="err">&lt;</span>% } %&gt;
+</span><span class='line'>    <span class="nt">&lt;/div&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;/div&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;/div&gt;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="err">&lt;</span>%- body %&gt;
+</span><span class='line'>...
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>也可以參考作者的<a href="https://github.com/irlnathan/activityoverlord/blob/master/views/layout.ejs" target="_blank">GitHub</a>, 直接把程式碼copy過來貼到你現在的專案就可以了</p>
+
+<p>存檔之後, 重新啟動sails, 就可以看到修改過精美的導航介面了</p>
+
+<p>至於解說的部分, 請看作者在影片中的講解嚕!</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Node.js更新問題]]></title>
@@ -85,7 +779,7 @@ npm install
 
 
 
-<figure class='code'><figcaption><span>SessionController.js 新增Create action</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span>SessionController.js新增Create action</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -284,9 +978,172 @@ npm install
 
 <p>到瀏覽器輸入<code>http://localhost:1337/session/new</code></p>
 
-<p>然後輸入不正確的帳號密碼以及正確的帳號密碼試試看, 應該就沒問題嚕</p>
+<p>然後輸入不正確的帳號密碼以及正確的帳號密碼試試看, 應該就沒問題了</p>
 
 <p>另外, 關於Create的每一個判斷式, 就請參考Irl nathan本人的講解嚕</p>
+
+<p>接著我們要在SessionController.js中加入destroy, 也就是Sign Out的Action</p>
+
+<figure class='code'><figcaption><span>SessionController.js 新增Destroy action</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">destroy</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Wipe out the session (log out)</span>
+</span><span class='line'>    <span class="nx">req</span><span class="p">.</span><span class="nx">session</span><span class="p">.</span><span class="nx">destroy</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Redirect the browser to the sign-in screen</span>
+</span><span class='line'>    <span class="nx">res</span><span class="p">.</span><span class="nx">redirect</span><span class="p">(</span><span class="s1">&#39;/session/new&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>把上面的程式碼加到Create Action之後, 然後重啟sails,</p>
+
+<p>再登入之後, 直接輸入<code>http://localhost:1337/session/destroy</code> 就會跳回到登入頁面</p>
+
+<p>不過我們可以發現, 就算登出了, 使用者還是可以直接輸入網址, 去瀏覽使用者,</p>
+
+<p>例如在瀏覽器中輸入<code>http://localhost:1337/user</code> 一樣可以看到管理介面</p>
+
+<p>所以我們要修改一些權限, 來達成管控的要求</p>
+
+<p>先到<code>activeityOverload\api\policies\</code>底下新增<code>authenticated.js</code>, 程式碼如下</p>
+
+<figure class='code'><figcaption><span>authenticated.js</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">ok</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// User is allowed, proceed to controller</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">session</span><span class="p">.</span><span class="nx">User</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="nx">ok</span><span class="p">();</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">else</span> <span class="p">{</span>  <span class="c1">// User is not allowed</span>
+</span><span class='line'>        <span class="kd">var</span> <span class="nx">requireLoginError</span> <span class="o">=</span> <span class="p">[{</span><span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;requireLogin&#39;</span><span class="p">,</span> <span class="nx">message</span><span class="o">:</span> <span class="s1">&#39;You must be signed in.&#39;</span><span class="p">}]</span>
+</span><span class='line'>        <span class="nx">req</span><span class="p">.</span><span class="nx">session</span><span class="p">.</span><span class="nx">flash</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>            <span class="nx">err</span><span class="o">:</span> <span class="nx">requireLoginError</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="nx">res</span><span class="p">.</span><span class="nx">redirect</span><span class="p">(</span><span class="s1">&#39;/session/new&#39;</span><span class="p">);</span>
+</span><span class='line'>        <span class="k">return</span><span class="p">;</span>
+</span><span class='line'>        <span class="c1">//res.send(403);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>然後到<code>activeityOverload\config\</code>底下的<code>policies.js</code></p>
+
+<p>新增以下的規則</p>
+
+<figure class='code'><figcaption><span>policies.js</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'> <span class="s1">&#39;*&#39;</span><span class="o">:</span> <span class="s1">&#39;flash&#39;</span><span class="p">,</span>
+</span><span class='line'> <span class="nx">user</span><span class="o">:</span><span class="p">{</span>
+</span><span class='line'>        <span class="s1">&#39;new&#39;</span><span class="o">:</span> <span class="s2">&quot;flash&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="s1">&#39;*&#39;</span><span class="o">:</span> <span class="s2">&quot;authenticated&quot;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>解釋一下上面的Policies, 第一列的 * 表示 不管哪一個Controller都要經過flash規則</p>
+
+<p>而第二列的是說, 針對user controller, 底下的new action我們套用flash, 而其他的action則套用authenticated這個規則.</p>
+
+<p>所以只要是user底下的非new的action, 都要經過authenticated這個關卡. 大致上是這樣</p>
+
+<p>新增完成之後. 重新啟動sails, 看看若我們直接輸入localcost:1337/user/, 若我們之前沒有登入, 則在authenticated.js中, req.session.User就會是空的, 因為是空, 所以是 null, 那麼邏輯就會走到else, 有就是User is not allowd的這判斷式中.</p>
+
+<p>以上, 就是我們這一堂課的概要嚕, 但還沒結束, 作者在這一集<a href="https://www.youtube.com/watch?v=-wF07sqGmW0" target="_blank">Building a Sails Application: Ep16 - Fixing an issue with policies in episode 14</a></p>
+
+<p>找到了一個要在本章修正的錯誤, 當我們在<code>config\policies.js</code>新增了filter rule之後, 會發現新增使用者之後, 到了create action, 也會套用到authenticated rule, 導致錯誤發生, 所以我們修正如下</p>
+
+<figure class='code'><figcaption><span>config\policies.js</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="s1">&#39;*&#39;</span><span class="o">:</span> <span class="s1">&#39;flash&#39;</span><span class="p">,</span>
+</span><span class='line'><span class="nx">user</span><span class="o">:</span><span class="p">{</span>
+</span><span class='line'>    <span class="s1">&#39;new&#39;</span><span class="o">:</span> <span class="s2">&quot;flash&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s1">&#39;create&#39;</span><span class="o">:</span> <span class="s2">&quot;flash&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s1">&#39;*&#39;</span><span class="o">:</span> <span class="s2">&quot;authenticated&quot;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>在user controller新增一個create action套用flash的rule即可</p>
+
+<p>另外到<code>UserController.js</code>, 在<code>create</code>的action中新加入兩段codes</p>
+
+<figure class='code'><figcaption><span>UserController.js</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'> <span class="nx">create</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nx">User</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">params</span><span class="p">.</span><span class="nx">all</span><span class="p">(),</span> <span class="kd">function</span> <span class="nx">userCreated</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">user</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="c1">//if(err) return next(err);</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
+</span><span class='line'>                <span class="nx">req</span><span class="p">.</span><span class="nx">session</span><span class="p">.</span><span class="nx">flash</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>                    <span class="nx">err</span><span class="o">:</span> <span class="nx">err</span>
+</span><span class='line'>                <span class="p">}</span>
+</span><span class='line'>                <span class="c1">//if error redirect back to sign-up page</span>
+</span><span class='line'>                <span class="k">return</span> <span class="nx">res</span><span class="p">.</span><span class="nx">redirect</span><span class="p">(</span><span class="s1">&#39;/user/new&#39;</span><span class="p">);</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="c1">//res.json(user);</span>
+</span><span class='line'>            <span class="c1">//req.session.flash = {};</span>
+</span><span class='line'>          <span class="c1">//新增底下這兩段code</span>
+</span><span class='line'>            <span class="nx">req</span><span class="p">.</span><span class="nx">session</span><span class="p">.</span><span class="nx">authenticated</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+</span><span class='line'>            <span class="nx">req</span><span class="p">.</span><span class="nx">session</span><span class="p">.</span><span class="nx">User</span> <span class="o">=</span> <span class="nx">user</span><span class="p">;</span>
+</span><span class='line'>            <span class="nx">res</span><span class="p">.</span><span class="nx">redirect</span><span class="p">(</span><span class="s1">&#39;/user/show/&#39;</span> <span class="o">+</span> <span class="nx">user</span><span class="p">.</span><span class="nx">id</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">});</span>
+</span><span class='line'>    <span class="p">},</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>OK. 這樣應該就沒問題了</p>
 ]]></content>
   </entry>
   
