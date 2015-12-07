@@ -1,0 +1,92 @@
+---
+layout: post
+title: "Sails練習之十四 - Hacker: 修改前端程式碼立馬變成Admin"
+date: 2015-12-07 13:51:19 +0800
+comments: true
+categories: sails
+---
+
+
+在之前的章節, Ira展示了如何區分管理者和一般使用者. 然而有些網友, 指出了一些漏洞, 讓我們可以直接修改前端程式碼, 就可以獲得管理者的權限. 
+
+影片在這邊: <a href="https://www.youtube.com/watch?v=TgiK34eDGOU" target="_blank">Building a Sails Application: Ep17a - Marshalling request parameters</a>
+
+好的, 主要的概念是這樣, 開啟瀏覽器, 使用一般使用者登入, 進入修改頁面(Edit), 然後用firefox的firebug開啟除錯模式, 將admin的checkbox加進去html裡面, 並且將checkbox勾選起來, 最後按下proceed!
+
+你就會發現, 一般使用者突然間就會變成管理員嚕! 超High的!
+
+<!--more-->
+
+問題的發生點是在UserController.js的`update` action
+
+我們在update的時候, 呼叫底下這一行
+
+```js  UserController.js的update
+
+ User.update(req.param('id'), req.params.all, function userUpdated(err)
+
+```
+
+其中第二個參數是取用所有來自req的參數, 所以這就讓我們可以使用insert admin的技巧來奪取管理員權限了
+
+所以我們修改如下
+
+```js UserController.js update
+
+update: function (req, res, next) {
+        if(values.admin != undefined && values.admin.constructor === Array){
+            if(values.admin[1] === 'on'){
+                values.admin = true;
+            }
+        }
+
+        var userObj = {
+            name: req.param('name'),
+            title: req.param('title'),
+            email: req.param('email')
+        }
+
+        if(req.session.User.admin){
+            userObj.admin = values.admin;
+        }
+
+        //replace req.params.all with userObj
+        User.update(req.param('id'), userObj, function userUpdated(err) {
+            if (err) {
+                return res.redirect('/user/edit/' + req.param('id'));
+            }
+
+            res.redirect('/user/show/' + req.param('id'));
+        });
+    },
+
+```
+
+OK, 主要是我們去檢查這個Session的使用者是否一剛開始的Session就是Admin, 是的話我們才去設定Admin的屬性
+
+除了Edit頁面, 我們要在Create的頁面也要設下檢查條件
+
+```js UserController.js create action
+
+create: function (req, res, next) {
+
+        var userObj = {
+            name: req.param('name'),
+            title: req.param('title'),
+            email: req.param('email'),
+            password: req.param('password'),
+            confirmation: req.param('confirmation')
+        }
+
+        //replce req.params.all with userObj
+        User.create(userObj, function userCreated(err, user) {
+            //if(err) return next(err);
+			...
+
+```
+
+存檔, 重新啟動sails, 大功告成啦~
+
+
+
+

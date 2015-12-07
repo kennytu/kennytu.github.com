@@ -332,7 +332,7 @@ OK, 接下來要進入本章需要修改的部分, 和本Video的程式碼不同
         var values = req.allParams();
         console.log(values.admin);
 
-        if(values.admin.constructor === Array){
+        if(values.admin != undefined && values.admin.constructor === Array){
             if(values.admin[1] === 'on'){
                 values.admin = true;
             }
