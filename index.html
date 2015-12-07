@@ -9,7 +9,7 @@
   <meta name="author" content="Kenny Tu">
 
   
-  <meta name="description" content="本篇的Video在Building a Sails Application: Ep17 - Creating a distinction between admin and regular users. 這一章我在實作的時候遇到了很多問題, 尤其是前端使用者的Edit頁面, &hellip;">
+  <meta name="description" content="在之前的章節, Ira展示了如何區分管理者和一般使用者. 然而有些網友, 指出了一些漏洞, 讓我們可以直接修改前端程式碼, 就可以獲得管理者的權限. 影片在這邊: Building a Sails Application: Ep17a - Marshalling request &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,49 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/12/07/sails-study14/">Sails練習之十四 - Hacker: 修改前端程式碼立馬變成Admin</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-12-07T13:51:19+08:00'><span class='date'>2015 年12 月7 日</span> <span class='time'>1:51 pm</span></time>
+        
+           | <a href="/blog/2015/12/07/sails-study14/#disqus_thread"
+             data-disqus-identifier="http://kennytu.github.io/blog/2015/12/07/sails-study14/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>在之前的章節, Ira展示了如何區分管理者和一般使用者. 然而有些網友, 指出了一些漏洞, 讓我們可以直接修改前端程式碼, 就可以獲得管理者的權限.</p>
+
+<p>影片在這邊: <a href="https://www.youtube.com/watch?v=TgiK34eDGOU" target="_blank">Building a Sails Application: Ep17a - Marshalling request parameters</a></p>
+
+<p>好的, 主要的概念是這樣, 開啟瀏覽器, 使用一般使用者登入, 進入修改頁面(Edit), 然後用firefox的firebug開啟除錯模式, 將admin的checkbox加進去html裡面, 並且將checkbox勾選起來, 最後按下proceed!</p>
+
+<p>你就會發現, 一般使用者突然間就會變成管理員嚕! 超High的!</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2015/12/07/sails-study14/">點擊這裡繼續閱讀 &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -529,53 +572,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/11/24/sails-study06/">Sails練習之六</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-11-24T22:12:51+08:00'><span class='date'>2015 年11 月24 日</span> <span class='time'>10:12 pm</span></time>
-        
-           | <a href="/blog/2015/11/24/sails-study06/#disqus_thread"
-             data-disqus-identifier="http://kennytu.github.io/blog/2015/11/24/sails-study06/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>本章接著<a href="https://www.youtube.com/watch?v=GHp1g7Z0Yo4" target=_blank>Building a Sails Application: Ep8 - Adding a user list, index, edit, and update action.</a></p>
-
-<p>影片一開始, Irl nathan介紹了ejs中, <code>&lt;%- %&gt;</code>以及<code>&lt;%= %&gt;</code>有什麼不同</p>
-
-<p>簡單來說</p>
-
-<p> <code>&lt;%- %&gt;</code>有 <code>-</code> 這個記號的, 若被此tag包含起來的程式碼有java script, 那麼ejs就會去執行它, 這個是一個很常會讓人侵入的地方,</p>
-
-<p>而<code>&lt;%= %&gt;</code>就不會對java script做解讀,ejs會直接跳過js, 直接輸出到頁面上</p>
-
-<p>還有一個是<code>&lt;% %&gt;</code>, 沒有加任何符號的, 這個就是單純的ejs嵌入javascript程式碼用的.</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2015/11/24/sails-study06/">點擊這裡繼續閱讀 &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/2">&larr; Older</a>
@@ -588,11 +584,15 @@
   
     <section>
   <h1>Categories</h1>
-    <ul id="category-list"><li><a href='/blog/categories/mongodb/'>mongodb (1)</a></li><li><a href='/blog/categories/node-dot-js/'>node.js (1)</a></li><li><a href='/blog/categories/npm/'>npm (1)</a></li><li><a href='/blog/categories/octopress/'>octopress (2)</a></li><li><a href='/blog/categories/sails/'>sails (14)</a></li></ul>
+    <ul id="category-list"><li><a href='/blog/categories/mongodb/'>mongodb (1)</a></li><li><a href='/blog/categories/node-dot-js/'>node.js (1)</a></li><li><a href='/blog/categories/npm/'>npm (1)</a></li><li><a href='/blog/categories/octopress/'>octopress (2)</a></li><li><a href='/blog/categories/sails/'>sails (15)</a></li></ul>
 </section>
 <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/12/07/sails-study14/">Sails練習之十四 - Hacker: 修改前端程式碼立馬變成Admin</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2015/12/04/sails-study13/">Sails練習之十三 - 區分管理者和一般使用者</a>
@@ -608,10 +608,6 @@
     
       <li class="post">
         <a href="/blog/2015/12/03/sails-study11/">Sails練習之十一 - 使用者認證以及嚴格存取</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/12/02/sails-study10/">Sails練習之十 - Session</a>
       </li>
     
   </ul>

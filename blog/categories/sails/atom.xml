@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Sails | 江湖險惡，我從來都不輕易留下我的姓名。]]></title>
   <link href="http://kennytu.github.io/blog/categories/sails/atom.xml" rel="self"/>
   <link href="http://kennytu.github.io/"/>
-  <updated>2015-12-04T21:37:00+08:00</updated>
+  <updated>2015-12-07T16:21:11+08:00</updated>
   <id>http://kennytu.github.io/</id>
   <author>
     <name><![CDATA[Kenny Tu]]></name>
@@ -12,6 +12,88 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Sails練習之十四 - Hacker: 修改前端程式碼立馬變成Admin]]></title>
+    <link href="http://kennytu.github.io/blog/2015/12/07/sails-study14/"/>
+    <updated>2015-12-07T13:51:19+08:00</updated>
+    <id>http://kennytu.github.io/blog/2015/12/07/sails-study14</id>
+    <content type="html"><![CDATA[<p>在之前的章節, Ira展示了如何區分管理者和一般使用者. 然而有些網友, 指出了一些漏洞, 讓我們可以直接修改前端程式碼, 就可以獲得管理者的權限.</p>
+
+<p>影片在這邊: <a href="https://www.youtube.com/watch?v=TgiK34eDGOU" target="_blank">Building a Sails Application: Ep17a - Marshalling request parameters</a></p>
+
+<p>好的, 主要的概念是這樣, 開啟瀏覽器, 使用一般使用者登入, 進入修改頁面(Edit), 然後用firefox的firebug開啟除錯模式, 將admin的checkbox加進去html裡面, 並且將checkbox勾選起來, 最後按下proceed!</p>
+
+<p>你就會發現, 一般使用者突然間就會變成管理員嚕! 超High的!</p>
+
+<!--more-->
+
+
+<p>問題的發生點是在UserController.js的<code>update</code> action</p>
+
+<p>我們在update的時候, 呼叫底下這一行</p>
+
+<pre><code class="js  UserController.js的update">
+ User.update(req.param('id'), req.params.all, function userUpdated(err)
+</code></pre>
+
+<p>其中第二個參數是取用所有來自req的參數, 所以這就讓我們可以使用insert admin的技巧來奪取管理員權限了</p>
+
+<p>所以我們修改如下</p>
+
+<pre><code class="js UserController.js update">
+update: function (req, res, next) {
+        if(values.admin != undefined &amp;&amp; values.admin.constructor === Array){
+            if(values.admin[1] === 'on'){
+                values.admin = true;
+            }
+        }
+
+        var userObj = {
+            name: req.param('name'),
+            title: req.param('title'),
+            email: req.param('email')
+        }
+
+        if(req.session.User.admin){
+            userObj.admin = values.admin;
+        }
+
+        //replace req.params.all with userObj
+        User.update(req.param('id'), userObj, function userUpdated(err) {
+            if (err) {
+                return res.redirect('/user/edit/' + req.param('id'));
+            }
+
+            res.redirect('/user/show/' + req.param('id'));
+        });
+    },
+</code></pre>
+
+<p>OK, 主要是我們去檢查這個Session的使用者是否一剛開始的Session就是Admin, 是的話我們才去設定Admin的屬性</p>
+
+<p>除了Edit頁面, 我們要在Create的頁面也要設下檢查條件</p>
+
+<pre><code class="js UserController.js create action">
+create: function (req, res, next) {
+
+        var userObj = {
+            name: req.param('name'),
+            title: req.param('title'),
+            email: req.param('email'),
+            password: req.param('password'),
+            confirmation: req.param('confirmation')
+        }
+
+        //replce req.params.all with userObj
+        User.create(userObj, function userCreated(err, user) {
+            //if(err) return next(err);
+            ...
+</code></pre>
+
+<p>存檔, 重新啟動sails, 大功告成啦~</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Sails練習之十三 - 區分管理者和一般使用者]]></title>
@@ -321,7 +403,7 @@ OK, 接下來要進入本章需要修改的部分, 和本Video的程式碼不同
         var values = req.allParams();
         console.log(values.admin);</p>
 
-<pre><code>    if(values.admin.constructor === Array){
+<pre><code>    if(values.admin != undefined &amp;&amp; values.admin.constructor === Array){
         if(values.admin[1] === 'on'){
             values.admin = true;
         }
@@ -714,118 +796,6 @@ module.exports = function (req, res, ok) {
 </code></pre>
 
 <p>OK. 這樣應該就沒問題了</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Sails練習之十 - Session]]></title>
-    <link href="http://kennytu.github.io/blog/2015/12/02/sails-study10/"/>
-    <updated>2015-12-02T17:07:35+08:00</updated>
-    <id>http://kennytu.github.io/blog/2015/12/02/sails-study10</id>
-    <content type="html"><![CDATA[<p>本篇進展到這邊, 主要是提到Session的使用, 影片是<a href="https://www.youtube.com/watch?v=SY2AcAHxIiU" target="_blank">Building a Sails Application: Ep13 - Sign-in page, session controller, new action, and sessions.</a></p>
-
-<p>首先, 在<code>views/</code>新增一個目錄名叫<code>session</code>, 在<code>session</code>裡面新增一個ejs檔案名為<code>new.ejs</code></p>
-
-<pre><code class="js activeityOverload\views\session\new.ejs">
-&lt;form action="/session/create" method="POST" class="form-signin"&gt;
-    &lt;h2 class="form-signin-heading"&gt;Please sign in...&lt;/h2&gt;
-
-    &lt;% if(flash &amp;&amp; flash.err) { %&gt;
-        &lt;ul class="alert alert-success"&gt;
-    &lt;% Object.keys(flash.err).forEach(function(error) { %&gt;
-        &lt;li&gt;&lt;%- JSON.stringify(flash.err[error]) %&gt;&lt;/li&gt;
-    &lt;% }) %&gt;
-    &lt;/ul&gt;
-    &lt;% } %&gt;
-
-    &lt;input type="text" class="form-control" placeholder="Email address" name="email"&gt;
-    &lt;input type="password" class="form-control" placeholder="Password" name="password"&gt;
-    &lt;input type="submit" class="btn btn-lg btn-primary btn-block" value="Sign-in"/&gt;
-    &lt;input type="hidden" name="_csrf" value="&lt;%= _csrf %&gt;" /&gt;
-
-&lt;/form&gt;
-</code></pre>
-
-<!--more-->
-
-
-<p>存檔之後, 到專案目錄底下開啟command line tool, 然後輸入<code>sails generate controller session</code></p>
-
-<p>接著sails就會產生<code>activeityOverload\api\controllers\SessionController.js</code>這個檔案</p>
-
-<p>我們到<code>SessionController.js</code>新增程式碼</p>
-
-<pre><code class="js SessionController.js">
-module.exports = {
-    'new': function(req, res) {
-        var oldDataObj = new Date();
-        var newDateObj = new Date(oldDataObj.getTime() + 60000);
-        req.session.cookie.expires = newDateObj;
-        req.session.authenticated = true;
-        console.log(req.session);
-        res.view('session/new');
-    }
-
-};
-</code></pre>
-
-<p>然後到<code>activeityOverload\api\controllers\UserController.js</code></p>
-
-<p>在<code>index</code>的<code>action</code>新增兩行Debug message, 如下</p>
-
-<pre><code class="js UserController.js">
-index: function (req, res, next) {
-        console.log(new Date());
-        console.log(req.session.authenticated);
-
-        //Get an array of all users in the User collection(e.g. table)
-        User.find(function foundUsers(err, users) {
-            if (err) return (err);
-            //pass the array down to the /views/index.ejs page
-            res.view({
-                users: users
-            });
-        });
-    },
-</code></pre>
-
-<p>新增完成之後, 我們重新啟動sails,</p>
-
-<p>先在瀏覽器中輸入<code>http://localhost:1337/session/new</code></p>
-
-<p>然後在sails的console畫面中可以看到以下畫面</p>
-
-<pre><code class="js">
-Session {
-  cookie:
-   { path: '/',
-     _expires: Wed Dec 02 2015 17:31:50 GMT+0800 (台北標準時間),
-     originalMaxAge: 60000,
-     httpOnly: true },
-  csrfSecret: 'paEKhxeTpDC5hQqu_ns64Ufi',
-  authenticated: true }
-</code></pre>
-
-<p>我們觀察到authenticated還是為true</p>
-
-<p>接著, 我們要來觀察<code>req.session.cookie.expires</code>設定之後的結果, 我們是設定成60秒,</p>
-
-<p>開啟瀏覽器, 輸入<code>http://localhost:1337/user</code>,然後觀察後台的輸出</p>
-
-<p>會像是這樣</p>
-
-<pre><code class="batch">
-Wed Dec 02 2015 17:31:04 GMT+0800 (台北標準時間)
-true
-Wed Dec 02 2015 17:31:34 GMT+0800 (台北標準時間)
-true
-Wed Dec 02 2015 17:31:39 GMT+0800 (台北標準時間)
-true
-Wed Dec 02 2015 17:31:59 GMT+0800 (台北標準時間)
-undefined  &lt;- 60秒之後, authenticated會變為undefined!
-</code></pre>
-
-<p>以上就是session的實驗囉!</p>
 ]]></content>
   </entry>
   
