@@ -9,7 +9,7 @@
   <meta name="author" content="Kenny Tu">
 
   
-  <meta name="description" content="本章接著Building a Sails Application: Ep8 - Adding a user list, index, edit, and update action. 影片一開始, Irl nathan介紹了ejs中, &lt;%- %&gt;以及&lt;%= %&gt;有什麼不同 &hellip;">
+  <meta name="description" content="本章緊接著前一篇, 我們要來實作Delete的功能 這篇參考此Youtube:Building a Sails Application: Ep9 - Deleting a user account. 我們到UserController.js去新增我們的delete程式碼 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,78 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/11/26/sails-study07/">Sails練習之七</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-11-26T10:34:50+08:00'><span class='date'>2015 年11 月26 日</span> <span class='time'>10:34 am</span></time>
+        
+           | <a href="/blog/2015/11/26/sails-study07/#disqus_thread"
+             data-disqus-identifier="http://kennytu.github.io/blog/2015/11/26/sails-study07/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>本章緊接著前一篇, 我們要來實作Delete的功能</p>
+
+<p>這篇參考此Youtube:<a href="https://www.youtube.com/watch?v=6sIrHPlJJQk" target="_blank">Building a Sails Application: Ep9 - Deleting a user account.</a></p>
+
+<p>我們到<code>UserController.js</code>去新增我們的delete程式碼</p>
+
+<figure class='code'><figcaption><span>UserController.js 新增 destroy function</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'>  <span class="nx">destroy</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">){</span>
+</span><span class='line'>    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Hi, destroy&quot;</span><span class="p">);</span>
+</span><span class='line'>    <span class="nx">User</span><span class="p">.</span><span class="nx">findOne</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">param</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">),</span> <span class="kd">function</span> <span class="nx">foundUser</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">user</span><span class="p">){</span>
+</span><span class='line'>      <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="k">return</span> <span class="nx">next</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
+</span><span class='line'>      <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">user</span><span class="p">)</span> <span class="k">return</span> <span class="nx">next</span><span class="p">(</span><span class="s1">&#39;User doesn\&#39;t exist.&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="nx">User</span><span class="p">.</span><span class="nx">destroy</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">param</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">),</span> <span class="kd">function</span> <span class="nx">userDestroyed</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">if</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="k">return</span> <span class="nx">next</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
+</span><span class='line'>      <span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="nx">res</span><span class="p">.</span><span class="nx">redirect</span><span class="p">(</span><span class="s1">&#39;/user&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2015/11/26/sails-study07/">點擊這裡繼續閱讀 &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -436,6 +508,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/12/08/sails-study15/">Sails練習之十五-Understanding Websockets and socket.io</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/12/07/sails-study14/">Sails練習之十四 - Hacker: 修改前端程式碼立馬變成Admin</a>
       </li>
     
@@ -449,10 +525,6 @@
     
       <li class="post">
         <a href="/blog/2015/12/03/nodejs-update/">Node.js更新問題</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/12/03/sails-study11/">Sails練習之十一 - 使用者認證以及嚴格存取</a>
       </li>
     
   </ul>
