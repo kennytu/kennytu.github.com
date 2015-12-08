@@ -1,0 +1,213 @@
+---
+layout: post
+title: "Sails練習之十五-Understanding websockets and socket.io"
+date: 2015-12-08 13:56:14 +0800
+comments: true
+categories: 
+---
+
+影片是: <a href="https://www.youtube.com/watch?v=dkf3XKrsqAM" target="_blank">Understanding websockets and socket.io</a>
+
+
+Irl介紹了一下Socket.io, 並且寫了一個範例程式, 內容滿精彩的, 非常值得看的一篇教學
+
+在範例的程式碼當中, 分成Server Side以及Client Side的網頁
+
+Server Side是用node.js寫一個小型的http server,然後掛上socket.io的module,用來處理前端的要求
+
+Client Side則是一個簡單的index.html,掛上JQuery的Javascript以及Socket.io的Javascript
+
+socket.io很適合用來做聊天程式,Irl示範了如何開啟兩個(或以上)的獨立聊天室並且講解觀念 
+
+他的範例有一些小bug, 修改一下就可以run了, 首先我們從Server Side開始
+
+<!--more-->
+
+
+`mkdir initial_test`
+
+`cd initial_test`
+
+`npm init`  
+
+`npm install socket.io --save`
+
+`touch app.js`
+
+上面的說明就是
+
+1. 新增一個initial_test的資料夾
+2. 進入資料夾
+3. 使用npm init創建一個初始的package.json
+4. 使用npm安裝socket.io, 用--save將相依性寫入package.json,注意安裝socket.io的時候可能需要visual studio 2012的C++ compiler, 若沒有裝Visual Studio 2012的朋友要先去安裝一下
+5. 創建一個app.js, 就可以開始編寫內容了
+
+另外package.json裡面的main target要記得改成app.js, 這樣就可以了
+
+底下是完成的app.js程式碼
+
+```js app.js
+
+var app = require('http').createServer(handler);
+var io  = require('socket.io').listen(app);
+var fs = require('fs');
+
+app.listen(3333);
+
+function handler(req, res){
+    fs.readFile(__dirname + '/index.html',
+    function(err, data){
+        if(err){
+            res.writeHead(500);
+            return res.end('Error loading index.html');
+        }
+        res.writeHead(200);
+        res.end(data);
+    });
+}
+
+io.sockets.on('connection', function(socket){
+	console.log(socket.id);
+    socket.emit('news', 'Welcome to chat!');
+
+    socket.on('send message', function(data){
+       io.sockets.emit('new message', data);
+    });
+
+    socket.on('send message2', function(data){
+        io.sockets.in('beta').emit('new message', data);
+    });
+
+    socket.on('subscribe', function(data){
+        socket.join(data.room);
+        console.log(data.room);
+
+        //In a new version of socket.io (1.x),
+        //io.sockets.manager.rooms will cause an error.
+        //You should use io.sockets.adapter.rooms instead.
+        console.log("There are the room:", io.sockets.adapter.rooms);
+
+    });
+});
+
+```
+
+ok, 以上是app.js, 注意到, 在`socket.io 1.x`版本以後, **已經沒有`io.sockets.manager`這個屬性**了, 要**改用`io.sockets.adapter`**
+
+app.js撰寫完之後, 在相同目錄下, 執行`node app.js`, Server端就預備好了!
+
+接下來是Client端
+
+```html index.html
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+
+    <style type="text/css">
+        #incoming-chat-window {
+            height: 300px;
+            overflow: auto;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Chat Form to All sockets -->
+<div id="incoming-chat-window"></div>
+<form id="outgoing-chat-form">
+    <input size="50" type="text" id="outgoing-chat-field"></input>
+    <input type="submit"></input>
+</form>
+<!-- END-->
+
+<!-- Chat Form to Beta Room-->
+<div id="incoming-chat-window2"></div>
+<form id="outgoing-chat-form2">
+    <input size="50" type="text" id="outgoing-chat-field2"></input>
+    <input type="submit"></input>
+</form>
+<!-- END-->
+
+<!-- Join 'beta' room -->
+<button id="room">Join Room</button>
+<!-- END -->
+
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+
+<script>
+
+    $(document).ready(function () {
+
+        //Default Room
+        $('#outgoing-chat-form').submit(function (e) {
+            e.preventDefault();
+            socket.emit('send message', $('#outgoing-chat-field').val());
+            $('#outgoing-chat-field').val('');
+        });
+
+
+        //Beta Room
+        $('#outgoing-chat-form2').submit(function (e) {
+            e.preventDefault();
+            socket.emit('send message2', $('#outgoing-chat-field2').val());
+            $('#outgoing-chat-field2').val('');
+        });
+
+        var socket = io('http://localhost:3333');
+
+        socket.on('news', function (data) {
+            console.log(data);
+            $('#incoming-chat-window').append(data + '<br/>');
+            //socket.emit('my other event', { my: 'data' });
+        });
+
+        socket.on('new message', function(data){
+            $('#incoming-chat-window').append(data + '<br/>');
+        });
+
+        $(' #room').click(function(e){
+            e.preventDefault();
+            var data = {
+                room: 'beta'
+            }
+            socket.emit('subscribe', data);
+        });
+
+    })
+
+</script>
+</body>
+</html>
+
+```
+
+這支網頁用到了Socket.io, JQuery兩個外部引用
+
+特別是`<script src="/socket.io/socket.io.js"></script>`
+
+若有想要知道node.js的Server如何知道要從node_modules的哪一個地方取得socket.io.js給Client, 請參考這個網頁 <a href="http://stackoverflow.com/questions/10860244/how-to-make-the-require-in-node-js-to-be-always-relative-to-the-root-folder-of-t" target="_blank">How to make the require in node.js to be always relative to the root folder of the project?</a>
+
+簡短來說, 若再node.js裡面使用require敘述句, 例如`var io  = require('socket.io').listen(app);` 那麼node.js就會去node_modules裡面找socket.io資料夾, 並且把裡面的模組都import進來, 
+
+你可以在`node_modules\socket.io`找到一個`index.js`, 裡面就只有一個敘述句`module.exports = require('./lib');`
+
+然後你又可以在`node_modules\socket.io\lib`裡面找到`index.js`, 裡面包含一個`var client = require('socket.io-client');`, 這個敘述句就是node.js會去node_modules裡面去找socket.io-client的模組, 也把她import進來
+
+大概是這樣的流程
+
+好的, 回到`index.html`
+
+使用`node app.js`這個指令啟動http server之後, 我們開啟瀏覽器
+
+輸入`localhost:3333` 取得網頁, 就可以看到畫面
+
+然後可以玩玩看兩個聊天室, 一個是Default的, 另一個是Beta, 需要按下`join Room`這個Button才能進去.
+
+剩下的說明請看Irl先生的精采教學吧!!!
+
+
+
