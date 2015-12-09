@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Octopress | 江湖險惡，我從來都不輕易留下我的姓名。]]></title>
   <link href="http://kennytu.github.io/blog/categories/octopress/atom.xml" rel="self"/>
   <link href="http://kennytu.github.io/"/>
-  <updated>2015-12-09T21:23:47+08:00</updated>
+  <updated>2015-12-09T21:47:39+08:00</updated>
   <id>http://kennytu.github.io/</id>
   <author>
     <name><![CDATA[Kenny Tu]]></name>
@@ -28,6 +28,7 @@
 <li>加上分類雲</li>
 <li>程式碼高亮</li>
 <li>imgcap的使用</li>
+<li>google analytics</li>
 </ol>
 
 
@@ -174,6 +175,40 @@ end
 <p>效果如下</p>
 
 <p><span class='caption-wrapper'><img class='caption' src='/images/ttt.jpg' width='' height='' title='看三小朋友'><span class='caption-text'>看三小朋友</span></span></p>
+
+<h2>google analytics</h2>
+
+<p>在<code>octopress</code>目錄底下找到<code>_config.yml</code></p>
+
+<p>開啟<code>_config.yml</code>, 找到底下(大約在97行左右)</p>
+
+<pre><code># Google Analytics
+google_analytics_tracking_id: UA-71198893-1 
+</code></pre>
+
+<p>其中google_analytics_tracking_id右邊的一組號碼, 是你自己必須要到<a href="https://www.google.com/analytics/" target="_blank">Google Analytics (分析)</a>去註冊, 然後取得一組序號, 貼在上面</p>
+
+<p>接著, 在<code>octopress\source\_includes</code>目錄下找到<code>google_analytics.html</code></p>
+
+<p>打開它, 然後你要到你剛剛申請的Google Analytics找到<strong>追蹤程式碼</strong></p>
+
+<p>複製追蹤程式碼, 到<code>google_analytics.html</code>中, 完成之後類似這樣</p>
+
+<pre><code class="html source/_includes/google_analytics.html">
+
+  &lt;script&gt;
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-你的Analytics識別碼', 'auto');
+  ga('send', 'pageview');
+&lt;/script&gt;
+
+</code></pre>
+
+<p>完成之後, 存檔, 然後在rake deploy佈署上去就可以了!</p>
 ]]></content>
   </entry>
   

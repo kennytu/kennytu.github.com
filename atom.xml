@@ -4,7 +4,7 @@
   <title><![CDATA[江湖險惡，我從來都不輕易留下我的姓名。]]></title>
   <link href="http://kennytu.github.io/atom.xml" rel="self"/>
   <link href="http://kennytu.github.io/"/>
-  <updated>2015-12-09T21:23:47+08:00</updated>
+  <updated>2015-12-09T21:47:39+08:00</updated>
   <id>http://kennytu.github.io/</id>
   <author>
     <name><![CDATA[Kenny Tu]]></name>
@@ -4753,6 +4753,7 @@ actions: false,
 <li>加上分類雲</li>
 <li>程式碼高亮</li>
 <li>imgcap的使用</li>
+<li>google analytics</li>
 </ol>
 
 
@@ -4904,6 +4905,51 @@ end
 <p>效果如下</p>
 
 <p><span class='caption-wrapper'><img class='caption' src='http://kennytu.github.io/images/ttt.jpg' width='' height='' title='看三小朋友'><span class='caption-text'>看三小朋友</span></span></p>
+
+<h2>google analytics</h2>
+
+<p>在<code>octopress</code>目錄底下找到<code>_config.yml</code></p>
+
+<p>開啟<code>_config.yml</code>, 找到底下(大約在97行左右)</p>
+
+<pre><code># Google Analytics
+google_analytics_tracking_id: UA-71198893-1 
+</code></pre>
+
+<p>其中google_analytics_tracking_id右邊的一組號碼, 是你自己必須要到<a href="https://www.google.com/analytics/" target="_blank">Google Analytics (分析)</a>去註冊, 然後取得一組序號, 貼在上面</p>
+
+<p>接著, 在<code>octopress\source\_includes</code>目錄下找到<code>google_analytics.html</code></p>
+
+<p>打開它, 然後你要到你剛剛申請的Google Analytics找到<strong>追蹤程式碼</strong></p>
+
+<p>複製追蹤程式碼, 到<code>google_analytics.html</code>中, 完成之後類似這樣</p>
+
+<figure class='code'><figcaption><span>source/_includes/google_analytics.html</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'>
+</span><span class='line'>  <span class="nt">&lt;script&gt;</span>
+</span><span class='line'>  <span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">i</span><span class="p">,</span><span class="nx">s</span><span class="p">,</span><span class="nx">o</span><span class="p">,</span><span class="nx">g</span><span class="p">,</span><span class="nx">r</span><span class="p">,</span><span class="nx">a</span><span class="p">,</span><span class="nx">m</span><span class="p">){</span><span class="nx">i</span><span class="p">[</span><span class="s1">&#39;GoogleAnalyticsObject&#39;</span><span class="p">]</span><span class="o">=</span><span class="nx">r</span><span class="p">;</span><span class="nx">i</span><span class="p">[</span><span class="nx">r</span><span class="p">]</span><span class="o">=</span><span class="nx">i</span><span class="p">[</span><span class="nx">r</span><span class="p">]</span><span class="o">||</span><span class="kd">function</span><span class="p">(){</span>
+</span><span class='line'>  <span class="p">(</span><span class="nx">i</span><span class="p">[</span><span class="nx">r</span><span class="p">].</span><span class="nx">q</span><span class="o">=</span><span class="nx">i</span><span class="p">[</span><span class="nx">r</span><span class="p">].</span><span class="nx">q</span><span class="o">||</span><span class="p">[]).</span><span class="nx">push</span><span class="p">(</span><span class="nx">arguments</span><span class="p">)},</span><span class="nx">i</span><span class="p">[</span><span class="nx">r</span><span class="p">].</span><span class="nx">l</span><span class="o">=</span><span class="mi">1</span><span class="o">*</span><span class="k">new</span> <span class="nb">Date</span><span class="p">();</span><span class="nx">a</span><span class="o">=</span><span class="nx">s</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="nx">o</span><span class="p">),</span>
+</span><span class='line'>  <span class="nx">m</span><span class="o">=</span><span class="nx">s</span><span class="p">.</span><span class="nx">getElementsByTagName</span><span class="p">(</span><span class="nx">o</span><span class="p">)[</span><span class="mi">0</span><span class="p">];</span><span class="nx">a</span><span class="p">.</span><span class="nx">async</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="nx">a</span><span class="p">.</span><span class="nx">src</span><span class="o">=</span><span class="nx">g</span><span class="p">;</span><span class="nx">m</span><span class="p">.</span><span class="nx">parentNode</span><span class="p">.</span><span class="nx">insertBefore</span><span class="p">(</span><span class="nx">a</span><span class="p">,</span><span class="nx">m</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">})(</span><span class="nb">window</span><span class="p">,</span><span class="nb">document</span><span class="p">,</span><span class="s1">&#39;script&#39;</span><span class="p">,</span><span class="s1">&#39;//www.google-analytics.com/analytics.js&#39;</span><span class="p">,</span><span class="s1">&#39;ga&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">ga</span><span class="p">(</span><span class="s1">&#39;create&#39;</span><span class="p">,</span> <span class="s1">&#39;UA-你的Analytics識別碼&#39;</span><span class="p">,</span> <span class="s1">&#39;auto&#39;</span><span class="p">);</span>
+</span><span class='line'>  <span class="nx">ga</span><span class="p">(</span><span class="s1">&#39;send&#39;</span><span class="p">,</span> <span class="s1">&#39;pageview&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="nt">&lt;/script&gt;</span>
+</span><span class='line'>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>完成之後, 存檔, 然後在rake deploy佈署上去就可以了!</p>
 ]]></content>
   </entry>
   
