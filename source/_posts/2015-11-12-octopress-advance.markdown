@@ -15,6 +15,7 @@ categories: octopress
 3. 加上分類雲
 4. 程式碼高亮
 5. imgcap的使用
+6. google analytics
 
 <!--more-->
 
@@ -147,4 +148,39 @@ categories: abc
 
 {% imgcap /images/ttt.jpg 看三小朋友 %}
 
+
+## google analytics
+
+在`octopress`目錄底下找到`_config.yml`
+
+開啟`_config.yml`, 找到底下(大約在97行左右)
+
+	# Google Analytics
+	google_analytics_tracking_id: UA-71198893-1 
+
+其中google_analytics_tracking_id右邊的一組號碼, 是你自己必須要到<a href="https://www.google.com/analytics/" target="_blank">Google Analytics (分析)</a>去註冊, 然後取得一組序號, 貼在上面
+
+接著, 在`octopress\source\_includes`目錄下找到`google_analytics.html`
+
+打開它, 然後你要到你剛剛申請的Google Analytics找到**追蹤程式碼**
+
+複製追蹤程式碼, 到`google_analytics.html`中, 完成之後類似這樣
+
+```html source/_includes/google_analytics.html
+
+{% if site.google_analytics_tracking_id %}
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-你的Analytics識別碼', 'auto');
+  ga('send', 'pageview');
+</script>
+{% endif %}
+
+```
+
+完成之後, 存檔, 然後在rake deploy佈署上去就可以了!
 
