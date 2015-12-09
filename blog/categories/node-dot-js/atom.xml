@@ -4,7 +4,7 @@
   <title><![CDATA[Category: node.js | 江湖險惡，我從來都不輕易留下我的姓名。]]></title>
   <link href="http://kennytu.github.io/blog/categories/node-dot-js/atom.xml" rel="self"/>
   <link href="http://kennytu.github.io/"/>
-  <updated>2015-12-08T20:07:40+08:00</updated>
+  <updated>2015-12-09T21:03:33+08:00</updated>
   <id>http://kennytu.github.io/</id>
   <author>
     <name><![CDATA[Kenny Tu]]></name>
@@ -12,6 +12,167 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[NPM的怪問題]]></title>
+    <link href="http://kennytu.github.io/blog/2015/12/09/npm-weird-issue/"/>
+    <updated>2015-12-09T20:13:55+08:00</updated>
+    <id>http://kennytu.github.io/blog/2015/12/09/npm-weird-issue</id>
+    <content type="html"><![CDATA[<p>好的, 這篇我要來好好的念一下NPM, 也就是 package manager for node.js</p>
+
+<p>這真的太令我生氣啦!!!</p>
+
+<p>如果你是用<strong>WIN7</strong>&hellip; 對! 就是<strong>WIN7</strong>, 你可能會遇到底下我遇到的問題</p>
+
+<p>當你去了官網 <a href="https://nodejs.org/en/">nodejs.org</a> 下載Windows的安裝包, 安裝完成之後, 通常<code>npm</code>都會一起被安裝進去了</p>
+
+<p>這個時候你開啟<code>cmd</code>, 輸入<code>node</code>或者<code>npm</code>, 應該都已經可以執行</p>
+
+<!--more-->
+
+
+<p>好的, 然後你就用了一段時間, 使用<code>npm install -g</code>巴拉巴拉 用的很高興</p>
+
+<p>突然間, 你看到網路上, 欸! 有<code>node.js</code>以及<code>npm</code>的<strong>更新</strong>耶, 超爽Der</p>
+
+<p>你就順手的打開<code>cmd</code>, 輸入<code>npm update -g</code></p>
+
+<p>然後<code>npm</code>跑了好一段時間來update&hellip;.</p>
+
+<h2>接著..噩夢從此開始&hellip;</h2>
+
+<p>你開心地覺得有更新版的可用真好</p>
+
+<p>然後阿</p>
+
+<p>你又在node.js找到一些想要用的module, OK</p>
+
+<p>馬上來玩玩看! 使用 <code>npm install 巴拉巴拉 -g</code></p>
+
+<p>疑!? ERROR!?</p>
+
+<p>蛤!!?!? 簡單的裝個npm install 套件, 居然會ERROR?!!?</p>
+
+<p>大概類似出現底下這樣,</p>
+
+<p><code>npm err windows_nt 6.1.7601</code></p>
+
+<p>然後還有什麼&hellip;</p>
+
+<p><code>Error: EXDEV, cross-device link not permitted</code></p>
+
+<p>OK, 你開始找問題, 上網搜尋了一堆, 大家好像也都遇到奇怪的問題</p>
+
+<p>然後還會亂給建議&hellip;</p>
+
+<p>沒辦法! 真的沒頭緒, 只能一個個Try&hellip;</p>
+
+<p>不管如何Try, 你會發現這個ERROR出現的太詭異了&hellip;</p>
+
+<p>找啊找的.. 真的完全沒頭緒</p>
+
+<p>你快瘋了&hellip;</p>
+
+<h2>就這樣, 突然靈光一閃</h2>
+
+<p>好的, 遇到一些奇怪的問題時, 真的沒辦法解, 你會想要怎麼做?</p>
+
+<p>對, 使用<strong>Clean Room</strong>的環境!!!</p>
+
+<p>先解釋什麼叫做<code>Clean Room</code>, <code>Clean Room</code>就是在乾淨的地方, 重新做一次實驗</p>
+
+<p>我想到, 假如我安裝個模組就出現一堆ERROR, 那node.js release manager不就是要去吃&hellip;嗎!!</p>
+
+<p>當然他不會吃&hellip;! 他一定會做好完整的測試才會Release對吧!?</p>
+
+<p>OK, 所以呢, 接下來, 我執行了</p>
+
+<ol>
+<li><code>npm cache clean -f</code> (npm還會跳出一個警告視窗說: 你確定你知道你要做的是什麼對吧?)</li>
+<li><code>npm install -g</code> (重裝一次)</li>
+</ol>
+
+
+<p>好的, 沒用!</p>
+
+<p><strong>Fuxxxxk!</strong></p>
+
+<h2>突然間, 又靈光一閃</h2>
+
+<p><code>npm cache clean</code> 真的有完全清除嗎!?</p>
+
+<p>我就到了<code>C:\Users\KennyTu\AppData\Roaming</code>目錄下的<code>npm-cache</code>去看, 執行完clean之後, 這個目錄的東西完全沒動到阿!</p>
+
+<p>為什麼我會知道要去這個<code>C:\Users\KennyTu\AppData\Roaming</code>目錄呢, 你就執行</p>
+
+<p><code>npm config get prefix</code>, npm就會return它把安裝的東西放到哪邊去了</p>
+
+<p>哈哈哈哈~~~</p>
+
+<p>好的, 最後我怎麼做呢?</p>
+
+<h2>最終解法</h2>
+
+<p>不囉嗦, 照著底下做</p>
+
+<ol>
+<li>從windows的新增移除程式, 移除node.js以及相關的套件(如果有的話)</li>
+<li>到<code>C:\Users\KennyTu\AppData\Roaming</code>把<code>npm-cache</code>以及<code>npm</code>這兩個目錄幹掉!</li>
+<li>重開機</li>
+<li>重新從<a href="https://nodejs.org/en/">nodejs.org</a> 下載Windows的安裝包, 安裝一次</li>
+<li>大功告成!</li>
+</ol>
+
+
+<p>對, 就是這樣</p>
+
+<p>為什麼會有這樣的問題呢!?</p>
+
+<p>起因就是在於, 新版和舊版的npm對於路徑的設定不同, 然後又不向下相容, 所以就會導致新的npm要去找某個路徑, 發現他找不到!?</p>
+
+<p>舉個例子, 新版npm在安裝沒有安裝過的模組的時候, 需要 <code>超機車的耶</code> 這個套件, 然後npm發現cache裡面已經有 <code>超機車的耶</code> 這個套件, 但是這個 <code>超機車的耶</code> 這個套件是舊的npm裝的, 有些路徑設定在新版的npm沒有, 然後呢, 新版的npm就很高興的去 <code>超機車的耶</code> 這個cache裡面找他要的一些資訊&hellip;. 欸!!? 沒有找到!? 怎麼可能!!? 幹! 報錯給使用者了啦! 老子不爽裝了啦!!!</p>
+
+<p>好的, 就是這樣, 這也是為什麼我們要把前朝的npm所遺留下來的cache清掉的原因&hellip;.</p>
+
+<h2>提醒Windows用戶的注意事項</h2>
+
+<p>所以呢, 總結一下經驗法則</p>
+
+<ol>
+<li><strong>他X的千萬不要在console中, 使用npm update -g</strong>, 你會死掉</li>
+<li><strong>如果你不小心手癢了! 請照上述的最終解法重來一遍吧</strong></li>
+</ol>
+
+
+<p>OK, 附帶一提</p>
+
+<h3>新版sails的問題</h3>
+
+<p>當你把npm修好之後, 使用<code>npm install -g sails</code> 安裝成功</p>
+
+<p>使用<code>sails new testProj</code></p>
+
+<p>then <code>cd testProj</code></p>
+
+<p>Run <code>sails lift</code></p>
+
+<p>你會發現幹~ 怎麼不能RUN, 報錯呢!!! 靠杯</p>
+
+<p>好的, 自力自強, 看error log, 是說找不到什麼洨的套件</p>
+
+<p>就安裝他吧! 例如他靠杯說少了<code>基八毛</code>套件</p>
+
+<p>那就是<code>npm install -g 基八毛</code></p>
+
+<p>裝到Global安裝目錄去!</p>
+
+<p>接著看<code>sails lift</code> 報什麼洨 她找不到的, 就通通滿足她!</p>
+
+<p>裝飽之後~</p>
+
+<p><code>sails lift</code> 就可以正常執行啦!</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Node.js更新問題]]></title>
