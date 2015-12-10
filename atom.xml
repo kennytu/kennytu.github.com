@@ -4,7 +4,7 @@
   <title><![CDATA[江湖險惡，我從來都不輕易留下我的姓名。]]></title>
   <link href="http://kennytu.github.io/atom.xml" rel="self"/>
   <link href="http://kennytu.github.io/"/>
-  <updated>2015-12-10T19:01:45+08:00</updated>
+  <updated>2015-12-10T19:09:58+08:00</updated>
   <id>http://kennytu.github.io/</id>
   <author>
     <name><![CDATA[Kenny Tu]]></name>
@@ -14,15 +14,13 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Sails Socket.io的練習之一-針對Sails 0.11新版]]></title>
+    <title type="html"><![CDATA[Sails Socket.io基本概念 - Watch and Subscribe]]></title>
     <link href="http://kennytu.github.io/blog/2015/12/10/sails-socket-dot-io/"/>
     <updated>2015-12-10T11:09:01+08:00</updated>
     <id>http://kennytu.github.io/blog/2015/12/10/sails-socket-dot-io</id>
-    <content type="html"><![CDATA[<p>OK, 由於Irl先生接下來會用到socket.io, 整合到activityOverlord專案中,</p>
+    <content type="html"><![CDATA[<p>OK, 由於Irl先生接下來會用到socket.io, 整合到activityOverlord專案中</p>
 
-<p>然後Irl是用舊版的Sails, 也就是Sails 0.9的</p>
-
-<p>在Sails 0.11之後, sails對於socket.io的支援改動滿大的</p>
+<p>因為Irl先生是用舊版的Sails, 也就是Sails 0.9的, 而在Sails 0.11之後, sails對於socket.io的支援改動滿大的</p>
 
 <p>所以我就上網找了一些相容於sails 0.11的專案來練習</p>
 
