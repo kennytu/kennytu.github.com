@@ -4,7 +4,7 @@
   <title><![CDATA[江湖險惡，我從來都不輕易留下我的姓名。]]></title>
   <link href="http://kennytu.github.io/atom.xml" rel="self"/>
   <link href="http://kennytu.github.io/"/>
-  <updated>2015-12-09T21:47:39+08:00</updated>
+  <updated>2015-12-10T19:01:45+08:00</updated>
   <id>http://kennytu.github.io/</id>
   <author>
     <name><![CDATA[Kenny Tu]]></name>
@@ -12,6 +12,366 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Sails Socket.io的練習之一-針對Sails 0.11新版]]></title>
+    <link href="http://kennytu.github.io/blog/2015/12/10/sails-socket-dot-io/"/>
+    <updated>2015-12-10T11:09:01+08:00</updated>
+    <id>http://kennytu.github.io/blog/2015/12/10/sails-socket-dot-io</id>
+    <content type="html"><![CDATA[<p>OK, 由於Irl先生接下來會用到socket.io, 整合到activityOverlord專案中,</p>
+
+<p>然後Irl是用舊版的Sails, 也就是Sails 0.9的</p>
+
+<p>在Sails 0.11之後, sails對於socket.io的支援改動滿大的</p>
+
+<p>所以我就上網找了一些相容於sails 0.11的專案來練習</p>
+
+<p>先講幾個用法上的觀念</p>
+
+<ol>
+<li>Sails已經將socket.io整合進自己的架構, 你可以在<code>assets\js\dependencies\</code>找到<code>sails.io.js</code>這個檔案, 這個檔案就是socket.io的精隨了</li>
+<li>Sails將socket.io的使用整合進它自己的MVC架構, 也就是說, 我們在操控socket.io這些方法的時候, 大部分是在Controller這邊處理, 我們會在後面的例子中談到</li>
+<li>Sails針對socket.io的用法有提供socket.io模式的Method,也有提供Sails本身Data Module的Method, 看你要用哪一種</li>
+</ol>
+
+
+<!--more-->
+
+
+<p>以上幾個觀念, 詳細請參考<a href="http://sailsjs.org/documentation/reference/web-sockets/socket-client" target="_blank">Socket Client (sails.io.js)</a>, 老實說文件寫得有夠精簡的&hellip;. 看完也不知道怎麼用</p>
+
+<p>好的, 接下來我們用例子來讓大家有感覺</p>
+
+<p>本篇的實作是參考<strong>stenio123</strong>大哥的專案, 他的專案程式碼都放在他的Github, 請參考 <a href="https://github.com/stenio123/sails-socket-example" target="_blank">sails-socket-example</a></p>
+
+<p>他也有寫了一個網誌來教學, 請看 <a href="http://impacta.us/sails-with-socket-io-part-14/" target="_blank">Sails with socket.io</a>, 不過他好像只寫了前兩篇, 後兩篇就沒著落了.</p>
+
+<p>讓我們開始, 先建立一個Sails專案</p>
+
+<pre><code>sails new socket_test
+
+cd socket_test
+</code></pre>
+
+<p>先試試看可不可以Run</p>
+
+<pre><code>sails lift
+</code></pre>
+
+<p>開啟瀏覽器, 輸入<code>localhost:1337</code> 看看結果</p>
+
+<p>注意! 你在執行sails lift的時候有可能會發生缺少什麼module, 請看我上一篇網誌<strong>NPM的怪問題</strong>獲得可能的解答</p>
+
+<p>第一次執行的時候, Sails會問你關於資料庫的存取問題, 到<code>config</code>目錄下的<code>models.js</code>, 把<code>migrate</code>改成 <code>'safe'</code>即可</p>
+
+<p>OK, 沒問題的話, 接下來就開始來寫Code了</p>
+
+<pre><code>socket_test&gt; sails generate api User
+</code></pre>
+
+<p>Sails會幫我們在<code>api</code>目錄下的<code>controllers</code>以及<code>models</code>這兩個目錄下, 產生相對應的檔案</p>
+
+<p>我們先修改<code>api\controllers\UserController.js</code>, 把裡面的東西全刪掉, 將下面的程式複製貼上</p>
+
+<figure class='code'><figcaption><span>UserController.js</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">watchUser</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="c1">// watch for new User instances</span>
+</span><span class='line'>        <span class="nx">User</span><span class="p">.</span><span class="nx">watch</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">socket</span><span class="p">);</span>
+</span><span class='line'>        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;User watching &#39;</span> <span class="o">+</span> <span class="nx">req</span><span class="p">.</span><span class="nx">socket</span><span class="p">.</span><span class="nx">id</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">},</span>
+</span><span class='line'>    <span class="nx">subscribeUser</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="c1">// subscribe client to model changes</span>
+</span><span class='line'>        <span class="nx">User</span><span class="p">.</span><span class="nx">subscribe</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">socket</span><span class="p">);</span>
+</span><span class='line'>        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;User subscribed to &#39;</span> <span class="o">+</span> <span class="nx">req</span><span class="p">.</span><span class="nx">socket</span><span class="p">.</span><span class="nx">id</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">},</span>
+</span><span class='line'>    <span class="nx">createpub</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="kd">var</span> <span class="nx">data_from_client</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">params</span><span class="p">.</span><span class="nx">all</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">isSocket</span> <span class="o">&amp;&amp;</span> <span class="nx">req</span><span class="p">.</span><span class="nx">method</span> <span class="o">===</span> <span class="s1">&#39;POST&#39;</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="nx">User</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="nx">data_from_client</span><span class="p">)</span>
+</span><span class='line'>                <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">data_from_client</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">data_from_client</span><span class="p">);</span>
+</span><span class='line'>                    <span class="nx">User</span><span class="p">.</span><span class="nx">publishCreate</span><span class="p">({</span><span class="nx">id</span><span class="o">:</span> <span class="nx">data_from_client</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span> <span class="nx">name</span><span class="o">:</span> <span class="nx">data_from_client</span><span class="p">.</span><span class="nx">name</span><span class="p">});</span>
+</span><span class='line'>                <span class="p">})</span>
+</span><span class='line'>                <span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Error creating new User. Error: &#39;</span> <span class="o">+</span> <span class="nx">err</span><span class="p">);</span>
+</span><span class='line'>                    <span class="k">return</span> <span class="nx">res</span><span class="p">.</span><span class="nx">serverError</span><span class="p">(</span><span class="s1">&#39;Server encountered a problem. Please contact administrator.&#39;</span><span class="p">);</span>
+</span><span class='line'>                <span class="p">});</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>            <span class="k">return</span> <span class="nx">res</span><span class="p">.</span><span class="nx">badRequest</span><span class="p">(</span><span class="s1">&#39;Sorry, this endpoint only accessible via sockets.&#39;</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">},</span>
+</span><span class='line'>    <span class="nx">index</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nx">res</span><span class="p">.</span><span class="nx">view</span><span class="p">({</span>
+</span><span class='line'>            <span class="nx">welcomeMessage</span><span class="o">:</span> <span class="s1">&#39;Welcome to Sails + socket.io simple test. Please refrain from adding client logic on the server!&#39;</span>
+</span><span class='line'>        <span class="p">});</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>接著, 我們到<code>views</code>底下新增一個<code>user</code>的目錄, 在<code>user</code>目錄新增一個<code>index.ejs</code>的檔案</p>
+
+<figure class='code'><figcaption><span>views\user\index.ejs</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="o">&lt;%=</span> <span class="nx">welcomeMessage</span> <span class="o">%&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">br</span><span class="o">/&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="nx">input</span> <span class="nx">type</span><span class="o">=</span><span class="s2">&quot;text&quot;</span> <span class="nx">id</span><span class="o">=</span><span class="s2">&quot;name&quot;</span><span class="o">&gt;</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="nx">button</span> <span class="nx">id</span><span class="o">=</span><span class="s2">&quot;go-data&quot;</span><span class="o">&gt;</span><span class="nx">Submit</span><span class="o">!&lt;</span><span class="err">/button&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">br</span><span class="o">/&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">ul</span> <span class="nx">id</span><span class="o">=</span><span class="s2">&quot;user-list&quot;</span><span class="o">&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="err">/ul&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;%</span> <span class="nx">block</span><span class="p">(</span><span class="s1">&#39;localScripts&#39;</span><span class="p">,</span> <span class="s1">&#39;&lt;script src=&quot;/view_specific/user_index_misc.js&quot;&gt;&lt;/script&gt;&#39;</span><span class="p">)</span> <span class="o">%&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>這個程式碼解釋一下, Sails有提供layout, partial and block template functions for the EJS template engine.</p>
+
+<p>其實就是express 3.x然後使用ejs-local的範本(因為sails就是架構在express上面的呀)</p>
+
+<p>其中<code>&lt;% block ... %&gt;</code>, 裡面的意思是說, 這個local的javasript, 就只有給這個index.ejs用, 不會被其他的網頁包含</p>
+
+<p>這個技巧在動態網頁互動很常使用到, 所以可以學習一下</p>
+
+<p>要很注意的是, 我在<code>&lt;% block</code> 這個標籤, 並沒有加上 <strong>-</strong> 這個,</p>
+
+<p>也就是說, 我沒有用<code>&lt;%- block ... %&gt;</code>這個加上<strong>-</strong>的方式, 網路上有不少人都會加上這個dash sign, 但這會造成一些錯誤, 我們會在附錄中解說</p>
+
+<p>但在sails的使用上, 我們還得注意到另外一個地方, 若要使用這個<code>&lt;% block ... %&gt;</code>標籤, 我們需要去修改<code>layout.ejs</code></p>
+
+<p>在<code>&lt;!--SCRIPTS END--&gt;</code>下面, 加上一段話, 程式碼如下</p>
+
+<figure class='code'><figcaption><span>views\layout.ejs</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'>    <span class="c">&lt;!--</span><span class="nx">SCRIPTS</span><span class="o">--&gt;</span>
+</span><span class='line'>    <span class="o">&lt;</span><span class="nx">script</span> <span class="nx">src</span><span class="o">=</span><span class="s2">&quot;/js/dependencies/sails.io.js&quot;</span><span class="o">&gt;&lt;</span><span class="err">/script&gt;</span>
+</span><span class='line'>    <span class="o">&lt;</span><span class="nx">script</span> <span class="nx">src</span><span class="o">=</span><span class="s2">&quot;/js/dependencies/jquery-1.11.1.min.js&quot;</span><span class="o">&gt;&lt;</span><span class="err">/script&gt;</span>
+</span><span class='line'>    <span class="c">&lt;!--</span><span class="nx">SCRIPTS</span> <span class="nx">END</span><span class="o">--&gt;</span>
+</span><span class='line'>    <span class="o">&lt;%-</span> <span class="nx">blocks</span><span class="p">.</span><span class="nx">localScripts</span> <span class="o">%&gt;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">&lt;</span><span class="err">/body&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="err">/html&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>注意到我們在<code>&lt;!--SCRIPTS END--&gt;</code>下加入了<code>&lt;%- blocks.localScripts %&gt;</code></p>
+
+<p>簡單介紹一下layout.ejs, 被<code>&lt;!--SCRIPTS--&gt;</code>和<code>&lt;!--SCRIPTS END--&gt;</code>包住的這兩行程式碼, 是Sails自動產生的,</p>
+
+<p>Sails會根據我們放在<code>assets\js\dependencies</code>裡面的檔案, 把這些檔案的檔名掃描進來, 放到<code>&lt;!--SCRIPTS--&gt;</code>和<code>&lt;!--SCRIPTS END--&gt;</code>中間</p>
+
+<p>那你會想說, 如果我的javascript有先後順序的話, 我要怎麼調整順序呢?</p>
+
+<p>請到<code>tasks\pipeline.js</code>, 找到<code>jsFilesToInject</code>這個區段, 參考底下</p>
+
+<figure class='code'><figcaption><span>pipeline.js</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="c1">// Client-side javascript files to inject in order</span>
+</span><span class='line'><span class="c1">// (uses Grunt-style wildcard/glob/splat expressions)</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">jsFilesToInject</span> <span class="o">=</span> <span class="p">[</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Load sails.io before everything else</span>
+</span><span class='line'>  <span class="s1">&#39;js/dependencies/sails.io.js&#39;</span><span class="p">,</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Dependencies like jQuery, or Angular are brought in here</span>
+</span><span class='line'>  <span class="s1">&#39;js/dependencies/**/*.js&#39;</span><span class="p">,</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// All of the rest of your client-side js files</span>
+</span><span class='line'>  <span class="c1">// will be injected here in no particular order.</span>
+</span><span class='line'>  <span class="s1">&#39;js/**/*.js&#39;</span><span class="p">,</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Use the &quot;exclude&quot; operator to ignore files</span>
+</span><span class='line'>  <span class="c1">// &#39;!js/ignore/these/files/*.js&#39;</span>
+</span><span class='line'><span class="p">];</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>若要更改順序, 就把你想要的javascript按照寫在這邊, 就可以了, 上面的說明應該滿清楚的</p>
+
+<p>好的, views/user/index.ejs完成之後, 我們要來處理Client端的介面</p>
+
+<p>到<code>assets</code>這個路徑下, 新增一個<code>view_specific</code>的目錄, 然後在此目錄下新增<code>user_index_misc.js</code>這個檔案</p>
+
+<p>檔案內容如下</p>
+
+<figure class='code'><figcaption><span>user_index_misc.js</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="c1">//sends this socket id so it can be subscribed at the controller</span>
+</span><span class='line'><span class="nx">io</span><span class="p">.</span><span class="nx">socket</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;/user/subscribeUser&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">resData</span><span class="p">,</span> <span class="nx">jwres</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">resData</span><span class="p">);</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">//adds listener and what to do once receives event notification</span>
+</span><span class='line'><span class="nx">io</span><span class="p">.</span><span class="nx">socket</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;user&#39;</span><span class="p">,</span><span class="kd">function</span><span class="p">(</span><span class="nx">obj</span><span class="p">){</span>
+</span><span class='line'>    <span class="c1">//if(obj.verb ===&#39;created&#39;){</span>
+</span><span class='line'>    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;chat event is &#39;</span><span class="o">+</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">obj</span><span class="p">));</span>
+</span><span class='line'>    <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#user-list&quot;</span><span class="p">).</span><span class="nx">append</span><span class="p">(</span><span class="s1">&#39;&lt;li&gt;&#39;</span> <span class="o">+</span> <span class="nx">obj</span><span class="p">.</span><span class="nx">data</span><span class="p">.</span><span class="nx">name</span> <span class="o">+</span> <span class="s1">&#39;&lt;/li&gt;&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#go-data&quot;</span><span class="p">).</span><span class="nx">click</span><span class="p">(</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">io</span><span class="p">.</span><span class="nx">socket</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="s1">&#39;/user/createpub/&#39;</span><span class="p">,{</span><span class="nx">name</span><span class="o">:</span><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#name&quot;</span><span class="p">).</span><span class="nx">val</span><span class="p">()});</span>
+</span><span class='line'>    <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#name&quot;</span><span class="p">).</span><span class="nx">val</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>新增完成之後, 最後一件事情就是, 將Jquery放到<code>assets\js\dependencies\</code></p>
+
+<p>也就是上去Jquery的網站, 去下載Jquery的檔案, 1.x版本或者2.x版都可以</p>
+
+<p>例如我這邊就是<code>assets\js\dependencies\jquery-1.11.1.min.js</code></p>
+
+<p>下載完放好之後, 你就會在layout.ejs裡面看到sails已經將jquery-1.11.1.min.js放進去了</p>
+
+<p>OK, 事前準備終於完成了</p>
+
+<p>啊! 還有一個要改, 就是首頁的Route</p>
+
+<p>到<code>config\routes.js</code>, 把<code>view: 'homepage'</code>拿掉, 改成以下</p>
+
+<figure class='code'><figcaption><span>config\routes.js</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'>    <span class="s1">&#39;/&#39;</span><span class="o">:</span><span class="p">{</span>
+</span><span class='line'>        <span class="nx">controller</span><span class="o">:</span> <span class="s1">&#39;User&#39;</span><span class="p">,</span>
+</span><span class='line'>        <span class="nx">action</span><span class="o">:</span> <span class="s1">&#39;index&#39;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>這樣就確保我們的首頁就是User底下的index了</p>
+
+<p>現在, 執行以下指令</p>
+
+<pre><code>sails lift
+</code></pre>
+
+<p>開啟瀏覽器, 輸入localhost:1337</p>
+
+<p>會出現一個讓我們輸入client的畫面, 我們使用firefox的firebug開啟除錯視窗, 然後觀察輸出的訊息 (也要觀察後台的訊息唷)</p>
+
+<p>若沒有問題的話, 這就是我們stenio123大哥的第一部分的示範</p>
+
+<h2>附錄</h2>
+
+<p>上面提到Sails有提供layout, partial and block template functions for the EJS template engine.</p>
+
+<p>然後提到<code>&lt;%- block ... %&gt;</code>這個加上<strong>-</strong>的方式</p>
+
+<p>這邊有個觀念是, 在ejs中, 若使用 <code>&lt;%-</code>這個有dash符號的, 那麼ejs就會去執行被<code>&lt;%-</code>包含起來的javascript程式碼. 專業一點的說法就是, 我們可以藉由這個<code>&lt;%-</code>符號, 來注入(inject)我們的javascript的程式碼.</p>
+
+<p>另外一方面, 為什麼提到上述我們在使用<code>&lt;% block</code>這個tag的時候, 不能加dash呢? 是因為若我們使用了<code>&lt;%- block</code>, ejs會做兩次動作, 第一次是先執行要注入的程式碼, 也就是在<code>&lt;%- block</code>包含的javascript, 然後, 將此段javascript轉為此頁面的一部分, 結果, 當瀏覽器執行到此javascript的時候, 又會在執行一次, 結果造成了執行兩次的誤動作.</p>
+
+<p>這樣會有什麼問題呢?</p>
+
+<p>一個問題就是, 當ejs在執行第一次的注入javascript的時候, 若這個javascript有相依其他的javascript, 例如JQuery的時候, 它會發生找不到相依的錯誤, 直到第二次, 當瀏覽器依照正確的順序將相依的javascript匯入的時候, 第二次執行就沒有問題&hellip;</p>
+
+<p>以上的討論可以參考 <a href="http://stackoverflow.com/questions/22112763/sails-js-how-to-inject-a-js-file-to-a-specific-route" target="_blank">Sails.js - How to inject a js file to a specific route?</a> 這個討論串</p>
+
+<p>另外, 關於EJS的一些概念, 請參考底下網站</p>
+
+<ul>
+<li><p><a href="http://www.embeddedjs.com/getting_started.html" target="_blank">Getting Started with EJS</a></p></li>
+<li><p><a href="http://blogger.gtwang.org/2014/02/ejs-embedded-javascript.html" target="_blank">EJS：Client 端嵌入式（Embedded）JavaScript</a></p></li>
+<li><p><a href="http://ccc.nqu.edu.tw/wd.html#wp:ejs" target="_blank">ejs 樣板引擎</a></p></li>
+<li><p><a href="http://www.embeddedjs.com/screencast/index.html" target="_blank">Clean AJAX with EJS</a></p></li>
+</ul>
+
+
+<h2>Sails不錯的簡報</h2>
+
+<ul>
+<li><a href="http://www.slideshare.net/stenio123/sails-js-intro-impactaus" target="_blank">ails-js-intro-impactaus</a>, 第21頁, 很棒的介紹!</li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[NPM的怪問題]]></title>
@@ -4950,359 +5310,6 @@ google_analytics_tracking_id: UA-71198893-1
 
 
 <p>完成之後, 存檔, 然後在rake deploy佈署上去就可以了!</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[在Windows 7系統安裝 Octopress]]></title>
-    <link href="http://kennytu.github.io/blog/2015/11/11/init-blog/"/>
-    <updated>2015-11-11T19:53:26+08:00</updated>
-    <id>http://kennytu.github.io/blog/2015/11/11/init-blog</id>
-    <content type="html"><![CDATA[<p>好的, 事出有因, 源自我看到滿多人都開始使用github寫Blog, 我也開始有這個想法</p>
-
-<p>但因為手頭上的作業系統是win7, 想順手來試試看, 但卻遭遇了不少困難</p>
-
-<p>最後花了不少時間終於把Octopress弄到我的Github上面, 在此記錄了一下我的安裝經驗</p>
-
-<!--more-->
-
-
-<h2>下載基本需要安裝的套件</h2>
-
-<ol>
-<li><p><a href="https://git-scm.com/download/win" target="_blank">Git Client for Win7 64 bits</a></p></li>
-<li><p><a href="http://rubyinstaller.org/downloads/" target="_blank">RubyInstaller for Win7 64 bits</a></p>
-
-<p> 檔案位於 RubyInstaller 分類, 有一個Ruby 2.2.3 (x64), 點它下載</p></li>
-<li><p><a href="http://rubyinstaller.org/downloads/" target="_blank">Ruby DEVELOPMENT KITfor Win7 64 bits</a></p>
-
-<p> 檔案位於 DEVELOPMENT KIT 分類, 選擇 For use with Ruby 2.0 and above (x64 - 64bits only)</p></li>
-<li><p><a href="http://www.activestate.com/activepython/downloads" target="_blank">Python 2.7.X</a></p>
-
-<p> 我在這邊選擇的Python是ActiveState公司出品的Free Version, 這個版本包含很多好用的Python Plugin</p></li>
-</ol>
-
-
-<h2>開始安裝套件</h2>
-
-<p>基本上, 安裝git client沒有什麼難度, 但有一些細節要注意, 例如你想直接用ssh和GitHub連線, 那就要作一些設定, 我將安裝git ssh的設定寫在另外一篇, 請參考 (巴拉巴拉)</p>
-
-<p>安裝完git之後, 開啟<code>cmd</code>,輸入<code>git --version</code>, 應該會有版本號碼出現</p>
-
-<p>接著安裝RubuyInstaller, 點選安裝檔案, 然後一直按Next Next..Install就可以裝完了, 要記得勾選 Add Ruby excutables to your PATH, 如下圖</p>
-
-<p><span class='caption-wrapper'><img class='caption' src='http://kennytu.github.io/images/cotopress_install/ruby01.jpg' width='' height='' title='請全部都勾選吧'><span class='caption-text'>請全部都勾選吧</span></span></p>
-
-<p>安裝完成之後, 開啟你的cmd, 輸入 <code>ruby --version</code>, 看看有沒有什麼東西印出來</p>
-
-<p>如果出現類似command not found.. 請關閉cmd再重新開啟一個(讓cmd重新讀取環境變數)</p>
-
-<p>若在沒有, 那就是你一定沒有在安裝的時候勾選設定PATH.</p>
-
-<p>除此之外, 安裝Ruby的過程不會出現什麼奇怪的現象了, 如果有, 請在下方留言 (但現在沒有留言版給你留言&hellip; :P)</p>
-
-<p>若要進一步看Ruby是否設定進去環境變數,</p>
-
-<p>在<code>cmd</code>中輸入<code>set</code>, 看是否有出現這一行</p>
-
-<p><code>PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC;.PY;.RB;.RBW</code></p>
-
-<p>上面最後有出現.RB, .RBW, 那就是了 (不知道你是否懷疑Ruby沒有設定進PATH, 但卻可以執行?)</p>
-
-<p>我想PATHEXT就是解答之一</p>
-
-<p>安裝完成之後, 接下來一定要<strong>緊接著</strong>安裝<strong>RUBY DEVELOPMENT KIT</strong> (超!重!要!)</p>
-
-<p>RUBY DEV KIT是一個自我解壓縮包, 請解壓縮到C:\RubyDevKit</p>
-
-<p>然後執行</p>
-
-<pre><code>C:\RubyDevKit&gt;ruby dk.rb init
-    [INFO] found RubyInstaller v2.2.3 at C:/Ruby22-x64
-    Initialization complete! Please review and modify the auto-generated
-    'config.yml' file to ensure it contains the root directories to all
-    of the installed Rubies you want enhanced by the DevKit.
-C:\RubyDevKit&gt;ruby dk.rb install
-    [INFO] Updating convenience notice gem override for 'C:/Ruby22-x64'
-    [INFO] Installing 'C:/Ruby22-x64/lib/ruby/site_ruby/devkit.rb'
-</code></pre>
-
-<p>基本上應該要沒什麼問題, 有問題請到<a href="https://github.com/oneclick/rubyinstaller/wiki/Development-Kit" target="_blank">Ruby DEVELOPMENT Github</a> 尋求專業解答</p>
-
-<p>好的, 安裝完RubyDevKit之後, 最後把Python裝一裝, 這個沒什麼難度, 要注意就是勾選<strong>把Python加入環境變數Path</strong></p>
-
-<p>以上就是基本套件安裝</p>
-
-<h2>開始著手進行Octopress的安裝</h2>
-
-<p>接下來, 在你想要安裝的目錄下面, 開啟CMD</p>
-
-<p><strong>這邊要切記, 要使用Administrator開啟CMD</strong></p>
-
-<p>執行以下指令, 例如我是在D:\kenny_blog</p>
-
-<pre><code>D:\kenny_blog&gt;git clone git://github.com/imathis/octopress.git octopress
-</code></pre>
-
-<p>注意, 我們要從octopress這個github clone下來到我們的一個新的目錄叫做 octopress</p>
-
-<p>接下來, <code>cd</code>進去<code>octopress</code>的目錄</p>
-
-<pre><code>D:\kenny_blog&gt;cd octopress
-D:\kenny_blog\octopress&gt;gem install bundler
-D:\kenny_blog\octopress&gt;bundle install
-D:\kenny_blog\octopress&gt;rake install
-</code></pre>
-
-<p>底下是我的詳細的執行過程</p>
-
-<pre><code>D:\kenny_blog\octopress&gt;gem install bundler
-    Fetching: bundler-1.10.6.gem (100%)
-    Successfully installed bundler-1.10.6
-    Parsing documentation for bundler-1.10.6
-    Installing ri documentation for bundler-1.10.6
-    Done installing documentation for bundler after 4 seconds
-    1 gem installed
-
-D:\kenny_blog\octopress&gt;bundle install
-    Fetching gem metadata from https://rubygems.org/...........
-    Fetching version metadata from https://rubygems.org/...
-    Fetching dependency metadata from https://rubygems.org/..
-    Resolving dependencies...
-    Using rake 10.4.2
-    Installing RedCloth 4.2.9 with native extensions
-    Installing blankslate 2.1.2.4
-    Installing chunky_png 1.3.5
-    Installing fast-stemmer 1.0.2 with native extensions
-    Installing classifier-reborn 2.0.4
-    Installing coffee-script-source 1.9.1.1
-    Installing execjs 2.6.0
-    Installing coffee-script 2.4.1
-    Installing colorator 0.1
-    Installing multi_json 1.11.2
-    Installing sass 3.4.19
-    Installing compass-core 1.0.3
-    Installing compass-import-once 1.0.5
-    Installing rb-fsevent 0.9.6
-    Installing ffi 1.9.10
-    Installing rb-inotify 0.9.5
-    Installing compass 1.0.3
-    Installing tilt 2.0.1
-    Installing haml 4.0.7
-    Installing jekyll-coffeescript 1.0.1
-    Installing jekyll-gist 1.3.5
-    Installing jekyll-paginate 1.1.0
-    Installing jekyll-sass-converter 1.3.0
-    Installing listen 3.0.4
-    Installing jekyll-watch 1.3.0
-    Installing kramdown 1.9.0
-    Installing liquid 2.6.3
-    Installing mercenary 0.3.5
-    Installing posix-spawn 0.3.11 with native extensions
-    Installing yajl-ruby 1.2.1 with native extensions
-    Installing pygments.rb 0.6.3
-    Installing redcarpet 3.3.3 with native extensions
-    Installing safe_yaml 1.0.4
-    Installing parslet 1.5.0
-    Installing toml 0.1.2
-    Installing jekyll 2.5.3
-    Installing jekyll-sitemap 0.9.0
-    Installing octopress-hooks 2.6.1
-    Installing octopress-date-format 2.0.2
-    Installing rack 1.6.4
-    Installing rack-protection 1.5.3
-    Installing rdiscount 2.1.8 with native extensions
-    Installing sass-globbing 1.0.0
-    Installing sinatra 1.4.6
-    Installing stringex 1.4.0
-    Using bundler 1.10.6
-    Bundle complete! 13 Gemfile dependencies, 47 gems now installed.
-    Use `bundle show [gemname]` to see where a bundled gem is installed.
-    Post-install message from compass:
-        Compass is charityware. If you love it, please donate on our behalf at http:
-    //umdf.org/compass Thanks!
-    Post-install message from haml:
-
-    HEADS UP! Haml 4.0 has many improvements, but also has changes that may break
-    your application:
-
-    * Support for Ruby 1.8.6 dropped
-    * Support for Rails 2 dropped
-    * Sass filter now always outputs &lt;style&gt; tags
-    * Data attributes are now hyphenated, not underscored
-    * html2haml utility moved to the html2haml gem
-    * Textile and Maruku filters moved to the haml-contrib gem
-
-    For more info see:
-
-    http://rubydoc.info/github/haml/haml/file/CHANGELOG.md
-
-D:\kenny_blog\octopress&gt;rake install
-    //cmd will open new window to run below 
-    ## Copying classic theme into ./source and ./sass
-    mkdir -p source
-    cp -r .themes/classic/source/. source
-    mkdir -p sass
-    cp -r .themes/classic/sass/. sass
-    mkdir -p source/_posts
-    mkdir -p public
-</code></pre>
-
-<p>OK, 大功告成, 若沒有順利到這邊</p>
-
-<p>底下列出幾個你會在bundle install遇到的問題</p>
-
-<ul>
-<li><p>若你沒有先安裝RubyDevKit, 就執行<code>bundle install</code>, 你應該會遇到底下的問題</p>
-
-<pre><code>  Bundler::GemspecError: Could not read gem at C:/Ruby22-x64/lib/ruby/gems/2.2.0/c
-  ache/RedCloth-4.2.9.gem. It may be corrupted.
-  An error occurred while installing RedCloth (4.2.9), and Bundler cannot
-  continue.
-  Make sure that `gem install RedCloth -v '4.2.9'` succeeds before bundling.****
-</code></pre>
-
-<p>請記得回去安裝RubyDevKit</p></li>
-<li><p>若你安裝了RubyDevKit還是遇到相同的問題, 請記得清空Cache, 因為上述的錯誤提示你說Could not read gem at&hellip;, 請到<code>C:/Ruby22-x64/lib/ruby/gems/2.2.0/cache</code> 底下, 把看到的東西全部都刪除, 這個時候再重新執行就可以了. 我在這邊卡超久 (=‵′=)</p></li>
-</ul>
-
-
-<h2>申請Github的網址空間</h2>
-
-<p>以上都Run完成之後, 我們要先回到github上面,來創造一個我們要用來存放網誌的容器(repository)</p>
-
-<p>在此之前, 我先說明一下網誌的網址, 使用octopress在github上建立網誌(Blog)的時候, github會默認我們的網誌的網址(address)為 <code>YourName.github.io</code></p>
-
-<p>舉例來說, 我在github上面的帳號是kennytu, 那麼我的Blog的URL網址就是 <code>kennytu.github.io</code></p>
-
-<p>OK, 回到github上, 我們執行以下步驟</p>
-
-<ol>
-<li>在Github上Create一個容器,名為YourName.github.com, for example: kennytu.github.com</li>
-<li>點一下SSH clone URL, 把SSH URL記錄起來, 晚一點要讓octopress使用</li>
-</ol>
-
-
-<blockquote><p>上述的第2步驟, 是要在第1步驟創建完成之後, 再點選進去你新的容器, 就會在右下方看到SSH clone URL的小按鈕</p></blockquote>
-
-<p>以上, 就完成了github的容器創建, 其實滿容易的, 剩餘的就是多K一下git的基本知識. git的進階用法太多了, 是要努力學習一下</p>
-
-<h2>將Octopress的一些範本資料, 同步到我們剛剛申請的github容器裡</h2>
-
-<p>一樣在剛剛的目錄, 我們先輸入底下指令</p>
-
-<pre><code>D:\kenny_blog\octopress&gt;rake setup_github_pages
-</code></pre>
-
-<p>此時CMD會跳出要我們輸入github的repository, 我們就把剛剛從SSH clone URL複製的URL貼過來</p>
-
-<p>在這邊的範例就是 <code>git@github.com:kennytu/kennytu.github.com.git</code></p>
-
-<p>完成之後, octopress就會開始執行一些初始化作業, 接著執行</p>
-
-<pre><code>D:\kenny_blog\octopress&gt;rake generate
-D:\kenny_blog\octopress&gt;rake deploy
-</code></pre>
-
-<p>基本上, 到這邊為止, 我們已經完成了大部份的設定了.</p>
-
-<p>作完deply之後, 我們可以到github的網頁, 去看看我們剛剛創建的repository, 在這邊是<code>kennytu.github.io</code></p>
-
-<p>會看到如下的畫面</p>
-
-<p><span class='caption-wrapper'><img class='caption' src='http://kennytu.github.io/images/cotopress_install/github_octopress.png' width='' height='' title=''><span class='caption-text'></span></span></p>
-
-<p>我們發現到在這個repo(repository的縮寫)底下有兩個branch:</p>
-
-<p>一個是source</p>
-
-<p>另一個是master</p>
-
-<p>這兩的branch在底下要稍微介紹一下</p>
-
-<h3>Octopress對於branch的管理</h3>
-
-<p>在這一節的開始, 我來說明一下octopress目錄下的git branch</p>
-
-<p>請在安裝路徑, 我這邊的話就是D:\kenny_blog, 輸入以下指令</p>
-
-<pre><code>D:\kenny_blog\octopress&gt;git branch
-* source
-
-D:\kenny_blog\\octopress&gt;cd _deploy
-
-D:\kenny_blog\octopress\_deploy&gt;git branch
-* master
-</code></pre>
-
-<p>當我們使用octopress撰寫Blog的時候, 我們是對source的這個branch作修改, octopress基本上不會對這個source brunch作任何動作, 也就是說, 我們要自己使用git來維護這個source (當然,剛開始是octopress幫我們創建這個source branch的)</p>
-
-<p>在寫完網誌(用我滿喜歡的Markdown語法)之後, 我們使用<code>rake generate</code>來產生靜態網頁, 這時候octopress會將靜態網頁放在<code>_deploy</code>這個目錄下, 而這個目錄是branch master的範圍, 接著, 當我們使用<code>rake deploy</code>,將_deploy底下的所有檔案佈署到遠端repo的時候,它是佈署到origin master這個branch去的(octopress會自動用git幫我們佈署). 最後, 我們的github.io的Blog, 是以master這個branch,作為網站資料的來源來顯示</p>
-
-<p>ok, 所以說, source資料夾裡面所更改的任何code, 我們都要自己透過底下指令</p>
-
-<pre><code>git add .
-git commit .  
-git push origin source
-</code></pre>
-
-<p>PS. commit的時候可以用 <code>git commit . -m "message"</code> (跳過開啟應用程式要寫comment的步驟)</p>
-
-<p>當我們在source資料夾, 使用git push origin source的時候, 並不會將底下的_deploy的資料夾一起push上去,這是因為octopres有幫我們做了一些設定, 以區別master和source的更改</p>
-
-<p>OK, 講到這邊, 希望有個基本的理解了</p>
-
-<p>接下來要介紹如何寫文章</p>
-
-<h2>創建新的文章, Preview以及Deploy</h2>
-
-<p>在source的branch下, 執行</p>
-
-<pre><code>rake new_post['文章標題']
-</code></pre>
-
-<p>例如,
-    D:\kenny_blog\octopress>\rake new_post[&lsquo;my_initial_page&rsquo;]</p>
-
-<p>此時octopress會在source的目錄下創建一個<code>2015-11-11-init-blog.markdown</code>檔案</p>
-
-<p>以我的例子來說, 也就是在<code>D:\kenny_blog\octopress\source\_posts</code>裡面</p>
-
-<p>使用 rake new_post語法的時候, 不能使用中文來當標題, 會發生錯誤. 你可以先用英文創建, 然後再進去檔案裡面修改你要的標題即可</p>
-
-<p>編輯完檔案, 執行</p>
-
-<pre><code>rake generate
-</code></pre>
-
-<p>octopress就會開始作處理, 並且把相對應的修改部份轉換到_deploy資料夾</p>
-
-<p>接著, 可以執行preview</p>
-
-<pre><code>rake preview
-</code></pre>
-
-<p>這樣octopress會開出一個localhost:4000的來給你預覽</p>
-
-<p>最後, 作deploy</p>
-
-<pre><code>rake deploy
-</code></pre>
-
-<p>將_deploy底下的靜態網頁同步到github上面</p>
-
-<p>如此, 我們直接可以開瀏覽器, 輸入<code>http://kennytu.github.io</code>作線上瀏覽了</p>
-
-<p>最後, 最重要的步驟, 就是將你在source branch修改的部分也同步到github上面</p>
-
-<pre><code>git add . (如果有新的檔案)
-git commit . 
-git push origin source
-</code></pre>
-
-<p>OK, 完成</p>
-
-<p>本篇的安裝經驗到這邊, 謝謝大家 (￣︶￣)&amp;gt</p>
 ]]></content>
   </entry>
   

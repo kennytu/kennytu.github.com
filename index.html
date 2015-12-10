@@ -9,7 +9,7 @@
   <meta name="author" content="Kenny Tu">
 
   
-  <meta name="description" content="好的, 這篇我要來好好的念一下NPM, 也就是 package manager for node.js 這真的太令我生氣啦!!! 如果你是用WIN7&hellip; 對! 就是WIN7, 你可能會遇到底下我遇到的問題 當你去了官網 nodejs.org 下載Windows的安裝包, 安裝完成之後 &hellip;">
+  <meta name="description" content="OK, 由於Irl先生接下來會用到socket.io, 整合到activityOverlord專案中, 然後Irl是用舊版的Sails, 也就是Sails 0.9的 在Sails 0.11之後, sails對於socket.io的支援改動滿大的 所以我就上網找了一些相容於sails 0. &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -75,6 +75,58 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/12/10/sails-socket-dot-io/">Sails Socket.io的練習之一-針對Sails 0.11新版</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-12-10T11:09:01+08:00'><span class='date'>2015 年12 月10 日</span> <span class='time'>11:09 am</span></time>
+        
+           | <a href="/blog/2015/12/10/sails-socket-dot-io/#disqus_thread"
+             data-disqus-identifier="http://kennytu.github.io/blog/2015/12/10/sails-socket-dot-io/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>OK, 由於Irl先生接下來會用到socket.io, 整合到activityOverlord專案中,</p>
+
+<p>然後Irl是用舊版的Sails, 也就是Sails 0.9的</p>
+
+<p>在Sails 0.11之後, sails對於socket.io的支援改動滿大的</p>
+
+<p>所以我就上網找了一些相容於sails 0.11的專案來練習</p>
+
+<p>先講幾個用法上的觀念</p>
+
+<ol>
+<li>Sails已經將socket.io整合進自己的架構, 你可以在<code>assets\js\dependencies\</code>找到<code>sails.io.js</code>這個檔案, 這個檔案就是socket.io的精隨了</li>
+<li>Sails將socket.io的使用整合進它自己的MVC架構, 也就是說, 我們在操控socket.io這些方法的時候, 大部分是在Controller這邊處理, 我們會在後面的例子中談到</li>
+<li>Sails針對socket.io的用法有提供socket.io模式的Method,也有提供Sails本身Data Module的Method, 看你要用哪一種</li>
+</ol>
+
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2015/12/10/sails-socket-dot-io/">點擊這裡繼續閱讀 &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -512,53 +564,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/11/27/mongodb-setting/">Mongo Database 簡介以及GUI介面使用</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-11-27T19:25:17+08:00'><span class='date'>2015 年11 月27 日</span> <span class='time'>7:25 pm</span></time>
-        
-           | <a href="/blog/2015/11/27/mongodb-setting/#disqus_thread"
-             data-disqus-identifier="http://kennytu.github.io/blog/2015/11/27/mongodb-setting/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>在進行sails練習的下一章之前, 有需要對Mongo Database做一些簡單的練習.</p>
-
-<p>由於我看到Irl nathan是使用<a href="http://genghisapp.com/" target="_blank">Genghis</a>來作為Mongo DB的Web GUI介面, 但是是在MAC OS上安裝的, 我想在Win7上面也來裝一下, 以方便連接Mongo DB, 但天殺的在win7上安裝遇到太多問題, 甚至還要修改C語言的程式碼&hellip;.</p>
-
-<p>我review了一下genghis, 發現這個作者在2014年年底就沒有再維護了&hellip;</p>
-
-<p>奮戰了三到四個小時之後, 我更改戰略, 到mongodb的官網看看還有沒有其他更適合的WEB ADMIN GUI可以用</p>
-
-<p>所以我改用了<a href="https://github.com/andzdroid/mongo-express" target="_blank">mongo-express</a></p>
-
-<p>這篇文章就是在介紹mongo-express怎麼使用(最基本的)</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2015/11/27/mongodb-setting/">點擊這裡繼續閱讀 &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/2">&larr; Older</a>
@@ -571,11 +576,15 @@
   
     <section>
   <h1>Categories</h1>
-    <ul id="category-list"><li><a href='/blog/categories/mongodb/'>mongodb (1)</a></li><li><a href='/blog/categories/node-dot-js/'>node.js (2)</a></li><li><a href='/blog/categories/npm/'>npm (2)</a></li><li><a href='/blog/categories/octopress/'>octopress (2)</a></li><li><a href='/blog/categories/sails/'>sails (16)</a></li></ul>
+    <ul id="category-list"><li><a href='/blog/categories/mongodb/'>mongodb (1)</a></li><li><a href='/blog/categories/node-dot-js/'>node.js (2)</a></li><li><a href='/blog/categories/npm/'>npm (2)</a></li><li><a href='/blog/categories/octopress/'>octopress (2)</a></li><li><a href='/blog/categories/sails/'>sails (16)</a></li><li><a href='/blog/categories/sails-socket-dot-io/'>sails socket.io (1)</a></li></ul>
 </section>
 <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/12/10/sails-socket-dot-io/">Sails Socket.io的練習之一-針對Sails 0.11新版</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2015/12/09/npm-weird-issue/">NPM的怪問題</a>
@@ -591,10 +600,6 @@
     
       <li class="post">
         <a href="/blog/2015/12/04/sails-study13/">Sails練習之十三 - 區分管理者和一般使用者</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/12/04/sails-study12/">Sails練習之十二 - 改善User登入認證的導航介面</a>
       </li>
     
   </ul>
