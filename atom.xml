@@ -4,7 +4,7 @@
   <title><![CDATA[江湖險惡，我從來都不輕易留下我的姓名。]]></title>
   <link href="http://kennytu.github.io/atom.xml" rel="self"/>
   <link href="http://kennytu.github.io/"/>
-  <updated>2015-12-10T19:09:58+08:00</updated>
+  <updated>2015-12-10T19:17:48+08:00</updated>
   <id>http://kennytu.github.io/</id>
   <author>
     <name><![CDATA[Kenny Tu]]></name>
@@ -280,7 +280,7 @@ cd socket_test
 <span class='line-number'>15</span>
 <span class='line-number'>16</span>
 </pre></td><td class='code'><pre><code class='js'><span class='line'><span class="c1">//sends this socket id so it can be subscribed at the controller</span>
-</span><span class='line'><span class="nx">io</span><span class="p">.</span><span class="nx">socket</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;/user/subscribeUser&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">resData</span><span class="p">,</span> <span class="nx">jwres</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'><span class="nx">io</span><span class="p">.</span><span class="nx">socket</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;/user/watchUser&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">resData</span><span class="p">,</span> <span class="nx">jwres</span><span class="p">)</span> <span class="p">{</span>
 </span><span class='line'>    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">resData</span><span class="p">);</span>
 </span><span class='line'><span class="p">});</span>
 </span><span class='line'>

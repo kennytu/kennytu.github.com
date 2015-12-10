@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Sails socket.io | 江湖險惡，我從來都不輕易留下我的姓名。]]></title>
   <link href="http://kennytu.github.io/blog/categories/sails-socket-dot-io/atom.xml" rel="self"/>
   <link href="http://kennytu.github.io/"/>
-  <updated>2015-12-10T19:09:58+08:00</updated>
+  <updated>2015-12-10T19:17:48+08:00</updated>
   <id>http://kennytu.github.io/</id>
   <author>
     <name><![CDATA[Kenny Tu]]></name>
@@ -199,7 +199,7 @@ var jsFilesToInject = [</p>
 </code></pre>
 
 <p>//sends this socket id so it can be subscribed at the controller
-io.socket.get(&lsquo;/user/subscribeUser&rsquo;, function(resData, jwres) {
+io.socket.get(&lsquo;/user/watchUser&rsquo;, function(resData, jwres) {
     console.log(resData);
 });</p>
 
