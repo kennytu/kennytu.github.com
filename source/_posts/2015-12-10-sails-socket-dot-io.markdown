@@ -1,16 +1,14 @@
 ---
 layout: post
-title: "Sails Socket.io的練習之一-針對Sails 0.11新版"
+title: "Sails Socket.io基本概念 - watch and subscribe"
 date: 2015-12-10 11:09:01 +0800
 comments: true
-categories: [sails socket.io]
+categories: [sails, socket.io]
 ---
 
-OK, 由於Irl先生接下來會用到socket.io, 整合到activityOverlord專案中,
+OK, 由於Irl先生接下來會用到socket.io, 整合到activityOverlord專案中
 
-然後Irl是用舊版的Sails, 也就是Sails 0.9的
-
-在Sails 0.11之後, sails對於socket.io的支援改動滿大的
+因為Irl先生是用舊版的Sails, 也就是Sails 0.9的, 而在Sails 0.11之後, sails對於socket.io的支援改動滿大的
 
 所以我就上網找了一些相容於sails 0.11的專案來練習
 
@@ -184,7 +182,7 @@ var jsFilesToInject = [
 ```js user_index_misc.js
 
 //sends this socket id so it can be subscribed at the controller
-io.socket.get('/user/subscribeUser', function(resData, jwres) {
+io.socket.get('/user/watchUser', function(resData, jwres) {
     console.log(resData);
 });
 
