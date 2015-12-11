@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Sails | 江湖險惡，我從來都不輕易留下我的姓名。]]></title>
   <link href="http://kennytu.github.io/blog/categories/sails/atom.xml" rel="self"/>
   <link href="http://kennytu.github.io/"/>
-  <updated>2015-12-10T19:17:48+08:00</updated>
+  <updated>2015-12-11T16:18:21+08:00</updated>
   <id>http://kennytu.github.io/</id>
   <author>
     <name><![CDATA[Kenny Tu]]></name>
@@ -12,6 +12,528 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Sails Socket.io基本概念 - Rooms and Streams]]></title>
+    <link href="http://kennytu.github.io/blog/2015/12/11/sails-socket-dot-io-2/"/>
+    <updated>2015-12-11T15:30:30+08:00</updated>
+    <id>http://kennytu.github.io/blog/2015/12/11/sails-socket-dot-io-2</id>
+    <content type="html"><![CDATA[<p>好的, 這一篇是接著<strong>stenio123</strong>老大的第二章節, 也就是 <a href="http://impacta.us/sails-with-socket-io-part-24/" target="_blank">part 2 – Sails js Socket.io intermediate – rooms and streams</a></p>
+
+<p>這一篇的練習做完, 大致上就可以掌握sails socket.io的百分之七十的用法了</p>
+
+<p>我們先把程式碼寫一寫</p>
+
+<p>這個程式碼是接續自上一篇, 我們繼續在socket_test的專案下執行</p>
+
+<!--more-->
+
+
+<pre><code>sails generate controller TeamNews
+</code></pre>
+
+<p>然後修改一下檔案</p>
+
+<pre><code class="js api\controllers\TeamNewsController.js">
+/**
+ * TeamNewsController
+ *
+ * @description :: Server-side logic for managing Teamnews
+ * @help        :: See http://sailsjs.org/#!/documentation/concepts/Controllers
+ */
+
+module.exports = {
+    index:function (req, res) {
+        var teamNames = [{name:'blackhawks'}, {name:'lightning'}];
+        var hawks_fans = sails.sockets.subscribers('blackhawks');
+        var lightning_fans = sails.sockets.subscribers('lightning');
+
+
+        res.view({
+            teams: teamNames,
+            hawksFans: hawks_fans,
+            lightningFans: lightning_fans
+        });
+
+    },
+    broadcastnews: function (req, res) {
+        var data = {};
+        data.name = req.param("team");
+        data.news = req.param("news");
+
+        var rooms = sails.sockets.rooms();
+        var hawks = sails.sockets.subscribers("blackhawks");
+        var lightning = sails.sockets.subscribers("lightning");
+
+        console.log("Available rooms: " + JSON.stringify(rooms));
+        console.log("subscribers hawks: " + JSON.stringify(hawks));
+        console.log("subscribers lightning: " + JSON.stringify(lightning));
+
+        sails.sockets.broadcast(data.name, "news", data);
+    },
+    blastnews: function (req, res) {
+        var news = req.param("news");
+        sails.sockets.blast('news', news);
+    },
+    //this is how we keep track of how many sockets each team has in their room,
+    joinroomfans: function (req,res) {
+        console.log("joining room fans socket id" + req.socket.id);
+        sails.sockets.join(req.socket, 'blackhawksFans');
+        sails.sockets.join(req.socket, 'lightningFans');
+        sails.sockets.broadcast('blackhawksFans', 'updatedblackhawks', sails.sockets.subscribers('blackhawks').length);
+        sails.sockets.broadcast('lightningFans', 'updatedlightning', sails.sockets.subscribers('lightning').length);
+    },
+    //this is how a socket joins room to receive news of their team
+    joinroom:function (req,res) {
+        var teamName = req.param("teamName");
+        sails.sockets.join(req.socket,teamName);
+        console.log( 'Socket ' + req.socket.id + 'joined room: ' + teamName);
+        //teamName+'Fans' is name of the room, 'updated'+teamName is name of event
+        sails.sockets.broadcast(teamName+'Fans', 'updated'+teamName, sails.sockets.subscribers(teamName).length);
+    },
+    //leave room from team news
+    leaveroom:function (req,res) {
+        var teamName = req.param("teamName");
+        sails.sockets.leave(req.socket,teamName);
+        console.log( 'Socket' + req.socket.id + 'left room: ' + teamName);
+        //teamName+'Fans' is name of the room, 'updated'+teamName is name of event
+        sails.sockets.broadcast(teamName+'Fans', 'updated'+teamName, sails.sockets.subscribers(teamName).length);
+    }
+};
+</code></pre>
+
+<p>接著新增<code>views\teamnews\index.ejs</code></p>
+
+<p>```js views\teamnews\index.ejs</p>
+
+<h1>Sails js with socket io tutorial - part 2</h1>
+
+
+<p>You can check the tutorial <a href="http://www.impacta.us/blog">here</a>.
+<a href="http://kennytu.github.io/user/">Part1 </a> Part2 Part3 Part4</p>
+
+<p><p></p>
+
+<p>&lt;% if (teams) { %>
+  <select id="teamNameSelect">
+    <option value="0" selected="selected" style="display:none;">Select team</option>
+     &lt;% _.each(teams, function(team) {  %>
+    <option value="<%=team.name%>&ldquo;>&lt;%=team.name%></option>
+    &lt;% }) %>
+  </select>
+&lt;% } %>
+<input type="text" id="news" name="news" placeholder="type team news here"/>
+<button id="submit">Submit team news!</button> or <button id="blast">Blast to everyone</button>
+</p>
+<h3>Subscribe to Chicago Blackhawks news</h3></p>
+
+<h1>of subscribed fans: <div id="blackhawksFans"></div></h1>
+
+<p><br/>
+<button id="gohawks">Go Hawks!</button>
+<ul id="blackhawks">
+</ul>
+<button id="nohawks">Unsubscribe to Hawks!</button></p>
+
+<p><h3>Subscribe to Tampa Lightning news</h3></p>
+
+<h1>of subscribed fans: <div id="lightningFans"></div></h1>
+
+<p><br/>
+<button id="gotampa">Go Tampa!</button>
+<ul id="lightning">
+</ul>
+<button id="notampa">Unsubscribe to Tampa!</button></p>
+
+<p> <!-- END Page Content -->
+&lt;% block(&lsquo;localScripts&rsquo;, &lsquo;<script src="http://kennytu.github.io/view_specific/teamnews_index_misc.js"></script>&rsquo;) %></p>
+
+<pre><code>
+再來是`assets\view_specific\teamnews_index_misc.js`
+</code></pre>
+
+<p>//when page loads, register this socket to receive notification of new fans(sockets) subscribed
+$(document).ready(function () {
+    io.socket.post(&lsquo;/teamnews/joinroomfans/&rsquo;, {});
+});</p>
+
+<p>/<em>* event handling for Fan room </em>/
+io.socket.on(&lsquo;updatedblackhawks&rsquo;, function (response) {
+    console.log(&ldquo; fan response is &rdquo; + JSON.stringify(response));
+    $(&ldquo;#blackhawksFans&rdquo;).html(response);
+});
+io.socket.on(&lsquo;updatedlightning&rsquo;, function (response) {
+    console.log(&ldquo; fan response is &rdquo; + JSON.stringify(response));
+    $(&ldquo;#lightningFans&rdquo;).html(response);
+});</p>
+
+<p>//adds listener and what to do once receives event notification
+io.socket.on(&lsquo;news&rsquo;, function (response) {
+    console.log(&ldquo;response is &rdquo; + JSON.stringify(response));
+    //if it is a sails.socket.broadcast
+    if (response.name) {
+        if (response.name === &lsquo;blackhawks&rsquo;) {
+            $(&ldquo;#blackhawks&rdquo;).append(&lsquo;<li>&rsquo; + response.news + &lsquo;</li>&rsquo;);
+        } else {
+            if (response.name === &lsquo;lightning&rsquo;) {
+                $(&ldquo;#lightning&rdquo;).append(&lsquo;<li>&rsquo; + response.news + &lsquo;</li>&rsquo;);
+            }
+        }
+        //if it is sails.socket.blast
+    } else {
+        $(&ldquo;#blackhawks&rdquo;).append(&lsquo;<li>&rsquo; + response + &lsquo;</li>&rsquo;);
+        $(&ldquo;#lightning&rdquo;).append(&lsquo;<li>&rsquo; + response + &lsquo;</li>&rsquo;);
+    }
+})</p>
+
+<p>//subscribes to Blackhawks messages (code on TeamNewsController.subscribe)
+$(&ldquo;#gohawks&rdquo;).click(function () {
+    io.socket.post(&lsquo;/teamnews/joinroom/&rsquo;, {teamName: &lsquo;blackhawks&rsquo;});
+    alert(&ldquo;subscribed to Hawks news!&rdquo;);
+});
+//unsubscribes to Blackhawks messages (code on TeamNewsController.subscribe)
+$(&ldquo;#nohawks&rdquo;).click(function () {
+    io.socket.post(&lsquo;/teamnews/leaveroom/&rsquo;, {teamName: &lsquo;blackhawks&rsquo;});
+    alert(&ldquo;unsubscribed to Hawks news!&rdquo;);
+});</p>
+
+<p>//subscribes to Lightning messages (code on TeamNewsController.subscribe)
+$(&ldquo;#gotampa&rdquo;).click(function () {
+    io.socket.post(&lsquo;/teamnews/joinroom/&rsquo;, {teamName: &lsquo;lightning&rsquo;});
+    alert(&ldquo;subscribed to Lightning news!&rdquo;);
+});
+//unsubscribes to Lightning messages (code on TeamNewsController.subscribe)
+$(&ldquo;#notampa&rdquo;).click(function () {
+    io.socket.post(&lsquo;/teamnews/leaveroom/&rsquo;, {teamName: &lsquo;lightning&rsquo;});
+    alert(&ldquo;unsubscribed to Lightning news!&rdquo;);
+});</p>
+
+<p>$(&ldquo;#submit&rdquo;).click(function () {
+    if ($(&ldquo;#teamNameSelect&rdquo;).val() != &ldquo;0&rdquo;) {
+        io.socket.post(&lsquo;/teamnews/broadcastnews/&rsquo;, {
+            team: $(&ldquo;#teamNameSelect&rdquo;).val(),
+            <a href="news:">news:</a> $(&ldquo;#news&rdquo;).val()
+        });
+    } else {
+        alert(&ldquo;please select team!&rdquo;);
+    }
+});</p>
+
+<p>$(&ldquo;#blast&rdquo;).click(function () {
+    io.socket.post(&lsquo;/teamnews/blastnews/&rsquo;, {
+        <a href="news:">news:</a> $(&ldquo;#news&rdquo;).val()
+    });</p>
+
+<p>});</p>
+
+<pre><code>
+最後修改一下`config\routes.js`, 將首頁設定成TeamNews的index
+</code></pre>
+
+<p> &lsquo;/&rsquo;:{
+        controller: &lsquo;TeamNews&rsquo;,
+        action: &lsquo;index&rsquo;
+     }</p>
+
+<p>```</p>
+
+<p>OK, 大功告成.</p>
+
+<p>存檔, 從新啟動sails.</p>
+
+<pre><code>sails lift
+</code></pre>
+
+<p>然後在瀏覽器輸入localhost:1337</p>
+
+<p>就可以開始來玩玩看嚕!</p>
+
+<p>記得開啟瀏覽器的除錯模式(例如firefox的firebug)</p>
+
+<p>觀察前端以及後端的log</p>
+
+<h3>參考資料</h3>
+
+<ul>
+<li><a href="http://sailsjs.org/documentation/reference/web-sockets/socket-client" target="_blank">Socket Client (sails.io.js)</a></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Sails Socket.io基本概念 - Watch and Subscribe]]></title>
+    <link href="http://kennytu.github.io/blog/2015/12/10/sails-socket-dot-io/"/>
+    <updated>2015-12-10T11:09:01+08:00</updated>
+    <id>http://kennytu.github.io/blog/2015/12/10/sails-socket-dot-io</id>
+    <content type="html"><![CDATA[<p>OK, 由於Irl先生接下來會用到socket.io, 整合到activityOverlord專案中</p>
+
+<p>因為Irl先生是用舊版的Sails, 也就是Sails 0.9的, 而在Sails 0.11之後, sails對於socket.io的支援改動滿大的</p>
+
+<p>所以我就上網找了一些相容於sails 0.11的專案來練習</p>
+
+<p>先講幾個用法上的觀念</p>
+
+<ol>
+<li>Sails已經將socket.io整合進自己的架構, 你可以在<code>assets\js\dependencies\</code>找到<code>sails.io.js</code>這個檔案, 這個檔案就是socket.io的精隨了</li>
+<li>Sails將socket.io的使用整合進它自己的MVC架構, 也就是說, 我們在操控socket.io這些方法的時候, 大部分是在Controller這邊處理, 我們會在後面的例子中談到</li>
+<li>Sails針對socket.io的用法有提供socket.io模式的Method,也有提供Sails本身Data Module的Method, 看你要用哪一種</li>
+</ol>
+
+
+<!--more-->
+
+
+<p>以上幾個觀念, 詳細請參考<a href="http://sailsjs.org/documentation/reference/web-sockets/socket-client" target="_blank">Socket Client (sails.io.js)</a>, 老實說文件寫得有夠精簡的&hellip;. 看完也不知道怎麼用</p>
+
+<p>好的, 接下來我們用例子來讓大家有感覺</p>
+
+<p>本篇的實作是參考<strong>stenio123</strong>大哥的專案, 他的專案程式碼都放在他的Github, 請參考 <a href="https://github.com/stenio123/sails-socket-example" target="_blank">sails-socket-example</a></p>
+
+<p>他也有寫了一個網誌來教學, 請看 <a href="http://impacta.us/sails-with-socket-io-part-14/" target="_blank">Sails with socket.io</a>, 不過他好像只寫了前兩篇, 後兩篇就沒著落了.</p>
+
+<p>讓我們開始, 先建立一個Sails專案</p>
+
+<pre><code>sails new socket_test
+
+cd socket_test
+</code></pre>
+
+<p>先試試看可不可以Run</p>
+
+<pre><code>sails lift
+</code></pre>
+
+<p>開啟瀏覽器, 輸入<code>localhost:1337</code> 看看結果</p>
+
+<p>注意! 你在執行sails lift的時候有可能會發生缺少什麼module, 請看我上一篇網誌<strong>NPM的怪問題</strong>獲得可能的解答</p>
+
+<p>第一次執行的時候, Sails會問你關於資料庫的存取問題, 到<code>config</code>目錄下的<code>models.js</code>, 把<code>migrate</code>改成 <code>'safe'</code>即可</p>
+
+<p>OK, 沒問題的話, 接下來就開始來寫Code了</p>
+
+<pre><code>socket_test&gt; sails generate api User
+</code></pre>
+
+<p>Sails會幫我們在<code>api</code>目錄下的<code>controllers</code>以及<code>models</code>這兩個目錄下, 產生相對應的檔案</p>
+
+<p>我們先修改<code>api\controllers\UserController.js</code>, 把裡面的東西全刪掉, 將下面的程式複製貼上</p>
+
+<pre><code class="js UserController.js">
+module.exports = {
+    watchUser: function (req, res) {
+        // watch for new User instances
+        User.watch(req.socket);
+        console.log('User watching ' + req.socket.id);
+    },
+    subscribeUser: function (req, res) {
+        // subscribe client to model changes
+        User.subscribe(req.socket);
+        console.log('User subscribed to ' + req.socket.id);
+    },
+    createpub: function (req, res) {
+        var data_from_client = req.params.all();
+
+        if (req.isSocket &amp;&amp; req.method === 'POST') {
+            User.create(data_from_client)
+                .then(function (data_from_client) {
+                    console.log(data_from_client);
+                    User.publishCreate({id: data_from_client.id, name: data_from_client.name});
+                })
+                .catch(function (err) {
+                    console.log('Error creating new User. Error: ' + err);
+                    return res.serverError('Server encountered a problem. Please contact administrator.');
+                });
+        }
+        else {
+            return res.badRequest('Sorry, this endpoint only accessible via sockets.');
+        }
+    },
+    index: function (req, res) {
+        res.view({
+            welcomeMessage: 'Welcome to Sails + socket.io simple test. Please refrain from adding client logic on the server!'
+        });
+    }
+
+};
+</code></pre>
+
+<p>接著, 我們到<code>views</code>底下新增一個<code>user</code>的目錄, 在<code>user</code>目錄新增一個<code>index.ejs</code>的檔案</p>
+
+<p>```js views\user\index.ejs</p>
+
+<p>&lt;%= welcomeMessage %>
+<br/></p>
+
+<p>
+    <input type="text" id="name">
+    <button id="go-data">Submit!</button>
+</p>
+
+
+<p><br/></p>
+
+<ul id="user-list">
+</ul>
+
+
+<p>&lt;% block(&lsquo;localScripts&rsquo;, &lsquo;<script src="http://kennytu.github.io/view_specific/user_index_misc.js"></script>&rsquo;) %></p>
+
+<pre><code>
+這個程式碼解釋一下, Sails有提供layout, partial and block template functions for the EJS template engine. 
+
+其實就是express 3.x然後使用ejs-local的範本(因為sails就是架構在express上面的呀)
+
+其中`&lt;% block ... %&gt; `, 裡面的意思是說, 這個local的javasript, 就只有給這個index.ejs用, 不會被其他的網頁包含
+
+這個技巧在動態網頁互動很常使用到, 所以可以學習一下
+
+要很注意的是, 我在`&lt;% block` 這個標籤, 並沒有加上 **-** 這個, 
+
+也就是說, 我沒有用`&lt;%- block ... %&gt; `這個加上**-**的方式, 網路上有不少人都會加上這個dash sign, 但這會造成一些錯誤, 我們會在附錄中解說
+
+但在sails的使用上, 我們還得注意到另外一個地方, 若要使用這個`&lt;% block ... %&gt; `標籤, 我們需要去修改`layout.ejs`
+
+在`&lt;!--SCRIPTS END--&gt;`下面, 加上一段話, 程式碼如下
+</code></pre>
+
+<pre><code>&lt;!--SCRIPTS--&gt;
+&lt;script src="http://kennytu.github.io/js/dependencies/sails.io.js"&gt;&lt;/script&gt;
+&lt;script src="http://kennytu.github.io/js/dependencies/jquery-1.11.1.min.js"&gt;&lt;/script&gt;
+&lt;!--SCRIPTS END--&gt;
+&lt;%- blocks.localScripts %&gt;
+</code></pre>
+
+<p>  </body>
+</html></p>
+
+<pre><code>
+注意到我們在`&lt;!--SCRIPTS END--&gt;`下加入了`&lt;%- blocks.localScripts %&gt;` 
+
+簡單介紹一下layout.ejs, 被`&lt;!--SCRIPTS--&gt;`和`&lt;!--SCRIPTS END--&gt;`包住的這兩行程式碼, 是Sails自動產生的,
+
+Sails會根據我們放在`assets\js\dependencies`裡面的檔案, 把這些檔案的檔名掃描進來, 放到`&lt;!--SCRIPTS--&gt;`和`&lt;!--SCRIPTS END--&gt;`中間
+
+那你會想說, 如果我的javascript有先後順序的話, 我要怎麼調整順序呢?
+
+請到`tasks\pipeline.js`, 找到`jsFilesToInject`這個區段, 參考底下
+</code></pre>
+
+<p>// Client-side javascript files to inject in order
+// (uses Grunt-style wildcard/glob/splat expressions)
+var jsFilesToInject = [</p>
+
+<p>  // Load sails.io before everything else
+  &lsquo;js/dependencies/sails.io.js&rsquo;,</p>
+
+<p>  // Dependencies like jQuery, or Angular are brought in here
+  &lsquo;js/dependencies/<em>*/</em>.js&rsquo;,</p>
+
+<p>  // All of the rest of your client-side js files
+  // will be injected here in no particular order.
+  &lsquo;js/<em>*/</em>.js&rsquo;,</p>
+
+<p>  // Use the &ldquo;exclude&rdquo; operator to ignore files
+  // &lsquo;!js/ignore/these/files/*.js&rsquo;
+];</p>
+
+<pre><code>若要更改順序, 就把你想要的javascript按照寫在這邊, 就可以了, 上面的說明應該滿清楚的
+
+好的, views/user/index.ejs完成之後, 我們要來處理Client端的介面
+
+到`assets`這個路徑下, 新增一個`view_specific`的目錄, 然後在此目錄下新增`user_index_misc.js`這個檔案
+
+檔案內容如下
+</code></pre>
+
+<p>//sends this socket id so it can be subscribed at the controller
+io.socket.get(&lsquo;/user/watchUser&rsquo;, function(resData, jwres) {
+    console.log(resData);
+});</p>
+
+<p>//adds listener and what to do once receives event notification
+io.socket.on(&lsquo;user&rsquo;,function(obj){
+    //if(obj.verb ===&lsquo;created&rsquo;){
+    console.log(&lsquo;chat event is &rsquo;+ JSON.stringify(obj));
+    $(&ldquo;#user-list&rdquo;).append(&lsquo;<li>&rsquo; + obj.data.name + &lsquo;</li>&rsquo;);
+});</p>
+
+<p>$(&ldquo;#go-data&rdquo;).click( function() {
+    io.socket.post(&lsquo;/user/createpub/&rsquo;,{name:$(&ldquo;#name&rdquo;).val()});
+    $(&ldquo;#name&rdquo;).val(&ldquo;&rdquo;);
+});</p>
+
+<pre><code>
+新增完成之後, 最後一件事情就是, 將Jquery放到`assets\js\dependencies\`
+
+也就是上去Jquery的網站, 去下載Jquery的檔案, 1.x版本或者2.x版都可以
+
+例如我這邊就是`assets\js\dependencies\jquery-1.11.1.min.js`
+
+下載完放好之後, 你就會在layout.ejs裡面看到sails已經將jquery-1.11.1.min.js放進去了
+
+OK, 事前準備終於完成了
+
+啊! 還有一個要改, 就是首頁的Route
+
+到`config\routes.js`, 把`view: 'homepage'`拿掉, 改成以下
+</code></pre>
+
+<pre><code>'/':{
+    controller: 'User',
+    action: 'index'
+}
+</code></pre>
+
+<p>```</p>
+
+<p>這樣就確保我們的首頁就是User底下的index了</p>
+
+<p>現在, 執行以下指令</p>
+
+<pre><code>sails lift
+</code></pre>
+
+<p>開啟瀏覽器, 輸入localhost:1337</p>
+
+<p>會出現一個讓我們輸入client的畫面, 我們使用firefox的firebug開啟除錯視窗, 然後觀察輸出的訊息 (也要觀察後台的訊息唷)</p>
+
+<p>若沒有問題的話, 這就是我們stenio123大哥的第一部分的示範</p>
+
+<h2>附錄</h2>
+
+<p>上面提到Sails有提供layout, partial and block template functions for the EJS template engine.</p>
+
+<p>然後提到<code>&lt;%- block ... %&gt;</code>這個加上<strong>-</strong>的方式</p>
+
+<p>這邊有個觀念是, 在ejs中, 若使用 <code>&lt;%-</code>這個有dash符號的, 那麼ejs就會去執行被<code>&lt;%-</code>包含起來的javascript程式碼. 專業一點的說法就是, 我們可以藉由這個<code>&lt;%-</code>符號, 來注入(inject)我們的javascript的程式碼.</p>
+
+<p>另外一方面, 為什麼提到上述我們在使用<code>&lt;% block</code>這個tag的時候, 不能加dash呢? 是因為若我們使用了<code>&lt;%- block</code>, ejs會做兩次動作, 第一次是先執行要注入的程式碼, 也就是在<code>&lt;%- block</code>包含的javascript, 然後, 將此段javascript轉為此頁面的一部分, 結果, 當瀏覽器執行到此javascript的時候, 又會在執行一次, 結果造成了執行兩次的誤動作.</p>
+
+<p>這樣會有什麼問題呢?</p>
+
+<p>一個問題就是, 當ejs在執行第一次的注入javascript的時候, 若這個javascript有相依其他的javascript, 例如JQuery的時候, 它會發生找不到相依的錯誤, 直到第二次, 當瀏覽器依照正確的順序將相依的javascript匯入的時候, 第二次執行就沒有問題&hellip;</p>
+
+<p>以上的討論可以參考 <a href="http://stackoverflow.com/questions/22112763/sails-js-how-to-inject-a-js-file-to-a-specific-route" target="_blank">Sails.js - How to inject a js file to a specific route?</a> 這個討論串</p>
+
+<p>另外, 關於EJS的一些概念, 請參考底下網站</p>
+
+<ul>
+<li><p><a href="http://www.embeddedjs.com/getting_started.html" target="_blank">Getting Started with EJS</a></p></li>
+<li><p><a href="http://blogger.gtwang.org/2014/02/ejs-embedded-javascript.html" target="_blank">EJS：Client 端嵌入式（Embedded）JavaScript</a></p></li>
+<li><p><a href="http://ccc.nqu.edu.tw/wd.html#wp:ejs" target="_blank">ejs 樣板引擎</a></p></li>
+<li><p><a href="http://www.embeddedjs.com/screencast/index.html" target="_blank">Clean AJAX with EJS</a></p></li>
+</ul>
+
+
+<h2>Sails不錯的簡報</h2>
+
+<ul>
+<li><a href="http://www.slideshare.net/stenio123/sails-js-intro-impactaus" target="_blank">ails-js-intro-impactaus</a>, 第21頁, 很棒的介紹!</li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[NPM的怪問題]]></title>
@@ -608,125 +1130,6 @@ OK, 修改到這邊, 功能大概都完成了, 存檔, 重新啟動sails
 <h2>參考資料</h2>
 
 <p><a href="http://stackoverflow.com/questions/767486/how-do-you-check-if-a-variable-is-an-array-in-javascript" target="_blank">How do you check if a variable is an array in JavaScript?</a></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Sails練習之十二 - 改善User登入認證的導航介面]]></title>
-    <link href="http://kennytu.github.io/blog/2015/12/04/sails-study12/"/>
-    <updated>2015-12-04T14:34:16+08:00</updated>
-    <id>http://kennytu.github.io/blog/2015/12/04/sails-study12</id>
-    <content type="html"><![CDATA[<p>本章主要是調整登入的外觀</p>
-
-<p>課程連結是 <a href="https://www.youtube.com/watch?v=P0K36-c5G4A" target="_blank">Building a Sails Application: Ep15 - Improving user authenticated navigation.</a></p>
-
-<p>主要是修改<code>activeityOverload\views\layout.ejs</code></p>
-
-<p>在原本<code>&lt;%- body %&gt;</code>的上方, 有個簡單的頭導航介面, 把它換成如下的程式碼</p>
-
-<!--more-->
-
-
-<pre><code class="html layout.ejs">
-...
-
-&lt;body&gt;
-
-  &lt;div class="navbar navbar-inverse navbar-fixed-top"&gt;
-      &lt;div class="container"&gt;
-          &lt;div class="navbar-header"&gt;
-              &lt;button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse"&gt;
-                  &lt;span class="icon-bar"&gt;&lt;/span&gt;
-                  &lt;span class="icon-bar"&gt;&lt;/span&gt;
-                  &lt;span class="icon-bar"&gt;&lt;/span&gt;
-              &lt;/button&gt;
-              &lt;a class="navbar-brand" href="http://kennytu.github.io/"&gt; activityOverlord&lt;/a&gt;
-          &lt;/div&gt;
-          &lt;div class="navbar-collapse collapse"&gt;
-              &lt;ul class="nav navbar-nav"&gt;
-                  &lt;% if (session.authenticated) { %&gt;
-                  &lt;li class="active"&gt;&lt;a href="http://kennytu.github.io/user/show/&lt;%= session.User.id %&gt;"&gt;&lt;%= session.User.name %&gt; &lt;/a&gt; &lt;/li&gt;
-                  &lt;% } %&gt;
-                  &lt;% if (session.authenticated &amp;&amp; session.User.admin) { %&gt;
-                  &lt;li&gt;&lt;a href="http://kennytu.github.io/user"&gt;User Administration&lt;/a&gt;&lt;/li&gt;
-                  &lt;li&gt;&lt;a href="#"&gt;Placeholder2&lt;/a&gt;&lt;/li&gt;
-                  &lt;% } %&gt;
-              &lt;/ul&gt;
-              &lt;div class="navbar-right"&gt;
-                  &lt;% if (session.authenticated) { %&gt;
-                  &lt;a class="btn btn-default navbar-btn navbar-right" href="http://kennytu.github.io/session/destroy"&gt;sign-out&lt;/a&gt;
-                  &lt;% } %&gt;
-              &lt;/div&gt;
-              &lt;% if (!session.authenticated) { %&gt;
-              &lt;form class="navbar-form navbar-right" action="/session/create"&gt;
-                  &lt;div class="form-group"&gt;
-                      &lt;input type="text" placeholder="Email" name="email" class="form-control"&gt;
-                  &lt;/div&gt;
-                  &lt;div class="form-group"&gt;
-                      &lt;input type="password" placeholder="Password" name="password" class="form-control"&gt;
-                  &lt;/div&gt;
-                  &lt;button type="submit" class="btn btn-success"&gt;Sign in&lt;/button&gt;
-                  &lt;input type="hidden" name="_csrf" value="&lt;%= _csrf %&gt;" /&gt;
-              &lt;/form&gt;
-              &lt;% } %&gt;
-          &lt;/div&gt;
-      &lt;/div&gt;
-  &lt;/div&gt;
-
-  &lt;%- body %&gt;
-    ...
-</code></pre>
-
-<p>也可以參考作者的<a href="https://github.com/irlnathan/activityoverlord/blob/master/views/layout.ejs" target="_blank">GitHub</a>, 直接把程式碼copy過來貼到你現在的專案就可以了</p>
-
-<p>存檔之後, 重新啟動sails, 就可以看到修改過精美的導航介面了</p>
-
-<p>至於解說的部分, 請看作者在影片中的講解嚕!</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Node.js更新問題]]></title>
-    <link href="http://kennytu.github.io/blog/2015/12/03/nodejs-update/"/>
-    <updated>2015-12-03T19:31:51+08:00</updated>
-    <id>http://kennytu.github.io/blog/2015/12/03/nodejs-update</id>
-    <content type="html"><![CDATA[<p>在更新<code>node.js</code>以及<code>npm</code>之後 (npm現在被包在node.js裡面一起安裝)</p>
-
-<p>我執行npm -g update, global有更新的node.js的module都update到最新的</p>
-
-<p>接著我切換到我這一陣子再用的sails的專案, 執行sails lift的時候</p>
-
-<p>發生了<code>Cannot find module 'lru-cache'</code> 這個事件</p>
-
-<!--more-->
-
-
-<p>解決的方法是, 執行以下的指令</p>
-
-<pre><code>rm -rf node_modules
-npm cache clean
-npm install
-</code></pre>
-
-<p>先將sails專案裡面的node_modules刪除, 然後清空Cache, 接著重新安裝一次, 這樣Sails就可以正常運行了</p>
-
-<p>另外, 在執行sails lift的時候, 若sails的資料庫有綁定mongo db, 但你還沒有啟動mondo db時, 會出現以下訊息</p>
-
-<pre><code class="batch">
-error: A hook (`orm`) failed to load!
-E:\sails_app\activeityOverload\node_modules\mongodb\lib\server.js:235
-        process.nextTick(function() { throw err; })
-                                      ^
-
-TypeError: Cannot read property 'close' of undefined
-    at E:\sails_app\activeityOverload\node_modules\sails-mongo\lib\adapter.js:138:13
-    at E:\sails_app\activeityOverload\node_modules\sails-mongo\node_modules\async\lib\async.js:187:20
-    at E:\sails_app\activeityOverload\node_modules\sails-mongo\node_modules\async\lib\async.js:239:13
-    at _arrayEach (E:\sails_app\activeityOverload\node_modules\sails-mongo\node_modules\async\lib\async.js:91:13)
-    at _each (E:\sails_app\activeityOverload\node_modules\sails-mongo\node_modules\async\lib\async.js:82:13)
-</code></pre>
-
-<p>這就表示sails 掛不到 mongo db, 只要先啟動mongo db, 然後再啟動sails lift就沒問題了!</p>
 ]]></content>
   </entry>
   

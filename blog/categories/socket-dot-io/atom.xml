@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: Sails socket.io | 江湖險惡，我從來都不輕易留下我的姓名。]]></title>
-  <link href="http://kennytu.github.io/blog/categories/sails-socket-dot-io/atom.xml" rel="self"/>
+  <title><![CDATA[Category: socket.io | 江湖險惡，我從來都不輕易留下我的姓名。]]></title>
+  <link href="http://kennytu.github.io/blog/categories/socket-dot-io/atom.xml" rel="self"/>
   <link href="http://kennytu.github.io/"/>
-  <updated>2015-12-10T19:17:48+08:00</updated>
+  <updated>2015-12-11T16:18:21+08:00</updated>
   <id>http://kennytu.github.io/</id>
   <author>
     <name><![CDATA[Kenny Tu]]></name>
@@ -12,6 +12,254 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Sails Socket.io基本概念 - Rooms and Streams]]></title>
+    <link href="http://kennytu.github.io/blog/2015/12/11/sails-socket-dot-io-2/"/>
+    <updated>2015-12-11T15:30:30+08:00</updated>
+    <id>http://kennytu.github.io/blog/2015/12/11/sails-socket-dot-io-2</id>
+    <content type="html"><![CDATA[<p>好的, 這一篇是接著<strong>stenio123</strong>老大的第二章節, 也就是 <a href="http://impacta.us/sails-with-socket-io-part-24/" target="_blank">part 2 – Sails js Socket.io intermediate – rooms and streams</a></p>
+
+<p>這一篇的練習做完, 大致上就可以掌握sails socket.io的百分之七十的用法了</p>
+
+<p>我們先把程式碼寫一寫</p>
+
+<p>這個程式碼是接續自上一篇, 我們繼續在socket_test的專案下執行</p>
+
+<!--more-->
+
+
+<pre><code>sails generate controller TeamNews
+</code></pre>
+
+<p>然後修改一下檔案</p>
+
+<pre><code class="js api\controllers\TeamNewsController.js">
+/**
+ * TeamNewsController
+ *
+ * @description :: Server-side logic for managing Teamnews
+ * @help        :: See http://sailsjs.org/#!/documentation/concepts/Controllers
+ */
+
+module.exports = {
+    index:function (req, res) {
+        var teamNames = [{name:'blackhawks'}, {name:'lightning'}];
+        var hawks_fans = sails.sockets.subscribers('blackhawks');
+        var lightning_fans = sails.sockets.subscribers('lightning');
+
+
+        res.view({
+            teams: teamNames,
+            hawksFans: hawks_fans,
+            lightningFans: lightning_fans
+        });
+
+    },
+    broadcastnews: function (req, res) {
+        var data = {};
+        data.name = req.param("team");
+        data.news = req.param("news");
+
+        var rooms = sails.sockets.rooms();
+        var hawks = sails.sockets.subscribers("blackhawks");
+        var lightning = sails.sockets.subscribers("lightning");
+
+        console.log("Available rooms: " + JSON.stringify(rooms));
+        console.log("subscribers hawks: " + JSON.stringify(hawks));
+        console.log("subscribers lightning: " + JSON.stringify(lightning));
+
+        sails.sockets.broadcast(data.name, "news", data);
+    },
+    blastnews: function (req, res) {
+        var news = req.param("news");
+        sails.sockets.blast('news', news);
+    },
+    //this is how we keep track of how many sockets each team has in their room,
+    joinroomfans: function (req,res) {
+        console.log("joining room fans socket id" + req.socket.id);
+        sails.sockets.join(req.socket, 'blackhawksFans');
+        sails.sockets.join(req.socket, 'lightningFans');
+        sails.sockets.broadcast('blackhawksFans', 'updatedblackhawks', sails.sockets.subscribers('blackhawks').length);
+        sails.sockets.broadcast('lightningFans', 'updatedlightning', sails.sockets.subscribers('lightning').length);
+    },
+    //this is how a socket joins room to receive news of their team
+    joinroom:function (req,res) {
+        var teamName = req.param("teamName");
+        sails.sockets.join(req.socket,teamName);
+        console.log( 'Socket ' + req.socket.id + 'joined room: ' + teamName);
+        //teamName+'Fans' is name of the room, 'updated'+teamName is name of event
+        sails.sockets.broadcast(teamName+'Fans', 'updated'+teamName, sails.sockets.subscribers(teamName).length);
+    },
+    //leave room from team news
+    leaveroom:function (req,res) {
+        var teamName = req.param("teamName");
+        sails.sockets.leave(req.socket,teamName);
+        console.log( 'Socket' + req.socket.id + 'left room: ' + teamName);
+        //teamName+'Fans' is name of the room, 'updated'+teamName is name of event
+        sails.sockets.broadcast(teamName+'Fans', 'updated'+teamName, sails.sockets.subscribers(teamName).length);
+    }
+};
+</code></pre>
+
+<p>接著新增<code>views\teamnews\index.ejs</code></p>
+
+<p>```js views\teamnews\index.ejs</p>
+
+<h1>Sails js with socket io tutorial - part 2</h1>
+
+
+<p>You can check the tutorial <a href="http://www.impacta.us/blog">here</a>.
+<a href="http://kennytu.github.io/user/">Part1 </a> Part2 Part3 Part4</p>
+
+<p><p></p>
+
+<p>&lt;% if (teams) { %>
+  <select id="teamNameSelect">
+    <option value="0" selected="selected" style="display:none;">Select team</option>
+     &lt;% _.each(teams, function(team) {  %>
+    <option value="<%=team.name%>&ldquo;>&lt;%=team.name%></option>
+    &lt;% }) %>
+  </select>
+&lt;% } %>
+<input type="text" id="news" name="news" placeholder="type team news here"/>
+<button id="submit">Submit team news!</button> or <button id="blast">Blast to everyone</button>
+</p>
+<h3>Subscribe to Chicago Blackhawks news</h3></p>
+
+<h1>of subscribed fans: <div id="blackhawksFans"></div></h1>
+
+<p><br/>
+<button id="gohawks">Go Hawks!</button>
+<ul id="blackhawks">
+</ul>
+<button id="nohawks">Unsubscribe to Hawks!</button></p>
+
+<p><h3>Subscribe to Tampa Lightning news</h3></p>
+
+<h1>of subscribed fans: <div id="lightningFans"></div></h1>
+
+<p><br/>
+<button id="gotampa">Go Tampa!</button>
+<ul id="lightning">
+</ul>
+<button id="notampa">Unsubscribe to Tampa!</button></p>
+
+<p> <!-- END Page Content -->
+&lt;% block(&lsquo;localScripts&rsquo;, &lsquo;<script src="http://kennytu.github.io/view_specific/teamnews_index_misc.js"></script>&rsquo;) %></p>
+
+<pre><code>
+再來是`assets\view_specific\teamnews_index_misc.js`
+</code></pre>
+
+<p>//when page loads, register this socket to receive notification of new fans(sockets) subscribed
+$(document).ready(function () {
+    io.socket.post(&lsquo;/teamnews/joinroomfans/&rsquo;, {});
+});</p>
+
+<p>/<em>* event handling for Fan room </em>/
+io.socket.on(&lsquo;updatedblackhawks&rsquo;, function (response) {
+    console.log(&ldquo; fan response is &rdquo; + JSON.stringify(response));
+    $(&ldquo;#blackhawksFans&rdquo;).html(response);
+});
+io.socket.on(&lsquo;updatedlightning&rsquo;, function (response) {
+    console.log(&ldquo; fan response is &rdquo; + JSON.stringify(response));
+    $(&ldquo;#lightningFans&rdquo;).html(response);
+});</p>
+
+<p>//adds listener and what to do once receives event notification
+io.socket.on(&lsquo;news&rsquo;, function (response) {
+    console.log(&ldquo;response is &rdquo; + JSON.stringify(response));
+    //if it is a sails.socket.broadcast
+    if (response.name) {
+        if (response.name === &lsquo;blackhawks&rsquo;) {
+            $(&ldquo;#blackhawks&rdquo;).append(&lsquo;<li>&rsquo; + response.news + &lsquo;</li>&rsquo;);
+        } else {
+            if (response.name === &lsquo;lightning&rsquo;) {
+                $(&ldquo;#lightning&rdquo;).append(&lsquo;<li>&rsquo; + response.news + &lsquo;</li>&rsquo;);
+            }
+        }
+        //if it is sails.socket.blast
+    } else {
+        $(&ldquo;#blackhawks&rdquo;).append(&lsquo;<li>&rsquo; + response + &lsquo;</li>&rsquo;);
+        $(&ldquo;#lightning&rdquo;).append(&lsquo;<li>&rsquo; + response + &lsquo;</li>&rsquo;);
+    }
+})</p>
+
+<p>//subscribes to Blackhawks messages (code on TeamNewsController.subscribe)
+$(&ldquo;#gohawks&rdquo;).click(function () {
+    io.socket.post(&lsquo;/teamnews/joinroom/&rsquo;, {teamName: &lsquo;blackhawks&rsquo;});
+    alert(&ldquo;subscribed to Hawks news!&rdquo;);
+});
+//unsubscribes to Blackhawks messages (code on TeamNewsController.subscribe)
+$(&ldquo;#nohawks&rdquo;).click(function () {
+    io.socket.post(&lsquo;/teamnews/leaveroom/&rsquo;, {teamName: &lsquo;blackhawks&rsquo;});
+    alert(&ldquo;unsubscribed to Hawks news!&rdquo;);
+});</p>
+
+<p>//subscribes to Lightning messages (code on TeamNewsController.subscribe)
+$(&ldquo;#gotampa&rdquo;).click(function () {
+    io.socket.post(&lsquo;/teamnews/joinroom/&rsquo;, {teamName: &lsquo;lightning&rsquo;});
+    alert(&ldquo;subscribed to Lightning news!&rdquo;);
+});
+//unsubscribes to Lightning messages (code on TeamNewsController.subscribe)
+$(&ldquo;#notampa&rdquo;).click(function () {
+    io.socket.post(&lsquo;/teamnews/leaveroom/&rsquo;, {teamName: &lsquo;lightning&rsquo;});
+    alert(&ldquo;unsubscribed to Lightning news!&rdquo;);
+});</p>
+
+<p>$(&ldquo;#submit&rdquo;).click(function () {
+    if ($(&ldquo;#teamNameSelect&rdquo;).val() != &ldquo;0&rdquo;) {
+        io.socket.post(&lsquo;/teamnews/broadcastnews/&rsquo;, {
+            team: $(&ldquo;#teamNameSelect&rdquo;).val(),
+            <a href="news:">news:</a> $(&ldquo;#news&rdquo;).val()
+        });
+    } else {
+        alert(&ldquo;please select team!&rdquo;);
+    }
+});</p>
+
+<p>$(&ldquo;#blast&rdquo;).click(function () {
+    io.socket.post(&lsquo;/teamnews/blastnews/&rsquo;, {
+        <a href="news:">news:</a> $(&ldquo;#news&rdquo;).val()
+    });</p>
+
+<p>});</p>
+
+<pre><code>
+最後修改一下`config\routes.js`, 將首頁設定成TeamNews的index
+</code></pre>
+
+<p> &lsquo;/&rsquo;:{
+        controller: &lsquo;TeamNews&rsquo;,
+        action: &lsquo;index&rsquo;
+     }</p>
+
+<p>```</p>
+
+<p>OK, 大功告成.</p>
+
+<p>存檔, 從新啟動sails.</p>
+
+<pre><code>sails lift
+</code></pre>
+
+<p>然後在瀏覽器輸入localhost:1337</p>
+
+<p>就可以開始來玩玩看嚕!</p>
+
+<p>記得開啟瀏覽器的除錯模式(例如firefox的firebug)</p>
+
+<p>觀察前端以及後端的log</p>
+
+<h3>參考資料</h3>
+
+<ul>
+<li><a href="http://sailsjs.org/documentation/reference/web-sockets/socket-client" target="_blank">Socket Client (sails.io.js)</a></li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Sails Socket.io基本概念 - Watch and Subscribe]]></title>

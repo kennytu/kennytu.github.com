@@ -1,0 +1,648 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Sails Socket.io基本概念 - Rooms and Streams - 江湖險惡，我從來都不輕易留下我的姓名。</title>
+  <meta name="author" content="Kenny Tu">
+
+  
+  <meta name="description" content="好的, 這一篇是接著stenio123老大的第二章節, 也就是 part 2 – Sails js Socket.io intermediate – rooms and streams 這一篇的練習做完, 大致上就可以掌握sails socket.io的百分之七十的用法了 我們先把程式碼寫一寫 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://kennytu.github.io/blog/2015/12/11/sails-socket-dot-io-2/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="江湖險惡，我從來都不輕易留下我的姓名。" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-71198893-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">江湖險惡，我從來都不輕易留下我的姓名。</a></h1>
+  
+    <h2>憑你的智慧，我唬得了你嗎？</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="kennytu.github.io">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Sails Socket.io基本概念 - Rooms and Streams</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-12-11T15:30:30+08:00'><span class='date'>2015 年12 月11 日</span> <span class='time'>3:30 pm</span></time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://kennytu.github.io">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>好的, 這一篇是接著<strong>stenio123</strong>老大的第二章節, 也就是 <a href="http://impacta.us/sails-with-socket-io-part-24/" target="_blank">part 2 – Sails js Socket.io intermediate – rooms and streams</a></p>
+
+<p>這一篇的練習做完, 大致上就可以掌握sails socket.io的百分之七十的用法了</p>
+
+<p>我們先把程式碼寫一寫</p>
+
+<p>這個程式碼是接續自上一篇, 我們繼續在socket_test的專案下執行</p>
+
+<!--more-->
+
+
+<pre><code>sails generate controller TeamNews
+</code></pre>
+
+<p>然後修改一下檔案</p>
+
+<figure class='code'><figcaption><span>api\controllers\TeamNewsController.js</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="cm">/**</span>
+</span><span class='line'><span class="cm"> * TeamNewsController</span>
+</span><span class='line'><span class="cm"> *</span>
+</span><span class='line'><span class="cm"> * @description :: Server-side logic for managing Teamnews</span>
+</span><span class='line'><span class="cm"> * @help        :: See http://sailsjs.org/#!/documentation/concepts/Controllers</span>
+</span><span class='line'><span class="cm"> */</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">index</span><span class="o">:</span><span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="kd">var</span> <span class="nx">teamNames</span> <span class="o">=</span> <span class="p">[{</span><span class="nx">name</span><span class="o">:</span><span class="s1">&#39;blackhawks&#39;</span><span class="p">},</span> <span class="p">{</span><span class="nx">name</span><span class="o">:</span><span class="s1">&#39;lightning&#39;</span><span class="p">}];</span>
+</span><span class='line'>        <span class="kd">var</span> <span class="nx">hawks_fans</span> <span class="o">=</span> <span class="nx">sails</span><span class="p">.</span><span class="nx">sockets</span><span class="p">.</span><span class="nx">subscribers</span><span class="p">(</span><span class="s1">&#39;blackhawks&#39;</span><span class="p">);</span>
+</span><span class='line'>        <span class="kd">var</span> <span class="nx">lightning_fans</span> <span class="o">=</span> <span class="nx">sails</span><span class="p">.</span><span class="nx">sockets</span><span class="p">.</span><span class="nx">subscribers</span><span class="p">(</span><span class="s1">&#39;lightning&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>        <span class="nx">res</span><span class="p">.</span><span class="nx">view</span><span class="p">({</span>
+</span><span class='line'>            <span class="nx">teams</span><span class="o">:</span> <span class="nx">teamNames</span><span class="p">,</span>
+</span><span class='line'>            <span class="nx">hawksFans</span><span class="o">:</span> <span class="nx">hawks_fans</span><span class="p">,</span>
+</span><span class='line'>            <span class="nx">lightningFans</span><span class="o">:</span> <span class="nx">lightning_fans</span>
+</span><span class='line'>        <span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="p">},</span>
+</span><span class='line'>    <span class="nx">broadcastnews</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="kd">var</span> <span class="nx">data</span> <span class="o">=</span> <span class="p">{};</span>
+</span><span class='line'>        <span class="nx">data</span><span class="p">.</span><span class="nx">name</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">param</span><span class="p">(</span><span class="s2">&quot;team&quot;</span><span class="p">);</span>
+</span><span class='line'>        <span class="nx">data</span><span class="p">.</span><span class="nx">news</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">param</span><span class="p">(</span><span class="s2">&quot;news&quot;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="kd">var</span> <span class="nx">rooms</span> <span class="o">=</span> <span class="nx">sails</span><span class="p">.</span><span class="nx">sockets</span><span class="p">.</span><span class="nx">rooms</span><span class="p">();</span>
+</span><span class='line'>        <span class="kd">var</span> <span class="nx">hawks</span> <span class="o">=</span> <span class="nx">sails</span><span class="p">.</span><span class="nx">sockets</span><span class="p">.</span><span class="nx">subscribers</span><span class="p">(</span><span class="s2">&quot;blackhawks&quot;</span><span class="p">);</span>
+</span><span class='line'>        <span class="kd">var</span> <span class="nx">lightning</span> <span class="o">=</span> <span class="nx">sails</span><span class="p">.</span><span class="nx">sockets</span><span class="p">.</span><span class="nx">subscribers</span><span class="p">(</span><span class="s2">&quot;lightning&quot;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Available rooms: &quot;</span> <span class="o">+</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">rooms</span><span class="p">));</span>
+</span><span class='line'>        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;subscribers hawks: &quot;</span> <span class="o">+</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">hawks</span><span class="p">));</span>
+</span><span class='line'>        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;subscribers lightning: &quot;</span> <span class="o">+</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">lightning</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="nx">sails</span><span class="p">.</span><span class="nx">sockets</span><span class="p">.</span><span class="nx">broadcast</span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">name</span><span class="p">,</span> <span class="s2">&quot;news&quot;</span><span class="p">,</span> <span class="nx">data</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">},</span>
+</span><span class='line'>    <span class="nx">blastnews</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="kd">var</span> <span class="nx">news</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">param</span><span class="p">(</span><span class="s2">&quot;news&quot;</span><span class="p">);</span>
+</span><span class='line'>        <span class="nx">sails</span><span class="p">.</span><span class="nx">sockets</span><span class="p">.</span><span class="nx">blast</span><span class="p">(</span><span class="s1">&#39;news&#39;</span><span class="p">,</span> <span class="nx">news</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">},</span>
+</span><span class='line'>    <span class="c1">//this is how we keep track of how many sockets each team has in their room,</span>
+</span><span class='line'>    <span class="nx">joinroomfans</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span><span class="nx">res</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;joining room fans socket id&quot;</span> <span class="o">+</span> <span class="nx">req</span><span class="p">.</span><span class="nx">socket</span><span class="p">.</span><span class="nx">id</span><span class="p">);</span>
+</span><span class='line'>        <span class="nx">sails</span><span class="p">.</span><span class="nx">sockets</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">socket</span><span class="p">,</span> <span class="s1">&#39;blackhawksFans&#39;</span><span class="p">);</span>
+</span><span class='line'>        <span class="nx">sails</span><span class="p">.</span><span class="nx">sockets</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">socket</span><span class="p">,</span> <span class="s1">&#39;lightningFans&#39;</span><span class="p">);</span>
+</span><span class='line'>        <span class="nx">sails</span><span class="p">.</span><span class="nx">sockets</span><span class="p">.</span><span class="nx">broadcast</span><span class="p">(</span><span class="s1">&#39;blackhawksFans&#39;</span><span class="p">,</span> <span class="s1">&#39;updatedblackhawks&#39;</span><span class="p">,</span> <span class="nx">sails</span><span class="p">.</span><span class="nx">sockets</span><span class="p">.</span><span class="nx">subscribers</span><span class="p">(</span><span class="s1">&#39;blackhawks&#39;</span><span class="p">).</span><span class="nx">length</span><span class="p">);</span>
+</span><span class='line'>        <span class="nx">sails</span><span class="p">.</span><span class="nx">sockets</span><span class="p">.</span><span class="nx">broadcast</span><span class="p">(</span><span class="s1">&#39;lightningFans&#39;</span><span class="p">,</span> <span class="s1">&#39;updatedlightning&#39;</span><span class="p">,</span> <span class="nx">sails</span><span class="p">.</span><span class="nx">sockets</span><span class="p">.</span><span class="nx">subscribers</span><span class="p">(</span><span class="s1">&#39;lightning&#39;</span><span class="p">).</span><span class="nx">length</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">},</span>
+</span><span class='line'>    <span class="c1">//this is how a socket joins room to receive news of their team</span>
+</span><span class='line'>    <span class="nx">joinroom</span><span class="o">:</span><span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span><span class="nx">res</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="kd">var</span> <span class="nx">teamName</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">param</span><span class="p">(</span><span class="s2">&quot;teamName&quot;</span><span class="p">);</span>
+</span><span class='line'>        <span class="nx">sails</span><span class="p">.</span><span class="nx">sockets</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">socket</span><span class="p">,</span><span class="nx">teamName</span><span class="p">);</span>
+</span><span class='line'>        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span> <span class="s1">&#39;Socket &#39;</span> <span class="o">+</span> <span class="nx">req</span><span class="p">.</span><span class="nx">socket</span><span class="p">.</span><span class="nx">id</span> <span class="o">+</span> <span class="s1">&#39;joined room: &#39;</span> <span class="o">+</span> <span class="nx">teamName</span><span class="p">);</span>
+</span><span class='line'>        <span class="c1">//teamName+&#39;Fans&#39; is name of the room, &#39;updated&#39;+teamName is name of event</span>
+</span><span class='line'>        <span class="nx">sails</span><span class="p">.</span><span class="nx">sockets</span><span class="p">.</span><span class="nx">broadcast</span><span class="p">(</span><span class="nx">teamName</span><span class="o">+</span><span class="s1">&#39;Fans&#39;</span><span class="p">,</span> <span class="s1">&#39;updated&#39;</span><span class="o">+</span><span class="nx">teamName</span><span class="p">,</span> <span class="nx">sails</span><span class="p">.</span><span class="nx">sockets</span><span class="p">.</span><span class="nx">subscribers</span><span class="p">(</span><span class="nx">teamName</span><span class="p">).</span><span class="nx">length</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">},</span>
+</span><span class='line'>    <span class="c1">//leave room from team news</span>
+</span><span class='line'>    <span class="nx">leaveroom</span><span class="o">:</span><span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span><span class="nx">res</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="kd">var</span> <span class="nx">teamName</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">param</span><span class="p">(</span><span class="s2">&quot;teamName&quot;</span><span class="p">);</span>
+</span><span class='line'>        <span class="nx">sails</span><span class="p">.</span><span class="nx">sockets</span><span class="p">.</span><span class="nx">leave</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">socket</span><span class="p">,</span><span class="nx">teamName</span><span class="p">);</span>
+</span><span class='line'>        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span> <span class="s1">&#39;Socket&#39;</span> <span class="o">+</span> <span class="nx">req</span><span class="p">.</span><span class="nx">socket</span><span class="p">.</span><span class="nx">id</span> <span class="o">+</span> <span class="s1">&#39;left room: &#39;</span> <span class="o">+</span> <span class="nx">teamName</span><span class="p">);</span>
+</span><span class='line'>        <span class="c1">//teamName+&#39;Fans&#39; is name of the room, &#39;updated&#39;+teamName is name of event</span>
+</span><span class='line'>        <span class="nx">sails</span><span class="p">.</span><span class="nx">sockets</span><span class="p">.</span><span class="nx">broadcast</span><span class="p">(</span><span class="nx">teamName</span><span class="o">+</span><span class="s1">&#39;Fans&#39;</span><span class="p">,</span> <span class="s1">&#39;updated&#39;</span><span class="o">+</span><span class="nx">teamName</span><span class="p">,</span> <span class="nx">sails</span><span class="p">.</span><span class="nx">sockets</span><span class="p">.</span><span class="nx">subscribers</span><span class="p">(</span><span class="nx">teamName</span><span class="p">).</span><span class="nx">length</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>接著新增<code>views\teamnews\index.ejs</code></p>
+
+<figure class='code'><figcaption><span>views\teamnews\index.ejs</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="o">&lt;</span><span class="nx">h1</span><span class="o">&gt;</span><span class="nx">Sails</span> <span class="nx">js</span> <span class="kd">with</span> <span class="nx">socket</span> <span class="nx">io</span> <span class="nx">tutorial</span> <span class="o">-</span> <span class="nx">part</span> <span class="mi">2</span><span class="o">&lt;</span><span class="err">/h1&gt;</span>
+</span><span class='line'><span class="nx">You</span> <span class="nx">can</span> <span class="nx">check</span> <span class="nx">the</span> <span class="nx">tutorial</span> <span class="o">&lt;</span><span class="nx">a</span> <span class="nx">href</span><span class="o">=</span><span class="s2">&quot;http://www.impacta.us/blog&quot;</span><span class="o">&gt;</span><span class="nx">here</span><span class="o">&lt;</span><span class="err">/a&gt;.</span>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">a</span> <span class="nx">href</span><span class="o">=</span><span class="s2">&quot;/user/&quot;</span><span class="o">&gt;</span><span class="nx">Part1</span> <span class="o">&lt;</span><span class="err">/a&gt; Part2 Part3 Part4</span>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;%</span> <span class="k">if</span> <span class="p">(</span><span class="nx">teams</span><span class="p">)</span> <span class="p">{</span> <span class="o">%&gt;</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="nx">select</span> <span class="nx">id</span><span class="o">=</span><span class="s2">&quot;teamNameSelect&quot;</span><span class="o">&gt;</span>
+</span><span class='line'>    <span class="o">&lt;</span><span class="nx">option</span> <span class="nx">value</span><span class="o">=</span><span class="s2">&quot;0&quot;</span> <span class="nx">selected</span><span class="o">=</span><span class="s2">&quot;selected&quot;</span> <span class="nx">style</span><span class="o">=</span><span class="s2">&quot;display:none;&quot;</span><span class="o">&gt;</span><span class="nx">Select</span> <span class="nx">team</span><span class="o">&lt;</span><span class="err">/option&gt;</span>
+</span><span class='line'>     <span class="o">&lt;%</span> <span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">teams</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">team</span><span class="p">)</span> <span class="p">{</span>  <span class="o">%&gt;</span>
+</span><span class='line'>    <span class="o">&lt;</span><span class="nx">option</span> <span class="nx">value</span><span class="o">=</span><span class="s2">&quot;&lt;%=team.name%&gt;&quot;</span><span class="o">&gt;&lt;%=</span><span class="nx">team</span><span class="p">.</span><span class="nx">name</span><span class="o">%&gt;&lt;</span><span class="err">/option&gt;</span>
+</span><span class='line'>    <span class="o">&lt;%</span> <span class="p">})</span> <span class="o">%&gt;</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="err">/select&gt;</span>
+</span><span class='line'><span class="o">&lt;%</span> <span class="p">}</span> <span class="o">%&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">input</span> <span class="nx">type</span><span class="o">=</span><span class="s2">&quot;text&quot;</span> <span class="nx">id</span><span class="o">=</span><span class="s2">&quot;news&quot;</span> <span class="nx">name</span><span class="o">=</span><span class="s2">&quot;news&quot;</span> <span class="nx">placeholder</span><span class="o">=</span><span class="s2">&quot;type team news here&quot;</span><span class="o">/&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">button</span> <span class="nx">id</span><span class="o">=</span><span class="s2">&quot;submit&quot;</span><span class="o">&gt;</span><span class="nx">Submit</span> <span class="nx">team</span> <span class="nx">news</span><span class="o">!&lt;</span><span class="err">/button&gt; or &lt;button id=&quot;blast&quot;&gt;Blast to everyone&lt;/button&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">h3</span><span class="o">&gt;</span><span class="nx">Subscribe</span> <span class="nx">to</span> <span class="nx">Chicago</span> <span class="nx">Blackhawks</span> <span class="nx">news</span><span class="o">&lt;</span><span class="err">/h3&gt;</span>
+</span><span class='line'><span class="err">#</span> <span class="nx">of</span> <span class="nx">subscribed</span> <span class="nx">fans</span><span class="o">:</span> <span class="o">&lt;</span><span class="nx">div</span> <span class="nx">id</span><span class="o">=</span><span class="s2">&quot;blackhawksFans&quot;</span><span class="o">&gt;&lt;</span><span class="err">/div&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">br</span><span class="o">/&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">button</span> <span class="nx">id</span><span class="o">=</span><span class="s2">&quot;gohawks&quot;</span><span class="o">&gt;</span><span class="nx">Go</span> <span class="nx">Hawks</span><span class="o">!&lt;</span><span class="err">/button&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">ul</span> <span class="nx">id</span><span class="o">=</span><span class="s2">&quot;blackhawks&quot;</span><span class="o">&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="err">/ul&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">button</span> <span class="nx">id</span><span class="o">=</span><span class="s2">&quot;nohawks&quot;</span><span class="o">&gt;</span><span class="nx">Unsubscribe</span> <span class="nx">to</span> <span class="nx">Hawks</span><span class="o">!&lt;</span><span class="err">/button&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">h3</span><span class="o">&gt;</span><span class="nx">Subscribe</span> <span class="nx">to</span> <span class="nx">Tampa</span> <span class="nx">Lightning</span> <span class="nx">news</span><span class="o">&lt;</span><span class="err">/h3&gt;</span>
+</span><span class='line'><span class="err">#</span> <span class="nx">of</span> <span class="nx">subscribed</span> <span class="nx">fans</span><span class="o">:</span> <span class="o">&lt;</span><span class="nx">div</span> <span class="nx">id</span><span class="o">=</span><span class="s2">&quot;lightningFans&quot;</span><span class="o">&gt;&lt;</span><span class="err">/div&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">br</span><span class="o">/&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">button</span> <span class="nx">id</span><span class="o">=</span><span class="s2">&quot;gotampa&quot;</span><span class="o">&gt;</span><span class="nx">Go</span> <span class="nx">Tampa</span><span class="o">!&lt;</span><span class="err">/button&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">ul</span> <span class="nx">id</span><span class="o">=</span><span class="s2">&quot;lightning&quot;</span><span class="o">&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="err">/ul&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">button</span> <span class="nx">id</span><span class="o">=</span><span class="s2">&quot;notampa&quot;</span><span class="o">&gt;</span><span class="nx">Unsubscribe</span> <span class="nx">to</span> <span class="nx">Tampa</span><span class="o">!&lt;</span><span class="err">/button&gt;</span>
+</span><span class='line'>
+</span><span class='line'> <span class="c">&lt;!--</span> <span class="nx">END</span> <span class="nx">Page</span> <span class="nx">Content</span> <span class="o">--&gt;</span>
+</span><span class='line'><span class="o">&lt;%</span> <span class="nx">block</span><span class="p">(</span><span class="s1">&#39;localScripts&#39;</span><span class="p">,</span> <span class="s1">&#39;&lt;script src=&quot;/view_specific/teamnews_index_misc.js&quot;&gt;&lt;/script&gt;&#39;</span><span class="p">)</span> <span class="o">%&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>再來是<code>assets\view_specific\teamnews_index_misc.js</code></p>
+
+<figure class='code'><figcaption><span>assets\view_specific\teamnews_index_misc.js</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="c1">//when page loads, register this socket to receive notification of new fans(sockets) subscribed</span>
+</span><span class='line'><span class="nx">$</span><span class="p">(</span><span class="nb">document</span><span class="p">).</span><span class="nx">ready</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">io</span><span class="p">.</span><span class="nx">socket</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="s1">&#39;/teamnews/joinroomfans/&#39;</span><span class="p">,</span> <span class="p">{});</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="cm">/** event handling for Fan room */</span>
+</span><span class='line'><span class="nx">io</span><span class="p">.</span><span class="nx">socket</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;updatedblackhawks&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">response</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot; fan response is &quot;</span> <span class="o">+</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">response</span><span class="p">));</span>
+</span><span class='line'>    <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#blackhawksFans&quot;</span><span class="p">).</span><span class="nx">html</span><span class="p">(</span><span class="nx">response</span><span class="p">);</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'><span class="nx">io</span><span class="p">.</span><span class="nx">socket</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;updatedlightning&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">response</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot; fan response is &quot;</span> <span class="o">+</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">response</span><span class="p">));</span>
+</span><span class='line'>    <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#lightningFans&quot;</span><span class="p">).</span><span class="nx">html</span><span class="p">(</span><span class="nx">response</span><span class="p">);</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">//adds listener and what to do once receives event notification</span>
+</span><span class='line'><span class="nx">io</span><span class="p">.</span><span class="nx">socket</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;news&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">response</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;response is &quot;</span> <span class="o">+</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">response</span><span class="p">));</span>
+</span><span class='line'>    <span class="c1">//if it is a sails.socket.broadcast</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">name</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">name</span> <span class="o">===</span> <span class="s1">&#39;blackhawks&#39;</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#blackhawks&quot;</span><span class="p">).</span><span class="nx">append</span><span class="p">(</span><span class="s1">&#39;&lt;li&gt;&#39;</span> <span class="o">+</span> <span class="nx">response</span><span class="p">.</span><span class="nx">news</span> <span class="o">+</span> <span class="s1">&#39;&lt;/li&gt;&#39;</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">name</span> <span class="o">===</span> <span class="s1">&#39;lightning&#39;</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#lightning&quot;</span><span class="p">).</span><span class="nx">append</span><span class="p">(</span><span class="s1">&#39;&lt;li&gt;&#39;</span> <span class="o">+</span> <span class="nx">response</span><span class="p">.</span><span class="nx">news</span> <span class="o">+</span> <span class="s1">&#39;&lt;/li&gt;&#39;</span><span class="p">);</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="c1">//if it is sails.socket.blast</span>
+</span><span class='line'>    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#blackhawks&quot;</span><span class="p">).</span><span class="nx">append</span><span class="p">(</span><span class="s1">&#39;&lt;li&gt;&#39;</span> <span class="o">+</span> <span class="nx">response</span> <span class="o">+</span> <span class="s1">&#39;&lt;/li&gt;&#39;</span><span class="p">);</span>
+</span><span class='line'>        <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#lightning&quot;</span><span class="p">).</span><span class="nx">append</span><span class="p">(</span><span class="s1">&#39;&lt;li&gt;&#39;</span> <span class="o">+</span> <span class="nx">response</span> <span class="o">+</span> <span class="s1">&#39;&lt;/li&gt;&#39;</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">})</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">//subscribes to Blackhawks messages (code on TeamNewsController.subscribe)</span>
+</span><span class='line'><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#gohawks&quot;</span><span class="p">).</span><span class="nx">click</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">io</span><span class="p">.</span><span class="nx">socket</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="s1">&#39;/teamnews/joinroom/&#39;</span><span class="p">,</span> <span class="p">{</span><span class="nx">teamName</span><span class="o">:</span> <span class="s1">&#39;blackhawks&#39;</span><span class="p">});</span>
+</span><span class='line'>    <span class="nx">alert</span><span class="p">(</span><span class="s2">&quot;subscribed to Hawks news!&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'><span class="c1">//unsubscribes to Blackhawks messages (code on TeamNewsController.subscribe)</span>
+</span><span class='line'><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#nohawks&quot;</span><span class="p">).</span><span class="nx">click</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">io</span><span class="p">.</span><span class="nx">socket</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="s1">&#39;/teamnews/leaveroom/&#39;</span><span class="p">,</span> <span class="p">{</span><span class="nx">teamName</span><span class="o">:</span> <span class="s1">&#39;blackhawks&#39;</span><span class="p">});</span>
+</span><span class='line'>    <span class="nx">alert</span><span class="p">(</span><span class="s2">&quot;unsubscribed to Hawks news!&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">//subscribes to Lightning messages (code on TeamNewsController.subscribe)</span>
+</span><span class='line'><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#gotampa&quot;</span><span class="p">).</span><span class="nx">click</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">io</span><span class="p">.</span><span class="nx">socket</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="s1">&#39;/teamnews/joinroom/&#39;</span><span class="p">,</span> <span class="p">{</span><span class="nx">teamName</span><span class="o">:</span> <span class="s1">&#39;lightning&#39;</span><span class="p">});</span>
+</span><span class='line'>    <span class="nx">alert</span><span class="p">(</span><span class="s2">&quot;subscribed to Lightning news!&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'><span class="c1">//unsubscribes to Lightning messages (code on TeamNewsController.subscribe)</span>
+</span><span class='line'><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#notampa&quot;</span><span class="p">).</span><span class="nx">click</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">io</span><span class="p">.</span><span class="nx">socket</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="s1">&#39;/teamnews/leaveroom/&#39;</span><span class="p">,</span> <span class="p">{</span><span class="nx">teamName</span><span class="o">:</span> <span class="s1">&#39;lightning&#39;</span><span class="p">});</span>
+</span><span class='line'>    <span class="nx">alert</span><span class="p">(</span><span class="s2">&quot;unsubscribed to Lightning news!&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#submit&quot;</span><span class="p">).</span><span class="nx">click</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#teamNameSelect&quot;</span><span class="p">).</span><span class="nx">val</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">&quot;0&quot;</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nx">io</span><span class="p">.</span><span class="nx">socket</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="s1">&#39;/teamnews/broadcastnews/&#39;</span><span class="p">,</span> <span class="p">{</span>
+</span><span class='line'>            <span class="nx">team</span><span class="o">:</span> <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#teamNameSelect&quot;</span><span class="p">).</span><span class="nx">val</span><span class="p">(),</span>
+</span><span class='line'>            <span class="nx">news</span><span class="o">:</span> <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#news&quot;</span><span class="p">).</span><span class="nx">val</span><span class="p">()</span>
+</span><span class='line'>        <span class="p">});</span>
+</span><span class='line'>    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nx">alert</span><span class="p">(</span><span class="s2">&quot;please select team!&quot;</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#blast&quot;</span><span class="p">).</span><span class="nx">click</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">io</span><span class="p">.</span><span class="nx">socket</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="s1">&#39;/teamnews/blastnews/&#39;</span><span class="p">,</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nx">news</span><span class="o">:</span> <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#news&quot;</span><span class="p">).</span><span class="nx">val</span><span class="p">()</span>
+</span><span class='line'>    <span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>最後修改一下<code>config\routes.js</code>, 將首頁設定成TeamNews的index</p>
+
+<figure class='code'><figcaption><span>config\routes.js</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'> <span class="s1">&#39;/&#39;</span><span class="o">:</span><span class="p">{</span>
+</span><span class='line'>        <span class="nx">controller</span><span class="o">:</span> <span class="s1">&#39;TeamNews&#39;</span><span class="p">,</span>
+</span><span class='line'>        <span class="nx">action</span><span class="o">:</span> <span class="s1">&#39;index&#39;</span>
+</span><span class='line'>     <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>OK, 大功告成.</p>
+
+<p>存檔, 從新啟動sails.</p>
+
+<pre><code>sails lift
+</code></pre>
+
+<p>然後在瀏覽器輸入localhost:1337</p>
+
+<p>就可以開始來玩玩看嚕!</p>
+
+<p>記得開啟瀏覽器的除錯模式(例如firefox的firebug)</p>
+
+<p>觀察前端以及後端的log</p>
+
+<h3>參考資料</h3>
+
+<ul>
+<li><a href="http://sailsjs.org/documentation/reference/web-sockets/socket-client" target="_blank">Socket Client (sails.io.js)</a></li>
+</ul>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Kenny Tu</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2015-12-11T15:30:30+08:00'><span class='date'>2015 年12 月11 日</span> <span class='time'>3:30 pm</span></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/sails/'>sails</a>, <a class='category' href='/blog/categories/socket-dot-io/'>socket.io</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://kennytu.github.io/blog/2015/12/11/sails-socket-dot-io-2/" data-via="" data-counturl="http://kennytu.github.io/blog/2015/12/11/sails-socket-dot-io-2/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/12/10/sails-socket-dot-io/" title="Previous Post: Sails Socket.io基本概念 - watch and subscribe">&laquo; Sails Socket.io基本概念 - watch and subscribe</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Categories</h1>
+    <ul id="category-list"><li><a href='/blog/categories/mongodb/'>mongodb (1)</a></li><li><a href='/blog/categories/node-dot-js/'>node.js (2)</a></li><li><a href='/blog/categories/npm/'>npm (2)</a></li><li><a href='/blog/categories/octopress/'>octopress (2)</a></li><li><a href='/blog/categories/sails/'>sails (18)</a></li><li><a href='/blog/categories/socket-dot-io/'>socket.io (2)</a></li></ul>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/12/11/sails-socket-dot-io-2/">Sails Socket.io基本概念 - Rooms and Streams</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/12/10/sails-socket-dot-io/">Sails Socket.io基本概念 - Watch and Subscribe</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/12/09/npm-weird-issue/">NPM的怪問題</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/12/08/sails-study15/">Sails練習之十五-Understanding Websockets and socket.io</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/12/07/sails-study14/">Sails練習之十四 - Hacker: 修改前端程式碼立馬變成Admin</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Kenny Tu -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'kennytu';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://kennytu.github.io/blog/2015/12/11/sails-socket-dot-io-2/';
+        var disqus_url = 'http://kennytu.github.io/blog/2015/12/11/sails-socket-dot-io-2/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

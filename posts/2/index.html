@@ -9,7 +9,7 @@
   <meta name="author" content="Kenny Tu">
 
   
-  <meta name="description" content="在進行sails練習的下一章之前, 有需要對Mongo Database做一些簡單的練習. 由於我看到Irl nathan是使用Genghis來作為Mongo DB的Web GUI介面, 但是是在MAC OS上安裝的, 我想在Win7上面也來裝一下, 以方便連接Mongo DB, &hellip;">
+  <meta name="description" content="OK, 上課的影片是: Building a Sails Application: Ep11 - Encrypting passwords with bcrypt. 到Bcrypt看一下相關的資訊 安裝的步驟如下 到專案目錄, 執行npm install bcrypt --save 加上-- &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -75,6 +75,55 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/12/01/sails-study09/">Sails練習之九-加密</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-12-01T17:39:08+08:00'><span class='date'>2015 年12 月1 日</span> <span class='time'>5:39 pm</span></time>
+        
+           | <a href="/blog/2015/12/01/sails-study09/#disqus_thread"
+             data-disqus-identifier="http://kennytu.github.io/blog/2015/12/01/sails-study09/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>OK, 上課的影片是: <a href="https://www.youtube.com/watch?v=1wziI6l0NyE" target="_blank">Building a Sails Application: Ep11 - Encrypting passwords with bcrypt.</a></p>
+
+<p>到<a href="https://www.npmjs.com/package/bcrypt" target="_blank">Bcrypt</a>看一下相關的資訊</p>
+
+<p>安裝的步驟如下</p>
+
+<p>到專案目錄, 執行<code>npm install bcrypt --save</code></p>
+
+<p>加上<code>--save</code>的意思是除了install bcrypt到專案底下之外, 也把相依性設定寫入package.json, 這樣以後如果有人想要直接使用這個專案, 在目錄底下輸入npm install, 就可以將此專案需要用到的packages一次設定完成!</p>
+
+<p>另外安裝<code>bcrypt</code>需要Visual Studio 2013的支援, 若你的Visual Studio版本大於2013, 請在安裝的時候再加入<code>--msvs_version=2013</code></p>
+
+<p>也就是<code>npm install bcrypt --save --msvs_version=2013</code></p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2015/12/01/sails-study09/">點擊這裡繼續閱讀 &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -502,55 +551,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/11/12/octopress-advance/">Octopress的進階技巧</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-11-12T20:06:58+08:00'><span class='date'>2015 年11 月12 日</span> <span class='time'>8:06 pm</span></time>
-        
-           | <a href="/blog/2015/11/12/octopress-advance/#disqus_thread"
-             data-disqus-identifier="http://kennytu.github.io/blog/2015/11/12/octopress-advance/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>這篇Blog我記錄了一些我在網路上找到的資料, 很多分享, 也滿受用的</p>
-
-<p>我整理在底下, 內容有</p>
-
-<ol>
-<li>進階的安裝文章分享</li>
-<li>多台電腦上寫作同步</li>
-<li>加上分類雲</li>
-<li>程式碼高亮</li>
-<li>imgcap的使用</li>
-<li>google analytics</li>
-</ol>
-
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2015/11/12/octopress-advance/">點擊這裡繼續閱讀 &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/3">&larr; Older</a>
@@ -565,11 +565,15 @@
   
     <section>
   <h1>Categories</h1>
-    <ul id="category-list"><li><a href='/blog/categories/mongodb/'>mongodb (1)</a></li><li><a href='/blog/categories/node-dot-js/'>node.js (2)</a></li><li><a href='/blog/categories/npm/'>npm (2)</a></li><li><a href='/blog/categories/octopress/'>octopress (2)</a></li><li><a href='/blog/categories/sails/'>sails (16)</a></li><li><a href='/blog/categories/sails-socket-dot-io/'>sails socket.io (1)</a></li></ul>
+    <ul id="category-list"><li><a href='/blog/categories/mongodb/'>mongodb (1)</a></li><li><a href='/blog/categories/node-dot-js/'>node.js (2)</a></li><li><a href='/blog/categories/npm/'>npm (2)</a></li><li><a href='/blog/categories/octopress/'>octopress (2)</a></li><li><a href='/blog/categories/sails/'>sails (18)</a></li><li><a href='/blog/categories/socket-dot-io/'>socket.io (2)</a></li></ul>
 </section>
 <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/12/11/sails-socket-dot-io-2/">Sails Socket.io基本概念 - Rooms and Streams</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2015/12/10/sails-socket-dot-io/">Sails Socket.io基本概念 - Watch and Subscribe</a>
@@ -585,10 +589,6 @@
     
       <li class="post">
         <a href="/blog/2015/12/07/sails-study14/">Sails練習之十四 - Hacker: 修改前端程式碼立馬變成Admin</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/12/04/sails-study13/">Sails練習之十三 - 區分管理者和一般使用者</a>
       </li>
     
   </ul>
