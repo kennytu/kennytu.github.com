@@ -241,3 +241,4 @@ OK, 大功告成.
 ###參考資料
 
 * <a href="http://sailsjs.org/documentation/reference/web-sockets/socket-client" target="_blank">Socket Client (sails.io.js)</a>
+* <a href="http://sailsjs.org/documentation/concepts/controllers/generating-controllers" target="_blank">Generating controllers</a>
