@@ -87,7 +87,66 @@ OK.
 
 ```
 
-重新啟動, 測試看看, 應該就沒問題了
+由於我們的new.ejs裡面有用到flash這個關鍵字, 這個東西從哪邊來的呢?
+
+這個是sails policies的一個部分
+
+所以我們要在`api\policies`加上flash.js
+
+裡面的內容為
+
+```js flash.js
+
+
+module.exports = function(req, res, next) {
+
+  res.locals.flash = {};
+
+  if(!req.session.flash) return next();
+
+  res.locals.flash = _.clone(req.session.flash);
+
+  // clear flash
+  req.session.flash = {};
+
+  next();
+};
+
+```
+
+由於我們新加了flash這個policy這個限制, 我們還得告訴sails要在哪一個action使用他
+
+所以我們開啟`config/policies.js` 新增以下內容
+
+```js config/policies.js
+
+   module.exports.policies = {
+
+  /***************************************************************************
+  *                                                                          *
+  * Default policy for all controllers and actions (`true` allows public     *
+  * access)                                                                  *
+  *                                                                          *
+  ***************************************************************************/
+
+   //'*': true,
+   '*': 'flash',
+    user:{
+        'new': "flash",
+        'create': "flash"
+    }
+  /***************************************************************************
+  *                                                                          *
+  * Here's an example of mapping some policies to run before a controller    *
+  * and its actions                                                          *
+  *                                                                          *
+  ***************************************************************************/
+
+  巴拉巴拉
+
+```
+
+存檔, 重新啟動, 測試看看, 應該就沒問題了
 
 這篇主要在講後端處理的技術, 以及在前端如何使用ejs的一些巧技巧
 
