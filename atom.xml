@@ -4,7 +4,7 @@
   <title><![CDATA[江湖險惡，我從來都不輕易留下我的姓名。]]></title>
   <link href="http://kennytu.github.io/atom.xml" rel="self"/>
   <link href="http://kennytu.github.io/"/>
-  <updated>2015-12-11T16:26:08+08:00</updated>
+  <updated>2016-01-28T07:27:30+08:00</updated>
   <id>http://kennytu.github.io/</id>
   <author>
     <name><![CDATA[Kenny Tu]]></name>
@@ -4135,7 +4135,97 @@ Admin Database connected
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>重新啟動, 測試看看, 應該就沒問題了</p>
+<p>由於我們的new.ejs裡面有用到flash這個關鍵字, 這個東西從哪邊來的呢?</p>
+
+<p>這個是sails policies的一個部分</p>
+
+<p>所以我們要在<code>api\policies</code>加上flash.js</p>
+
+<p>裡面的內容為</p>
+
+<figure class='code'><figcaption><span>flash.js</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">res</span><span class="p">.</span><span class="nx">locals</span><span class="p">.</span><span class="nx">flash</span> <span class="o">=</span> <span class="p">{};</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">req</span><span class="p">.</span><span class="nx">session</span><span class="p">.</span><span class="nx">flash</span><span class="p">)</span> <span class="k">return</span> <span class="nx">next</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">res</span><span class="p">.</span><span class="nx">locals</span><span class="p">.</span><span class="nx">flash</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">clone</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">session</span><span class="p">.</span><span class="nx">flash</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// clear flash</span>
+</span><span class='line'>  <span class="nx">req</span><span class="p">.</span><span class="nx">session</span><span class="p">.</span><span class="nx">flash</span> <span class="o">=</span> <span class="p">{};</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">next</span><span class="p">();</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>由於我們新加了flash這個policy這個限制, 我們還得告訴sails要在哪一個action使用他</p>
+
+<p>所以我們開啟<code>config/policies.js</code> 新增以下內容</p>
+
+<figure class='code'><figcaption><span>config/policies.js</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'>   <span class="nx">module</span><span class="p">.</span><span class="nx">exports</span><span class="p">.</span><span class="nx">policies</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="cm">/***************************************************************************</span>
+</span><span class='line'><span class="cm">  *                                                                          *</span>
+</span><span class='line'><span class="cm">  * Default policy for all controllers and actions (`true` allows public     *</span>
+</span><span class='line'><span class="cm">  * access)                                                                  *</span>
+</span><span class='line'><span class="cm">  *                                                                          *</span>
+</span><span class='line'><span class="cm">  ***************************************************************************/</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">//&#39;*&#39;: true,</span>
+</span><span class='line'>   <span class="s1">&#39;*&#39;</span><span class="o">:</span> <span class="s1">&#39;flash&#39;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nx">user</span><span class="o">:</span><span class="p">{</span>
+</span><span class='line'>        <span class="s1">&#39;new&#39;</span><span class="o">:</span> <span class="s2">&quot;flash&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="s1">&#39;create&#39;</span><span class="o">:</span> <span class="s2">&quot;flash&quot;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="cm">/***************************************************************************</span>
+</span><span class='line'><span class="cm">  *                                                                          *</span>
+</span><span class='line'><span class="cm">  * Here&#39;s an example of mapping some policies to run before a controller    *</span>
+</span><span class='line'><span class="cm">  * and its actions                                                          *</span>
+</span><span class='line'><span class="cm">  *                                                                          *</span>
+</span><span class='line'><span class="cm">  ***************************************************************************/</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="err">巴拉巴拉</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>存檔, 重新啟動, 測試看看, 應該就沒問題了</p>
 
 <p>這篇主要在講後端處理的技術, 以及在前端如何使用ejs的一些巧技巧</p>
 
