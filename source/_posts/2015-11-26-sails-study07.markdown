@@ -15,7 +15,7 @@ categories: sails
 
 ```js UserController.js 新增 destroy function
 
-  destroy: function(req, res, next){
+destroy: function(req, res, next){
     console.log("Hi, destroy");
     User.findOne(req.param('id'), function foundUser(err, user){
       if (err) return next(err);
@@ -28,6 +28,7 @@ categories: sails
       res.redirect('/user');
 
   });
+},
 
 ```
 
