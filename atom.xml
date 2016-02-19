@@ -4,7 +4,7 @@
   <title><![CDATA[江湖險惡，我從來都不輕易留下我的姓名。]]></title>
   <link href="http://kennytu.github.io/atom.xml" rel="self"/>
   <link href="http://kennytu.github.io/"/>
-  <updated>2016-01-28T07:27:30+08:00</updated>
+  <updated>2016-02-19T11:59:57+08:00</updated>
   <id>http://kennytu.github.io/</id>
   <author>
     <name><![CDATA[Kenny Tu]]></name>
@@ -3448,7 +3448,7 @@ Admin Database connected
 </span><span class='line'>  <span class="o">&lt;</span><span class="nx">hr</span><span class="o">&gt;</span>
 </span><span class='line'>  <span class="o">&lt;</span><span class="nx">h3</span><span class="o">&gt;</span><span class="nx">contact</span><span class="o">:</span> <span class="o">&lt;%=</span> <span class="nx">user</span><span class="p">.</span><span class="nx">email</span> <span class="o">%&gt;&lt;</span><span class="err">/h3&gt;</span>
 </span><span class='line'>
-</span><span class='line'>  <span class="o">&lt;</span><span class="nx">a</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;btn btn-medium btn-primary&quot;</span> <span class="nx">href</span><span class="o">=</span><span class="s2">&quot;/user/edit/&lt;%= user.id %&gt;%&gt;&quot;</span><span class="o">&gt;</span><span class="nx">Edit</span><span class="o">&lt;</span><span class="err">/a&gt;</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="nx">a</span> <span class="kr">class</span><span class="o">=</span><span class="s2">&quot;btn btn-medium btn-primary&quot;</span> <span class="nx">href</span><span class="o">=</span><span class="s2">&quot;/user/edit/&lt;%= user.id %&gt;&quot;</span><span class="o">&gt;</span><span class="nx">Edit</span><span class="o">&lt;</span><span class="err">/a&gt;</span>
 </span><span class='line'>
 </span><span class='line'><span class="o">&lt;</span><span class="err">/div&gt;</span>
 </span></code></pre></td></tr></table></div></figure>
