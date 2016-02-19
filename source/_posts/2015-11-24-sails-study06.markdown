@@ -42,7 +42,7 @@ Irl nathan示範了如何在新增使用者的欄位, 注入java script程式碼
   <hr>
   <h3>contact: <%= user.email %></h3>
 
-  <a class="btn btn-medium btn-primary" href="/user/edit/<%= user.id %>%>">Edit</a>
+  <a class="btn btn-medium btn-primary" href="/user/edit/<%= user.id %>">Edit</a>
 
 </div>
 
